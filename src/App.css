@@ -188,6 +188,12 @@
   height: 300px;
 }
 
+.background-modal-img-upload {
+  background-color: #aaa;
+  /* opacity: 0.5; */
+  /* overflow-y: scroll; */
+}
+
 .upload-image {
   width: 120px;
   height: 120px;

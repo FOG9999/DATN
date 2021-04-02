@@ -22,6 +22,8 @@ import {
   turnNumberWithSeperatorIntoNumber,
   turnNumberToNumberWithSeperator,
 } from "../../../others/functions/checkTextForNumberInput";
+import PreviewImage from "../image_upload/PreviewImage";
+import MainImgModal from "../image_upload/MainImgModal";
 
 const itemCategories = [
   "Quần áo",
@@ -35,6 +37,7 @@ const foodCategories = ["Rau xanh", "Hoa quả", "Trứng", "Thủy sản"];
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 const units = ["KG", "Quả", "Con"];
 const statusArr = ["Đang vận chuyển", "Hàng mói về", "Hàng xả kho"];
+const maxImageLimit = 12;
 const strings = {
   requiredProTitle: "Tên sản phẩm không được để trống",
   requiredProStatus: "Trạng thái sản phẩm còn thiếu",
@@ -46,6 +49,9 @@ const strings = {
   moreDetail: "Vui lòng cung cấp thêm thông tin cho sản phẩm",
   requiredProQuantity: "Điền số lượng sản phẩm",
   enterNumber: "Vui lòng nhập giá trị số cho trường này",
+  tooManyImages: `Số lượng ảnh đăng tối đa là ${maxImageLimit}`,
+  maxImageLimit: maxImageLimit,
+  fileTooLarge: "File ảnh quá lớn",
 };
 
 const productItem = {
@@ -97,6 +103,7 @@ class ProductCategory extends Component {
       imageNames: [],
       imageFiles: [],
     },
+    showView: false,
     selectedImageIndex: -1,
     checkFields: [
       { name: "title", error: false },
@@ -108,7 +115,7 @@ class ProductCategory extends Component {
   };
   componentDidMount() {
     let filereaders = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < strings.maxImageLimit; i++) {
       let filereader = new FileReader();
       filereaders.push(filereader);
     }
@@ -306,23 +313,45 @@ class ProductCategory extends Component {
       filereaders,
     } = this.state.uploadImages;
     let files = [...e.target.files];
-    let i = 0;
-    files.forEach((file) => {
+    if (files.length + imageSrcs.length > strings.maxImageLimit) {
+      toast.error(strings.tooManyImages);
+      return;
+    }
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      if (file.size / 1000000 > 25) {
+        toast.error(strings.fileTooLarge);
+        return;
+      }
       imageFiles.push(file);
       imageNames.push(file.name);
       filereaders[i].onloadend = () => {
-        let preview = filereaders[i].result;
-        imageSrcs.push(preview);
+        let preview = new Image();
+        preview.src = filereaders[i].result;
+        // Sau khi filereader đã đọc xong và ảnh đã được load lên (preview.onload) thì ms push vào imageSrcs
+        preview.onload = () => {
+          imageSrcs.push({
+            src: preview.src,
+            width: preview.naturalWidth,
+            height: preview.naturalHeight,
+          });
+          this.setState({
+            uploadImages: {
+              filereaders: [...filereaders],
+              imageSrcs: [...imageSrcs],
+              imageNames: [...imageNames],
+              imageFiles: [...imageFiles],
+            },
+          });
+        };
       };
       filereaders[i].readAsDataURL(file);
-      this.setState({
-        uploadImages: {
-          filereaders: [...filereaders],
-          imageSrcs: [...imageSrcs],
-          imageNames: [...imageNames],
-          imageFiles: [...imageFiles],
-        },
-      });
+    }
+  };
+  onClickPreviewImage = (index) => {
+    this.setState({
+      selectedImageIndex: index,
+      showView: true,
     });
   };
   onChangeInputField = (e) => {
@@ -376,11 +405,32 @@ class ProductCategory extends Component {
         }
     }
   };
-
+  closeView = () => {
+    this.setState({
+      showView: false,
+    });
+  };
   render() {
     return (
       <Box className="white-background" p={2}>
         <ToastContainer />
+        {this.state.showView ? (
+          <MainImgModal
+            close={this.closeView}
+            show={this.state.showView}
+            main={{
+              width: this.state.uploadImages.imageSrcs[
+                this.state.selectedImageIndex
+              ].width,
+              height: this.state.uploadImages.imageSrcs[
+                this.state.selectedImageIndex
+              ].height,
+              src: this.state.uploadImages.imageSrcs[
+                this.state.selectedImageIndex
+              ].src,
+            }}
+          />
+        ) : null}
         <Box px={2}>
           <h1>Các thông tin chung</h1>
         </Box>
@@ -622,7 +672,7 @@ class ProductCategory extends Component {
             <Box width="300px" pl={2} pt={4}>
               Hình ảnh cho sản phẩm
             </Box>
-            <Box minWidth="800px">
+            <Box minWidth="900px">
               <Box py={2}>
                 <Box
                   borderColor="#aaa"
@@ -630,18 +680,19 @@ class ProductCategory extends Component {
                   display="flex"
                   flexWrap="wrap"
                   minHeight="350px"
+                  justifyContent="center"
                 >
                   {this.state.uploadImages.imageSrcs.map((src, index) => {
                     return (
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        m={1}
-                      >
-                        <img src={src} alt="" className="upload-image" />
-                        <span className="close-btn">x</span>
-                      </Box>
+                      <PreviewImage
+                        src={src.src}
+                        width={src.width}
+                        height={src.height}
+                        key={index}
+                        onClickPreviewImage={() =>
+                          this.onClickPreviewImage(index)
+                        }
+                      />
                     );
                   })}
                 </Box>
@@ -658,6 +709,7 @@ class ProductCategory extends Component {
                     type="file"
                     hidden
                     multiple
+                    accept="image/*"
                     onChange={this.onChangeImageUpload}
                   />
                 </Button>
