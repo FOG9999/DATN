@@ -1,6 +1,7 @@
 import "./App.css";
 import LoginBackground from "./components/login/Background";
-import Container from "./components/product_detail/details/ProductDesciption";
+import Container from "./components/upload/Container";
+// import RichTextEditor from "./components/product_detail/details/RichTextEditor";
 
 function App() {
   return (

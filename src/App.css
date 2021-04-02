@@ -1,7 +1,6 @@
 .login-background-container0 {
-  
   /* background-image: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%); */
-  background: url(./images/login_background.jpg) repeat center center fixed; 
+  background: url(./images/login_background.jpg) repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -74,8 +73,9 @@
 
 .header-container {
   background-image: linear-gradient(to right, #f83600 0%, #f9d423 100%);
-  position: fixed;
+  /* position: fixed;
   top: 0px;
+  z-index: 1; */
 }
 
 .home-container {
@@ -106,7 +106,7 @@
 }
 
 .left-direction {
-  -webkit-transform:rotate(180deg);
+  -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   -o-transform: rotate(180deg);
@@ -150,6 +150,10 @@
   margin-right: 5px;
 }
 
+.onepro-image-box {
+  border: 3px solid orange;
+}
+
 .cursor-pointer:hover {
   cursor: pointer;
 }
@@ -177,6 +181,28 @@
 
 .btn-minus-add {
   padding: 5px;
+}
+
+.upload-image-preview {
+  width: 300px;
+  height: 300px;
+}
+
+.upload-image {
+  width: 120px;
+  height: 120px;
+}
+
+.close-btn:hover {
+  background-color: #aaa;
+}
+
+.close-btn {
+  border-radius: 50%;
+  z-index: 1;
+  position: fixed;
+  top: 0px;
+  right: 0px;
 }
 
 .pro-detail-small-image {
@@ -209,6 +235,17 @@
   background-color: #e8e8e8;
 }
 
+.one-comment-user-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.one-comment-img-cmt {
+  width: 80px;
+  height: 80px;
+}
+
 .link-no-text-decoration {
   text-decoration: none;
   color: black;
@@ -237,7 +274,6 @@
   .header-searchbar-inputbase {
     width: 75%;
   }
-  
 }
 
 .App {

@@ -21,7 +21,7 @@ class Recomendation extends Component {
         <Divider />
         <Box display="flex" flexWrap="wrap" justifyContent="center">
           {genNumOfItems().map((item, index) => {
-            return <OneProduct />;
+            return <OneProduct WIDTH={200} />;
           })}
         </Box>
       </Box>

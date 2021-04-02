@@ -14,7 +14,7 @@ class HomeContainer extends Component {
         maxWidth="xl"
         minWidth="1325px"
         className="home-container"
-        pt="200px"
+        // pt="200px"
       >
         <Header />
         <Box className="home-box0">

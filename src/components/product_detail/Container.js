@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Box } from "@material-ui/core";
 import MainSector from "./main_sector/MainSector";
 import Header from "../header/Container";
-import ProductDescription from "../product_detail/details/ProductDesciption";
+import ProductDetails from "./details/ProductDetail";
 
 class ProductDetailContainer extends Component {
   state = {};
@@ -12,11 +12,12 @@ class ProductDetailContainer extends Component {
         maxWidth="xl"
         minWidth="1325px"
         className="home-container"
-        pt="200px"
+        // pt="200px"
       >
         <Header />
         <Box className="home-box0">
-          <ProductDescription />
+          <MainSector />
+          <ProductDetails />
         </Box>
       </Box>
     );

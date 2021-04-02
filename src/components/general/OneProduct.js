@@ -8,10 +8,24 @@ class OneProduct extends Component {
   state = {};
   render() {
     return (
-      <Box width={`${WIDTH}px`} className="white-background onepro">
-        <Box justifyContent="center" display="flex" alignItems="center">
+      <Box
+        width={`${this.props.WIDTH + 10}px`}
+        className="white-background onepro"
+      >
+        <Box
+          justifyContent="center"
+          display="flex"
+          alignItems="center"
+          className="onepro-image-box"
+        >
           <img
-            src={faker.image.imageUrl(WIDTH, WIDTH, "Fashion", true, true)}
+            src={faker.image.imageUrl(
+              this.props.WIDTH,
+              this.props.WIDTH,
+              "Fashion",
+              true,
+              true
+            )}
             alt=""
           />
         </Box>

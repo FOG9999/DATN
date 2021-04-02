@@ -27,7 +27,7 @@ class CategoryBar extends Component {
   state = {};
   render() {
     return (
-      <Box className="white-background">
+      <Box mt={2} className="white-background">
         <Box p={2}>
           <big>DANH MỤC</big>
         </Box>

@@ -19,6 +19,7 @@ import faker from "faker";
 
 const BIG_WIDTH = 480,
   SMALL_WIDTH = 92;
+
 const images = [
   faker.image.imageUrl(SMALL_WIDTH, SMALL_WIDTH, "Love", true),
   faker.image.imageUrl(SMALL_WIDTH, SMALL_WIDTH, "Love", true),
@@ -70,7 +71,7 @@ class MainSector extends Component {
   render() {
     return (
       <Box>
-        <Box px={2} pb={1} display="flex">
+        <Box px={2} py={2} display="flex">
           <Box px={1}>
             <a href="#" className="link-no-text-decoration">
               Trang chủ
@@ -146,7 +147,7 @@ class MainSector extends Component {
                   <RadioGroup
                     name="withDeliver"
                     value={true}
-                    onChang={this.onChangeInputField}
+                    onChange={this.onChangeInputField}
                   >
                     <FormControlLabel
                       value={true}
@@ -184,8 +185,8 @@ class MainSector extends Component {
                   name="orderQuantity"
                   className="text-center input-order-quantity"
                 />
-                <IconButton onClick={this.onAddOneOrderQuantity}>
-                  <Add />
+                <IconButton>
+                  <Add onClick={this.onAddOneOrderQuantity} />
                 </IconButton>
               </Box>
               <Box
