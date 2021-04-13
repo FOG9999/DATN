@@ -1,0 +1,303 @@
+.login-background-container0 {
+  /* background-image: linear-gradient(120deg, #fccb90 0%, #d57eeb 100%); */
+  background: url(./images/login_background.jpg) repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.login-loginbox-logo {
+  width: 130px;
+  height: 130px;
+}
+
+.color-aaa {
+  color: #aaa;
+}
+
+.fake-link {
+  color: blue;
+}
+
+.fake-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-loginbox-buttonlogin {
+  color: white;
+  font-size: 32px;
+  border-radius: 10px;
+  background-image: linear-gradient(-20deg, #d558c8 0%, #24d292 100%);
+}
+
+.login-loginbox-box0 {
+  width: 750px;
+  background-color: aliceblue;
+  box-shadow: 10px 10px 8px #888888;
+  border-radius: 10px;
+}
+
+.color-white {
+  color: white !important;
+}
+
+.btn-order-now {
+  padding: 10px 20px !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.color-white:hover {
+  color: #aaa;
+  cursor: pointer;
+}
+
+.header-searchbar-logo {
+  width: 100px;
+  height: 100px;
+}
+
+.header-searchbar-inputbase {
+  font-size: large;
+  padding: 10px;
+  width: 90%;
+}
+
+.header-searchbar-paper {
+  width: 100%;
+}
+
+.header-container {
+  background-image: linear-gradient(to right, #f83600 0%, #f9d423 100%);
+  /* position: fixed;
+  top: 0px;
+  z-index: 1; */
+}
+
+.home-container {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  background-color: #e8e8e8;
+}
+
+.home-categorybar-onecate-img {
+  width: 60px;
+  height: 60px;
+}
+
+.direction-btn {
+  border-radius: 50%;
+  width: fit-content;
+  height: fit-content;
+  border-width: 0.5px;
+  border-color: white;
+  padding: 5px;
+  background-color: white;
+}
+
+.direction-btn:hover {
+  background-color: #808080;
+  cursor: pointer;
+  border-width: 0.25px;
+}
+
+.left-direction {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.direct-img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.price {
+  color: rgb(238, 77, 46);
+  font-size: 1.125rem;
+}
+
+.white-background {
+  background-color: white;
+}
+
+.categorybar-onecate-box0 {
+  width: 145px;
+}
+
+.home-categorybar-onecate-box1:hover {
+  box-shadow: 1px 5px 5px #888888;
+}
+
+.list-style-type-none {
+  list-style-type: none;
+}
+
+.padding-block-start-zero {
+  padding-block-start: 0px;
+}
+
+.onepro {
+  margin-top: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.onepro-image-box {
+  border: 3px solid orange;
+}
+
+.cursor-pointer:hover {
+  cursor: pointer;
+}
+
+.onepro:hover {
+  cursor: pointer;
+  margin-top: 8px;
+  margin-left: 4.5px;
+  margin-right: 4.5px;
+  box-shadow: 5px 5px 5px #888888;
+}
+
+.color-orange {
+  color: rgb(238, 77, 46);
+}
+
+.color-blue {
+  color: blue;
+}
+
+.backgroundcolor-orange {
+  background-color: rgb(238, 77, 46) !important;
+}
+
+.input-order-quantity {
+  width: 80px;
+  text-align: center;
+}
+
+.btn-minus-add {
+  padding: 5px;
+}
+
+.upload-image-preview {
+  width: 300px;
+  height: 300px;
+}
+
+.react-datepicker__input-container input {
+  font-size: large;
+}
+
+.background-modal-img-upload {
+  background-color: #aaa;
+  /* opacity: 0.5; */
+  /* overflow-y: scroll; */
+}
+
+.upload-image {
+  width: 120px;
+  height: 120px;
+}
+
+.close-btn:hover {
+  background-color: #aaa;
+}
+
+.close-btn {
+  border-radius: 50%;
+  z-index: 1;
+  position: fixed;
+  top: 0px;
+  right: 0px;
+}
+
+.pro-detail-small-image {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
+.pro-detail-small-image:hover {
+  border: 1px solid rgb(238, 77, 46);
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.x-overflow-onhover {
+  overflow-x: hidden;
+}
+
+.x-overflow-onhover:hover {
+  overflow-x: auto;
+}
+
+.pro-detail-main-img {
+  width: 480px;
+  height: 480px;
+}
+
+.home-box0 {
+  width: 1325px;
+  margin: auto;
+  background-color: #e8e8e8;
+}
+
+.one-comment-user-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.grey-background {
+  background-color: #e8e8e8;
+}
+
+.float-right {
+  float: right;
+}
+
+.one-comment-img-cmt {
+  width: 80px;
+  height: 80px;
+}
+
+.link-no-text-decoration {
+  text-decoration: none;
+  color: black;
+}
+.searchfilter-btn-apply {
+  width: 100%;
+  color: white !important;
+}
+
+.searchfilter-btn-apply:hover {
+  background-color: rgb(200, 70, 16) !important;
+}
+
+/*-------------- Responsive ---------------------*/
+@media only screen and (max-width: 750px) {
+  .login-loginbox-box0 {
+    width: 90%;
+  }
+  .header-searchbar-logo {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media only screen and (max-width: 1000px) and (min-width: 550px) {
+  .header-searchbar-inputbase {
+    width: 75%;
+  }
+}
+
+.App {
+  height: 100%;
+}
