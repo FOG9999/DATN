@@ -30,10 +30,20 @@ class OneProduct extends Component {
           />
         </Box>
         <Box p="5px" height="40px">
-          {faker.commerce.productName()}
+          {this.props.item
+            ? this.props.item.title
+            : faker.commerce.productName()}
         </Box>
         <Box p="5px" className="color-aaa">
-          {faker.address.streetName() + ", " + faker.address.state.name}
+          {this.props.item
+            ? this.props.item.location.detail +
+              "," +
+              this.props.item.location.street +
+              "," +
+              this.props.item.location.district +
+              "," +
+              "Hà Nội"
+            : faker.address.streetName() + ", " + faker.address.state.name}
         </Box>
         <Box className="price" textAlign="center" pb={1}>
           đ{Math.ceil(faker.commerce.price(0, 100))}.000

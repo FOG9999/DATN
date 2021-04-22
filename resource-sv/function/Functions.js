@@ -5,9 +5,9 @@ module.exports = {
     let EC = 0,
       EM = "";
     let string = `${role}:${method}:${path}`;
+    console.log(string);
     try {
       EM = bcryptjs.hashSync(`${role}:${method}:${path}`, 10);
-      // console.log(bcryptjs.hashSync('CLIENT:GET:/guest/CLIENT', 10));
     } catch (error) {
       EC = -1;
       EM = error.toString();

@@ -2,10 +2,40 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import thunk from "redux-thunk";
+import { GeneralReducer } from "./redux/reducers/GeneralReducer";
+import { UserReducer } from "./redux/reducers/UserReducer";
+import { createStore, applyMiddleware, combineReducers } from "redux";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { persistCombineReducers, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import { PersistGate } from "redux-persist/integration/react";
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const persistConfig = {
+  key: "root",
+  storage,
+};
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-// reportWebVitals();
+const store = createStore(
+  persistCombineReducers(persistConfig, {
+    user: UserReducer,
+    general: GeneralReducer,
+  }),
+  applyMiddleware(thunk)
+);
+
+const persistor = persistStore(store);
+
+store.subscribe(() => console.log(store.getState()));
+
+ReactDOM.render(
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>,
+  document.getElementById("root")
+);

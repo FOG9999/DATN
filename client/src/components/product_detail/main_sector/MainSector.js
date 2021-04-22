@@ -60,12 +60,12 @@ class MainSector extends Component {
   };
   onAddOneOrderQuantity = () => {
     this.setState({
-      orderQuantity: this.state.orderQuantity++,
+      orderQuantity: ++this.state.orderQuantity,
     });
   };
   onMinusOneOrderQuantity = () => {
     this.setState({
-      orderQuantity: this.state.orderQuantity--,
+      orderQuantity: --this.state.orderQuantity,
     });
   };
   render() {

@@ -19,7 +19,13 @@ mongoose.connect(
   }
 );
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+    credentials: true,
+  })
+);
 app.use(body_parser.json());
 app.use(body_parser.urlencoded({ extended: false }));
 app.use(cookieParser());

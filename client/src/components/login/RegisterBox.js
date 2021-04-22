@@ -12,11 +12,28 @@ import {
 } from "@material-ui/core";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { AccountCircle, Lock } from "@material-ui/icons";
+import { AccountCircle, Lock, Person, PhoneIphone } from "@material-ui/icons";
 import logo from "../../images/Hanoi_Buffaloes_logo.png";
 import cNd from "../../others/convincesAndDistricts.json";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+// import { register } from "../../apis/user-pool/UserPool";
+import faker from "faker";
+import { UserAction } from "../../redux/actions/UserAction";
+import { connect } from "react-redux";
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
+const strings = {
+  tooLongUsername: "Tên đăng nhập quá dài",
+  usernameMaxLength: 30,
+  passwordTooShort: "Mật khẩu quá ngắn",
+  minLengthPassword: 6,
+  phoneNotValid: "Số điện thoại không hợp lệ",
+  passwordNotConfirmed: "Mật khẩu xác nhận chưa chính xác",
+  phoneLength: 10,
+  phoneNotIncludeChar: "Số điện thoại chỉ có 10 ký tự là các chữ số",
+  missingField: "Thiếu trường cần thiết",
+};
 
 class RegisterBox extends Component {
   state = {
@@ -34,6 +51,102 @@ class RegisterBox extends Component {
     openAddressConvince: false,
     winWidth: window.innerWidth,
     birthday: new Date(),
+    username: "",
+    password: "",
+    confirmPassword: "",
+    name: "",
+    phone: "",
+    interest: "",
+    checkFields: [
+      { name: "username", error: false },
+      { name: "password", error: false },
+      { name: "confirmPassword", error: false },
+      { name: "name", error: false },
+      { name: "phone", error: false },
+    ],
+  };
+  checkFields = (name) => {
+    let value = this.state[`${name}`];
+    let msg = "";
+    switch (name) {
+      case "username": {
+        if (value.length > strings.usernameMaxLength) {
+          msg = strings.tooLongUsername;
+        } else if (!value) {
+          msg = strings.missingField;
+        }
+        break;
+      }
+      case "password": {
+        if (value.length < strings.minLengthPassword) {
+          msg = strings.passwordTooShort;
+        } else if (!value) {
+          msg = strings.missingField;
+        }
+        break;
+      }
+      case "confirmPassword": {
+        if (value !== this.state.password) {
+          msg = strings.passwordNotConfirmed;
+        }
+        break;
+      }
+      case "name": {
+        if (!value) {
+          msg = strings.missingField;
+        }
+        break;
+      }
+      case "phone": {
+        if (value.length !== strings.phoneLength) {
+          msg = strings.phoneNotValid;
+        } else if (!value) {
+          msg = strings.missingField;
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    return msg;
+  };
+  onSubmitRegsiter = () => {
+    let msg = "";
+    for (let i = 0; i < this.state.checkFields.length; i++) {
+      msg = this.checkFields(this.state.checkFields[i].name);
+      if (msg) {
+        toast.error(msg);
+        return;
+      }
+    }
+    // call userpool.register
+    console.log("No error");
+    this.props.dispatchRegister(
+      this.state.username,
+      this.state.password,
+      this.state.name,
+      this.state.phone,
+      {
+        street:
+          convincesAndDistricts[this.state.addressConvinceIndex].districts[
+            this.state.addressDistrictIndex
+          ].streets[this.state.addressStreetIndex].name,
+        district:
+          convincesAndDistricts[this.state.addressConvinceIndex].districts[
+            this.state.addressDistrictIndex
+          ].name,
+        detail: faker.address.streetAddress(),
+      },
+      this.state.interest,
+      this.state.birthday,
+      (rs) => {
+        if (rs.EC !== 0) {
+          toast.error(rs.EM);
+        } else {
+          window.location.href = "/";
+        }
+      }
+    );
   };
   updateDimension = () => {
     this.setState({
@@ -47,6 +160,21 @@ class RegisterBox extends Component {
     this.setState({
       [e.target.name]: parseInt(e.target.value),
     });
+  };
+  onChangeTextInput = (e) => {
+    if (e.target.name === "phone") {
+      if (/\D/.test(e.target.value)) {
+        toast.error(strings.phoneNotIncludeChar);
+      } else {
+        this.setState({
+          [e.target.name]: e.target.value,
+        });
+      }
+    } else {
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
   };
   toggleSelectStreet = () => {
     this.setState({
@@ -93,6 +221,7 @@ class RegisterBox extends Component {
         className="login-loginbox-box0"
         flexDirection="column"
       >
+        <ToastContainer />
         <Box textAlign="center">
           <Box>
             <img src={logo} className="login-loginbox-logo" alt="" />
@@ -100,12 +229,15 @@ class RegisterBox extends Component {
           <h1>Chợ sinh viên Hà Nội</h1>
         </Box>
         <Box p={3}>
-          <FormControl fullWidth="true">
+          <FormControl fullWidth={true}>
             <InputLabel htmlFor="input-with-icon-adornment">
               Tên đăng nhập
             </InputLabel>
             <Input
-              required="true"
+              required={true}
+              onChange={this.onChangeTextInput}
+              name="username"
+              value={this.state.username}
               startAdornment={
                 <InputAdornment position="start">
                   <AccountCircle />
@@ -115,13 +247,16 @@ class RegisterBox extends Component {
           </FormControl>
         </Box>
         <Box p={3}>
-          <FormControl fullWidth="true">
+          <FormControl fullWidth={true}>
             <InputLabel htmlFor="input-with-icon-adornment">
               Mật khẩu
             </InputLabel>
             <Input
-              required="true"
+              required={true}
               type="password"
+              name="password"
+              value={this.state.password}
+              onChange={this.onChangeTextInput}
               startAdornment={
                 <InputAdornment position="start">
                   <Lock />
@@ -131,13 +266,16 @@ class RegisterBox extends Component {
           </FormControl>
         </Box>
         <Box p={3}>
-          <FormControl fullWidth="true">
+          <FormControl fullWidth={true}>
             <InputLabel htmlFor="input-with-icon-adornment">
               Xác nhận lại mật khẩu
             </InputLabel>
             <Input
-              required="true"
+              required={true}
+              onChange={this.onChangeTextInput}
               type="password"
+              name="confirmPassword"
+              value={this.state.confirmPassword}
               startAdornment={
                 <InputAdornment position="start">
                   <Lock />
@@ -146,8 +284,43 @@ class RegisterBox extends Component {
             />
           </FormControl>
         </Box>
-
-        <Box
+        <Box p={3}>
+          <FormControl fullWidth={true}>
+            <InputLabel htmlFor="input-with-icon-adornment">Họ tên</InputLabel>
+            <Input
+              required={true}
+              type="text"
+              name="name"
+              value={this.state.name}
+              onChange={this.onChangeTextInput}
+              startAdornment={
+                <InputAdornment position="start">
+                  <Person />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+        </Box>
+        <Box p={3}>
+          <FormControl fullWidth={true}>
+            <InputLabel htmlFor="input-with-icon-adornment">
+              Số điện thoại
+            </InputLabel>
+            <Input
+              required={true}
+              onChange={this.onChangeTextInput}
+              type="text"
+              name="phone"
+              value={this.state.phone}
+              startAdornment={
+                <InputAdornment position="start">
+                  <PhoneIphone />
+                </InputAdornment>
+              }
+            />
+          </FormControl>
+        </Box>
+        {/* <Box
           p={3}
           display="flex"
           flexDirection={this.state.winWidth <= 650 ? "column" : "row"}
@@ -226,7 +399,7 @@ class RegisterBox extends Component {
               </Select>
             </FormControl>
           </Box>
-        </Box>
+        </Box> */}
         <Box
           p={3}
           display="flex"
@@ -302,9 +475,15 @@ class RegisterBox extends Component {
           </Box>
         </Box>
         <Box p={3}>
-          <FormControl fullWidth="true">
+          <FormControl fullWidth={true}>
             <InputLabel>Sở thích</InputLabel>
-            <Input required="true" type="text" />
+            <Input
+              required={true}
+              type="text"
+              name="interest"
+              value={this.state.interest}
+              onChange={this.onChangeTextInput}
+            />
           </FormControl>
         </Box>
         <Box p={3}>
@@ -314,6 +493,7 @@ class RegisterBox extends Component {
             mb={1}
             color="primary"
             variant="contained"
+            onClick={this.onSubmitRegsiter}
           >
             <b>Register</b>
           </Button>
@@ -333,4 +513,32 @@ class RegisterBox extends Component {
   }
 }
 
-export default RegisterBox;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatchRegister: (
+      username,
+      password,
+      name,
+      phone,
+      address,
+      interest,
+      birthday,
+      done
+    ) => {
+      dispatch(
+        UserAction.register(
+          username,
+          password,
+          name,
+          phone,
+          address,
+          interest,
+          birthday,
+          done
+        )
+      );
+    },
+  };
+};
+
+export default connect(null, mapDispatchToProps)(RegisterBox);
