@@ -9,6 +9,23 @@ const Config = {
     },
     CLIENT: "CLIENT",
   },
+  Order: {
+    status: {
+      waiting: "0",
+      delivering: "1",
+      return: "3",
+      success: "2",
+      cancel: "-1",
+    },
+    delivery_type: {
+      self: "self",
+      deliver: "deliver",
+    },
+    order_type: {
+      self: "Tự lấy hàng",
+      deliver: "Giao hàng tận nhà",
+    },
+  },
 };
 
 export { Config };

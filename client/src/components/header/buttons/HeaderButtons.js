@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Box } from "@material-ui/core";
-import {} from "@material-ui/icons";
+import { ShoppingCart } from "@material-ui/icons";
 import { connect } from "react-redux";
 import { UserAction } from "../../../redux/actions/UserAction";
 import { toast, ToastContainer } from "react-toastify";
@@ -40,11 +40,30 @@ class HeaderButtons extends Component {
             Thông báo
           </Box>
           <Box p={1} className="color-white">
-            Trợ giúp
+            <a
+              href="/m/manage"
+              style={{ textDecoration: "none", color: "white" }}
+            >
+              Tôi
+            </a>
           </Box>
           {this.props.logged ? (
-            <Box p={1} className="color-white">
+            <Box p={1} display="flex" className="color-white">
               Chào {this.props.name}.{" "}
+              <Box
+                px={1}
+                display="flex"
+                alignItems="flex-start"
+                className="color-white"
+              >
+                <ShoppingCart
+                  color="white"
+                  onClick={() => {
+                    window.location.href = "/m/cart";
+                  }}
+                />
+                ({this.props.cartNum})
+              </Box>
               <span className="fake-link" onClick={this.onLogout}>
                 Đăng xuất?
               </span>
@@ -64,6 +83,7 @@ const mapStateToProps = (state) => {
   return {
     logged: state.user.logged,
     name: state.user.name,
+    cartNum: state.user.cartNum,
   };
 };
 

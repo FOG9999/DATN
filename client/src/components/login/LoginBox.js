@@ -14,7 +14,7 @@ import { UserAction } from "../../redux/actions/UserAction";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Redirect } from "react-router";
+// import { Redirect } from "react-router";
 
 class LoginBox extends Component {
   state = {

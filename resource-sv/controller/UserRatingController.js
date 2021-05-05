@@ -11,24 +11,32 @@ module.exports = {
       products.push(...rs.data.items, ...rs.data.food);
       UserController.getAllUserIDs(async (us) => {
         users.push(...us.data);
-        for (let i = 0; i < number; i++) {
-          let sample = new UserRating({
-            user: users[Math.round(Math.random() * (users.length - 1))],
-            product:
-              products[Math.round(Math.random() * (products.length - 1))],
-            rating: Math.round(Math.random() * 9) + 1,
-            last_changed: new Date(),
-          });
-          try {
-            let saveDone = await sample.save();
-            output.push(saveDone);
-          } catch (e) {
-            let saveError = {
-              EC: 500,
-              EM: e.toString(),
-            };
-            done(saveError);
-            break;
+        for (let k = 6; k < 7; k++) {
+          let checkArr = [];
+          for (let i = 0; i < number; i++) {
+            // kiểm tra để không có trhop 1 user đánh giá 1 sản phẩm 2 lần
+            let proInd = Math.round(Math.random() * (products.length - 1));
+            while (checkArr.indexOf(proInd) >= 0) {
+              proInd = Math.round(Math.random() * (products.length - 1));
+            }
+            checkArr.push(proInd);
+            let sample = new UserRating({
+              user: users[k], // TẠO LẦN LƯỢT RATE CHO TỪNG USER !!!!!!
+              product: products[proInd],
+              rating: Math.round(Math.random() * 9) + 1,
+              last_changed: new Date(),
+            });
+            try {
+              let saveDone = await sample.save();
+              output.push(saveDone);
+            } catch (e) {
+              let saveError = {
+                EC: 500,
+                EM: e.toString(),
+              };
+              done(saveError);
+              break;
+            }
           }
         }
         done({
@@ -37,6 +45,45 @@ module.exports = {
           data: output,
         });
       });
+    });
+  },
+  updateSamples: (done) => {
+    UserRating.find({}, async (err1, rs1) => {
+      if (err1) {
+        console.error(err1);
+        done({
+          EC: 500,
+          EM: err1,
+        });
+      } else {
+        for (let i = 0; i < rs1.length; i++) {
+          await UserRating.findOneAndUpdate(
+            { _id: rs1[i]._id },
+            { rating: Math.round(Math.random() * 5) },
+            { useFindAndModify: false }
+          );
+        }
+        done({
+          EC: 0,
+          EM: "success",
+        });
+      }
+    });
+  },
+  deleteRatingOfOneUser: (user_id, done) => {
+    UserRating.deleteMany({ user: user_id }, (err, rs) => {
+      if (err) {
+        console.error(err);
+        done({
+          EC: 500,
+          EM: err1,
+        });
+      } else {
+        done({
+          EC: 0,
+          EM: "success",
+        });
+      }
     });
   },
 };

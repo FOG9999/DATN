@@ -19,11 +19,11 @@ class RowData extends Component {
     return (
       <Box border="1px solid #e8e8e8" mt={2}>
         <Box display="flex" borderBottom="1px solid #e8e8e8">
-          <Box display="flex" width="35%" alignItems="center">
+          <Box display="flex" width="35%" alignItems="center" py={1}>
             <Box display="flex" justifyContent="center" width="20%">
               <img
                 style={{ width: "50px", height: "50px" }}
-                src={this.props.item.image}
+                src={this.props.item.images[0].link}
                 alt=""
               />
             </Box>
@@ -32,7 +32,7 @@ class RowData extends Component {
                 <b>{this.props.item.title}</b>
               </Box>
               <Box p={1}>
-                <small>Số lượng: {this.props.item.quantity}</small>
+                <small>Chủng loại: {this.props.item.category}</small>
               </Box>
             </Box>
           </Box>

@@ -12,6 +12,10 @@
   height: 130px;
 }
 
+.image-avatar {
+  border-radius: 50%;
+}
+
 .color-aaa {
   color: #aaa;
 }
@@ -20,9 +24,36 @@
   color: blue;
 }
 
+#loading-div {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: fixed;
+  /* display: block; */
+  opacity: 0.7;
+  background-color: #fff;
+  z-index: 1100;
+  text-align: center;
+}
+
+#loading-image {
+  position: absolute;
+  top: 120px;
+  left: 450px;
+  z-index: 1150;
+  width: 450px;
+  height: 450px;
+}
+
 .fake-link:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.one-product-general {
+  width: 175px;
+  height: 175px;
 }
 
 .login-loginbox-buttonlogin {
@@ -224,10 +255,15 @@
   margin-right: 3px;
 }
 
+.pro-detail-small-image-img {
+  width: 92px;
+  height: 92px;
+}
+
 .pro-detail-small-image:hover {
   border: 1px solid rgb(238, 77, 46);
-  margin-left: 2px;
-  margin-right: 2px;
+  margin-left: 1px;
+  margin-right: 1px;
 }
 
 .x-overflow-onhover {

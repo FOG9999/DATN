@@ -16,8 +16,8 @@ class ProductDetailContainer extends Component {
       >
         <Header />
         <Box className="home-box0">
-          <MainSector />
-          <ProductDetails />
+          <MainSector proID={this.props.match.params.product_id} />
+          <ProductDetails proID={this.props.match.params.product_id} />
         </Box>
       </Box>
     );

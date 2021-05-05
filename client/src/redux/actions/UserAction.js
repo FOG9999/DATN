@@ -6,19 +6,22 @@ const UserAction = {
     return (dispatch) => {
       login(username, password, (rs) => {
         if (rs.EC === 0) {
-          const { user_id, h_token, name } = rs.data;
+          const { user_id, h_token, name, cartNum } = rs.data;
           document.cookie = `user_id=${user_id};path=/`;
           document.cookie = `h_token=${h_token};path=/`;
+          // console.log(cartNum);
           dispatch({
             type: TYPES.LOGIN,
             logged: true,
             name: name,
+            cartNum: cartNum,
           });
         } else {
           dispatch({
             type: TYPES.LOGIN,
             logged: false,
             name: "",
+            cartNum: 0,
           });
           document.cookie = "user_id=;path=/";
           document.cookie = "h_token=;path=/";
@@ -106,6 +109,21 @@ const UserAction = {
           });
         }
         done(rs);
+      });
+    };
+  },
+  addToCart: (cartNum) => {
+    return (dispatch) =>
+      dispatch({
+        type: TYPES.ADDCART,
+        cartNum: cartNum,
+      });
+  },
+  getCart: (cartNum) => {
+    return (dispatch) => {
+      dispatch({
+        type: TYPES.GETCART,
+        cartNum: cartNum,
       });
     };
   },

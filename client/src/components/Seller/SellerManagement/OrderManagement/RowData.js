@@ -8,23 +8,25 @@ class RowData extends Component {
   state = {};
   displayOrderStatus = (key) => {
     switch (key) {
-      case "W":
+      case "0":
         return "Chờ xác nhận";
-      case "C":
+      case "3":
         return "Trả hàng";
-      case "R":
+      case "2":
         return "Đã nhận hàng";
-      case "D":
+      case "1":
         return "Đang giao hàng";
+      case "-1":
+        return "Đã hủy đơn";
       default:
         break;
     }
   };
   displayDeliveryType = (type) => {
     switch (type) {
-      case true:
+      case "deliver":
         return "Giao hàng tại nhà";
-      case false:
+      case "self":
         return "Tự đến lấy hàng";
       default:
         break;
@@ -49,49 +51,51 @@ class RowData extends Component {
             <Message className="cursor-pointer" fontSize="small" />
           </Box>
         </Box>
-        {this.props.order.items.map((item, index) => {
-          return (
-            <Box display="flex" borderBottom="1px solid #e8e8e8" key={index}>
-              <Box display="flex" width="35%" alignItems="center">
-                <Box display="flex" justifyContent="center" width="25%">
-                  <img
-                    style={{ width: "50px", height: "50px" }}
-                    src={item.image}
-                    alt=""
-                  />
-                </Box>
-                <Box flexGrow="1">
-                  <Box p={1}>
-                    <b>{item.title}</b>
-                  </Box>
-                  <Box p={1}>
-                    <small>Số lượng: {item.quantity}</small>
-                  </Box>
-                </Box>
+
+        <Box display="flex" borderBottom="1px solid #e8e8e8">
+          <Box display="flex" width="35%" alignItems="center">
+            <Box display="flex" justifyContent="center" width="25%">
+              <img
+                style={{ width: "50px", height: "50px" }}
+                src={this.props.order.product.product.images[0].link}
+                alt=""
+              />
+            </Box>
+            <Box flexGrow="1">
+              <Box p={1}>
+                <b>{this.props.order.product.product.title}</b>
               </Box>
-              <Box display="flex" width="15%" alignItems="center">
-                {turnNumberToNumberWithSeperator(item.price * item.quantity)}
-                &nbsp;VND
-              </Box>
-              <Box display="flex" width="15%" alignItems="center">
-                {new Date(this.props.order.on_date).toLocaleDateString()}
-              </Box>
-              <Box display="flex" width="15%" alignItems="center">
-                {this.displayDeliveryType(this.props.order.delivery_type)}
-              </Box>
-              <Box display="flex" width="25%" alignItems="center">
-                <p px={1}>
-                  {this.props.order.location.detail_address},<br />
-                  {this.props.order.location.street +
-                    " ," +
-                    this.props.order.location.district +
-                    " ," +
-                    this.props.order.location.convince}
-                </p>
+              <Box p={1}>
+                <small>
+                  Số lượng: {this.props.order.product.order_quantity}
+                </small>
               </Box>
             </Box>
-          );
-        })}
+          </Box>
+          <Box display="flex" width="15%" alignItems="center">
+            {turnNumberToNumberWithSeperator(
+              this.props.order.product.product.price
+            )}
+            &nbsp;VND
+          </Box>
+          <Box display="flex" width="15%" alignItems="center">
+            {new Date(this.props.order.createdAt).toLocaleDateString()}
+          </Box>
+          <Box display="flex" width="15%" alignItems="center">
+            {this.displayDeliveryType(this.props.order.delivery_type)}
+          </Box>
+          <Box display="flex" width="25%" alignItems="center">
+            <p px={1}>
+              {this.props.order.product.delivery_location.detail},<br />
+              {"đường " +
+                this.props.order.product.delivery_location.street +
+                " , quận " +
+                this.props.order.product.delivery_location.district +
+                " ," +
+                " thành phố Hà Nội"}
+            </p>
+          </Box>
+        </Box>
         <Box>
           <Box display="flex" p={1}>
             <Box flexGrow="1">Trạng thái đơn hàng:</Box>
@@ -107,7 +111,7 @@ class RowData extends Component {
               </b>
             </Box>
           </Box>
-          {this.props.order.status === "W" ? (
+          {this.props.order.status === "0" ? (
             <Box p={1} display="flex" flexDirection="row-reverse">
               <Box>
                 <Button variant="contained">Giao hàng</Button>

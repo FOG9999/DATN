@@ -7,6 +7,7 @@ const ProductRouter = require("./route/ProductRouter");
 const UserRouter = require("./route/UserRouter");
 const ItemRouter = require("./route/ItemRouter");
 const cookieParser = require("cookie-parser");
+const OrderRouter = require("./route/OrderRouter");
 
 app.use(
   cors({
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/product", ProductRouter);
 app.use("/user", UserRouter);
 app.use("/item", ItemRouter);
+app.use("/order", OrderRouter);
 
 mongoose.connect(
   uri,

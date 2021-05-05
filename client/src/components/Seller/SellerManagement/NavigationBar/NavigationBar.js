@@ -68,7 +68,7 @@ class NavigationBar extends Component {
     return (
       <Box
         minWidth="250px"
-        height="100%"
+        className="white-background"
         // style={{ position: "fixed", top: "0px" }}
         // borderRight="1px solid #aaa"
       >

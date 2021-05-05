@@ -4,6 +4,8 @@ const TYPES = {
   LOADING: "LOADING",
   LOADED: "LOADED",
   LOGOUT: "LOGOUT",
+  ADDCART: "ADDCART",
+  GETCART: "GETCART",
 };
 
 export { TYPES };

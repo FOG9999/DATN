@@ -8,10 +8,10 @@ class ProductDetail extends Component {
   render() {
     return (
       <Box display="flex" mt={2}>
-        <Box minWidth="1000px" className="white-background" mr={2}>
+        <Box minWidth="1050px" className="white-background" mr={2}>
           <Comments />
         </Box>
-        <RecommendationProduct />
+        <RecommendationProduct proID={this.props.proID} />
       </Box>
     );
   }

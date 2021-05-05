@@ -2,6 +2,7 @@ const User = require("../model/User");
 const { status, secret, refresh_secret } = require("../config/Config");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Cart = require("../model/Cart");
 
 module.exports = {
   register: async (
@@ -97,22 +98,26 @@ module.exports = {
                 { username: username },
                 { token: token, online: true },
                 { useFindAndModify: false, new: true },
-                (errUpd, userUpd) => {
+                async (errUpd, userUpd) => {
                   if (errUpd) {
                     done({
                       EC: 500,
                       EM: "Lỗi khi refresh token",
                     });
+                  } else {
+                    var cart = await Cart.findOne({ owner: userUpd._id });
+                    let token = bcryptjs.hashSync(userUpd.token, 10);
+                    done({
+                      EC: 0,
+                      EM: "Đã xác minh người dùng. Token refreshed",
+                      data: {
+                        user_id: userUpd._id,
+                        token: token,
+                        name: userUpd.name,
+                        cartNum: cart.products.length,
+                      },
+                    });
                   }
-                  done({
-                    EC: 0,
-                    EM: "Đã xác minh người dùng. Token refreshed",
-                    data: {
-                      user_id: userUpd._id,
-                      token: bcryptjs.hashSync(userUpd.token, 10),
-                      name: userUpd.name,
-                    },
-                  });
                 }
               );
             } else if (isCorrectPassword && data1.online) {
@@ -174,7 +179,7 @@ module.exports = {
     User.findOneAndUpdate(
       { _id: user_id },
       { online: false },
-      { new: true },
+      { new: true, useFindAndModify: false },
       (err, data) => {
         if (err) {
           done({

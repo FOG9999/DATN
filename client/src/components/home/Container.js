@@ -1,6 +1,5 @@
+import { Box } from "@material-ui/core";
 import React, { Component } from "react";
-import { Container, Box } from "@material-ui/core";
-import { AddBoxSharp } from "@material-ui/icons";
 import Header from "../header/Container";
 import CategoriesBar from "./category_bar/CategoriesBar";
 import CheapProsBar from "./cheap_pros/CheapProsBar";

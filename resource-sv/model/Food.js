@@ -18,7 +18,11 @@ var Food = mongoose.Schema({
   createdAt: Date,
   unit: String,
   views: Number,
-  booth: { type: mongoose.Types.ObjectId, ref: "Booth" },
+  seller: { type: mongoose.Types.ObjectId, refPath: "onModel" },
+  onModel: {
+    type: String,
+    enum: ["User"],
+  },
   checkDate: Date,
   quantity: Number,
   type: String,

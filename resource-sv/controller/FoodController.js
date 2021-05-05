@@ -33,7 +33,7 @@ module.exports = {
         sold: 0,
         withDelivery: Math.random() > 0.5 ? true : false,
         unit: "KG",
-        booth: null,
+        seller: null,
         quantity: Math.round(Math.random() * 10),
       });
       try {
