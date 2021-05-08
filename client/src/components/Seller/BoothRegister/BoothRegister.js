@@ -59,6 +59,8 @@ class BoothRegister extends Component {
         value: RTE.createEmptyValue(),
         htmlStr: RTE.createEmptyValue().toString("html"),
       },
+      leaderName: "",
+      phone: "",
     },
     uploadImages: {
       filereaders: [],
@@ -73,6 +75,8 @@ class BoothRegister extends Component {
       { name: "organizationName", error: false },
       { name: "population", error: false },
       { name: "content", error: false },
+      { name: "leaderName", error: false },
+      { name: "phone", error: false },
     ],
   };
   componentDidMount() {
@@ -167,7 +171,58 @@ class BoothRegister extends Component {
         }
         break;
       }
-
+      case "leaderName": {
+        if (!value) {
+          msg = "Vui lòng cung cấp tên của người đứng đầu";
+          let oldCheckFields = this.state.checkFields;
+          oldCheckFields.forEach((field) => {
+            if (field.name !== "leaderName") {
+              field.error = false;
+            } else field.error = true;
+          });
+          this.setState({
+            checkFields: [...oldCheckFields],
+          });
+        } else if (value.length < 10) {
+          msg = "Tên quá ngắn!";
+          let oldCheckFields = this.state.checkFields;
+          oldCheckFields.forEach((field) => {
+            if (field.name !== "leaderName") {
+              field.error = false;
+            } else field.error = true;
+          });
+          this.setState({
+            checkFields: [...oldCheckFields],
+          });
+        }
+        break;
+      }
+      case "phone": {
+        if (!value) {
+          msg = "Vui lòng nhập số điện thoại";
+          let oldCheckFields = this.state.checkFields;
+          oldCheckFields.forEach((field) => {
+            if (field.name !== "phone") {
+              field.error = false;
+            } else field.error = true;
+          });
+          this.setState({
+            checkFields: [...oldCheckFields],
+          });
+        } else if (value.length !== 10) {
+          msg = "Số điện thoại không hợp lệ";
+          let oldCheckFields = this.state.checkFields;
+          oldCheckFields.forEach((field) => {
+            if (field.name !== "phone") {
+              field.error = false;
+            } else field.error = true;
+          });
+          this.setState({
+            checkFields: [...oldCheckFields],
+          });
+        }
+        break;
+      }
       default:
         break;
     }
@@ -365,6 +420,26 @@ class BoothRegister extends Component {
             });
             break;
           }
+        } else if (e.target.name === "phone") {
+          if (!!e.target.value && /\D/i.test(e.target.value)) {
+            toast.error(strings.enterNumber);
+            this.setInputError(e.target.name);
+            document.getElementById(`id${e.target.name}`).focus();
+            break;
+          } else {
+            this.setState({
+              checkFields: [
+                ...this.state.checkFields.map((field) => {
+                  return { name: field.name, error: false };
+                }),
+              ],
+              booth: {
+                ...this.state.booth,
+                [e.target.name]: e.target.value,
+              },
+            });
+            break;
+          }
         } else {
           // console.log("check");
           this.setState({
@@ -439,6 +514,36 @@ class BoothRegister extends Component {
                 fullWidth={true}
                 error={this.state.checkFields[1].error}
                 id="idorganizationName"
+              />
+            </Box>
+          </Box>
+          <Box display="flex" mt={2}>
+            <Box width="300px" pl={2} py={1}>
+              Người đứng đầu
+            </Box>
+            <Box width="550px">
+              <TextField
+                error={this.state.checkFields[4].error}
+                size="small"
+                name="leaderName"
+                onChange={this.onChangeInputField}
+                value={this.state.booth.leaderName}
+                variant="outlined"
+                id="idleaderName"
+                fullWidth={true}
+                placeholder="Họ tên"
+              />
+            </Box>
+            <Box ml={3}>
+              <TextField
+                error={this.state.checkFields[5].error}
+                size="small"
+                name="phone"
+                onChange={this.onChangeInputField}
+                value={this.state.booth.phone}
+                variant="outlined"
+                id="idphone"
+                placeholder="Số điện thoại"
               />
             </Box>
           </Box>

@@ -3,6 +3,9 @@ const { status, secret, refresh_secret } = require("../config/Config");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Cart = require("../model/Cart");
+const addresses_json = JSON.parse(
+  JSON.stringify(require("../config/convincesAndDistricts.json"))
+);
 
 module.exports = {
   register: async (
@@ -58,6 +61,12 @@ module.exports = {
         });
         new_user.save({ new: true }, (err2, data2) => {
           //   console.log(data2);
+          let districtInd = addresses_json[1].districts
+            .map((dis, ind) => dis.name)
+            .indexOf(new_user.address.district);
+          let streetInd = addresses_json[1].districts[districtInd].streets
+            .map((strt, ind) => strt.name)
+            .indexOf(new_user.address.street);
           done({
             EC: 0,
             EM: "Tạo người dùng thành công",
@@ -65,6 +74,11 @@ module.exports = {
               user_id: data2._id,
               token: bcryptjs.hashSync(token, 10),
               name: data2.name,
+              address: {
+                districtInd: districtInd,
+                streetInd: streetInd,
+                detail: data2.address.detail,
+              },
             },
           });
         });
@@ -76,7 +90,7 @@ module.exports = {
       if (err1) {
         done({
           EC: 500,
-          EM: "Lỗi khi đang xác minh trong controller",
+          EM: err1,
         });
       } else if (data1) {
         bcryptjs.compare(
@@ -107,6 +121,14 @@ module.exports = {
                   } else {
                     var cart = await Cart.findOne({ owner: userUpd._id });
                     let token = bcryptjs.hashSync(userUpd.token, 10);
+                    let districtInd = addresses_json[1].districts
+                      .map((dis, ind) => dis.name)
+                      .indexOf(userUpd.address.district);
+                    let streetInd = addresses_json[1].districts[
+                      districtInd
+                    ].streets
+                      .map((strt, ind) => strt.name)
+                      .indexOf(userUpd.address.street);
                     done({
                       EC: 0,
                       EM: "Đã xác minh người dùng. Token refreshed",
@@ -115,6 +137,11 @@ module.exports = {
                         token: token,
                         name: userUpd.name,
                         cartNum: cart.products.length,
+                        address: {
+                          districtInd: districtInd,
+                          streetInd: streetInd,
+                          detail: userUpd.address.detail,
+                        },
                       },
                     });
                   }

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { turnNumberToNumberWithSeperator } from "../../others/functions/checkTextForNumberInput";
 import { connect } from "react-redux";
-import { GeneralAction } from "../../redux/actions/GeneralAction";
+// import { GeneralAction } from "../../redux/actions/GeneralAction";
 import Loading from "../../components/general/Loading";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,19 +9,23 @@ import {
   Box,
   Button,
   Checkbox,
-  FormControl,
-  FormControlLabel,
+  // FormControl,
+  // FormControlLabel,
   IconButton,
   Radio,
   RadioGroup,
 } from "@material-ui/core";
 import {
   Add,
-  ArrowForwardIos,
-  LocalShipping,
+  // ArrowForwardIos,
+  // LocalShipping,
   // PlusOneOutlined,
   Remove,
 } from "@material-ui/icons";
+import ModalChangeLocation from "../general/modal-location/ModalChangeLocation";
+import cNd from "../../others/convincesAndDistricts.json";
+
+const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
 const strings = {
   overLimit: "Vượt quá số lượng hàng đang có",
@@ -31,6 +35,8 @@ const strings = {
 class RowData extends Component {
   state = {
     orderQuantity: this.props.orderProduct.order_quantity,
+    delivery_location: this.props.orderProduct.delivery_location,
+    showModalLocation: false,
   };
   onClickLink = () => {
     window.location.href = "/prd/" + this.props.orderProduct.product._id;
@@ -66,6 +72,22 @@ class RowData extends Component {
     });
     this.props.onMinusQuantity(this.props.index);
     // gọi hàm thay đổi total của cha
+  };
+  onHideModalLocation = () => {
+    this.setState({
+      showModalLocation: false,
+    });
+  };
+  getLocation = (location) => {
+    this.setState({
+      delivery_location: { ...location },
+      showModalLocation: false,
+    });
+  };
+  onOpenModalLocation = () => {
+    this.setState({
+      showModalLocation: true,
+    });
   };
   render() {
     if (!this.props.loading)
@@ -109,8 +131,44 @@ class RowData extends Component {
               <Box flexGrow="1">
                 <Box p={1}>
                   <span className="cursor-pointer" onClick={this.onClickLink}>
-                    {this.props.orderProduct.product.title}
+                    <b>{this.props.orderProduct.product.title}</b>
                   </span>
+                </Box>
+                <ModalChangeLocation
+                  title="Thay đổi địa chỉ giao hàng"
+                  location={this.state.delivery_location}
+                  show={this.state.showModalLocation}
+                  onHide={this.onHideModalLocation}
+                  getLocation={this.getLocation}
+                />
+                <Box display="flex" py={1}>
+                  <Box pr={4} display="flex" alignItems="center">
+                    Tới
+                  </Box>
+                  <Box pr={4} display="flex" alignItems="center">
+                    {this.state.delivery_location.detail}, đường{" "}
+                    {
+                      convincesAndDistricts[1].districts[
+                        this.state.delivery_location.districtIndex
+                      ].streets[this.state.delivery_location.streetIndex].name
+                    }
+                    , quận{" "}
+                    {
+                      convincesAndDistricts[1].districts[
+                        this.state.delivery_location.districtIndex
+                      ].name
+                    }
+                    , thành phố Hà Nội
+                  </Box>
+                  <Box>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={this.onOpenModalLocation}
+                    >
+                      Sửa
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
             </Box>

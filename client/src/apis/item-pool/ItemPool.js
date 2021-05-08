@@ -47,10 +47,30 @@ const getPrdByIDForUser = (itemID, done) => {
     });
 };
 
-const getRelatedProduct = (productID, done) => {
-  fetch(`${Config.ResourceServer}/product/relate/${productID}`, {
+const getPrdForRelate = (prdID, done) => {
+  fetch(`${Config.ResourceServer}/product/get-for-relate/${prdID}`, {
     method: "GET",
     mode: "cors",
+    credentials: "include",
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
+const getRelatedProduct = (type, limit, category, done) => {
+  fetch(`${Config.ResourceServer}/product/relate-beta`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      type: type,
+      limit: limit,
+      category: category,
+    }),
   })
     .then((res) => res.json())
     .then((rs) => done(rs));
@@ -71,6 +91,20 @@ const search = (page, pagesize, title, type, category, done) => {
     });
 };
 
+const searchNoCookie = (page, pagesize, title, type, category, done) => {
+  fetch(
+    `${Config.ResourceServer}/product/search?type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
+    {
+      method: "GET",
+      mode: "cors",
+    }
+  )
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
 export {
   rcmGuestItems,
   rcmUserItems,
@@ -78,4 +112,6 @@ export {
   getRelatedProduct,
   getPrdByIDForUser,
   search,
+  searchNoCookie,
+  getPrdForRelate,
 };

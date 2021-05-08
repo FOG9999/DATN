@@ -39,14 +39,16 @@ class HeaderButtons extends Component {
           <Box p={1} className="color-white">
             Thông báo
           </Box>
-          <Box p={1} className="color-white">
-            <a
-              href="/m/manage"
-              style={{ textDecoration: "none", color: "white" }}
-            >
-              Tôi
-            </a>
-          </Box>
+          {this.props.logged ? (
+            <Box p={1} className="color-white">
+              <a
+                href="/m/manage"
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                Tôi
+              </a>
+            </Box>
+          ) : null}
           {this.props.logged ? (
             <Box p={1} display="flex" className="color-white">
               Chào {this.props.name}.{" "}

@@ -43,12 +43,17 @@ const tabTitles = [
 const itemCategories = [
   "Quần áo",
   "Đồ trang điểm",
-  "Sách truyện",
-  "Nhà bếp",
-  "Phụ kiện trang bị",
-  "Đồ dùng trong nhà",
+  "Giày dép",
+  "Vật dụng",
+  "Trang trí",
+  "Khác",
 ];
-const foodCategories = ["Rau xanh", "Hoa quả", "Trứng", "Thủy sản"];
+const foodCategories = [
+  "Rau củ quả",
+  "Trái cây tươi",
+  "Bánh kẹo và snack",
+  "Sản phẩm thịt",
+];
 
 class ProductManagement extends Component {
   state = {
@@ -59,7 +64,7 @@ class ProductManagement extends Component {
     selectedTab: 0,
     page: 1,
     searchTitle: "",
-    pagesize: 5,
+    pagesize: 10,
     numOfProducts: 0,
     products: [],
     onSearching: false,
@@ -114,11 +119,18 @@ class ProductManagement extends Component {
           this.props.dispatchLoaded();
           toast.error(rs.EM);
         } else {
-          this.setState({
-            products: [...rs.data.products],
-            numOfProducts: rs.data.numOfProducts,
-            onSearching: true,
-          });
+          if (rs.data.products.length > 0) {
+            this.setState({
+              products: [...rs.data.products],
+              numOfProducts: rs.data.numOfProducts,
+              onSearching: true,
+            });
+          } else {
+            toast.warn("Không còn sản phẩm để hiển thị");
+            this.setState({
+              page: this.state.page - 1,
+            });
+          }
           this.props.dispatchLoaded();
         }
       }
@@ -181,11 +193,19 @@ class ProductManagement extends Component {
         page: this.state.page + 1,
       });
       this.getProducts((rs) => {
-        this.setState({
-          products: [...rs.data.products],
-          numOfProducts: rs.data.numOfProducts,
-        });
-        this.props.dispatchLoaded();
+        if (rs.data.products.length > 0) {
+          this.setState({
+            products: [...rs.data.products],
+            numOfProducts: rs.data.numOfProducts,
+          });
+          this.props.dispatchLoaded();
+        } else {
+          toast.warn("Không còn sản phẩm để hiển thị");
+          this.setState({
+            page: this.state.page - 1,
+          });
+          this.props.dispatchLoaded();
+        }
       });
     }
   };

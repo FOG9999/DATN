@@ -100,7 +100,7 @@ const getCart = (done) => {
     });
 };
 
-const addToCart = (pro_id, pro_type, order_quantity, done) => {
+const addToCart = (pro_id, pro_type, order_quantity, location, done) => {
   fetch(`${Config.ResourceServer}/user/add-cart/${Config.ROLE.CLIENT}`, {
     method: "PUT",
     mode: "cors",
@@ -112,6 +112,7 @@ const addToCart = (pro_id, pro_type, order_quantity, done) => {
       pro_id: pro_id,
       pro_type: pro_type,
       order_quantity: order_quantity,
+      location: { ...location },
     }),
   })
     .then((res) => res.json())

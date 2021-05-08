@@ -32,7 +32,7 @@ class Recomendation extends Component {
               toast.error(rs.EM);
             } else {
               this.setState({
-                items: [...rs.data],
+                items: [...rs.data.products],
               });
               this.props.dispatchLoaded();
             }
@@ -50,7 +50,7 @@ class Recomendation extends Component {
           this.props.dispatchLoaded();
         } else {
           this.setState({
-            items: [...rs.data],
+            items: [...rs.data.products],
           });
           this.props.dispatchLoaded();
         }

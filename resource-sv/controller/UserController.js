@@ -9,6 +9,9 @@ const mongoose = require("mongoose");
 const Item = require("../model/Item");
 const Food = require("../model/Food");
 const File = require("../model/File");
+const addresses_json = JSON.parse(
+  JSON.stringify(require("../config/convincesAndDistricts.json"))
+);
 
 module.exports = {
   createSamples: async (number, done) => {
@@ -53,7 +56,41 @@ module.exports = {
       data: output,
     });
   },
-  updateSamples: () => {},
+  updateSamples: async (done) => {
+    try {
+      let users = await User.find({});
+      for (let i = 0; i < users.length; i++) {
+        let districtIndex = Math.round(
+          (addresses_json[1].districts.length - 1) * Math.random()
+        );
+        let streetIndex = Math.round(
+          (addresses_json[1].districts[districtIndex].streets.length - 1) *
+            Math.random()
+        );
+        let new_location = {
+          detail: faker.address.streetName(),
+          street:
+            addresses_json[1].districts[districtIndex].streets[streetIndex]
+              .name,
+          district: addresses_json[1].districts[districtIndex].name,
+        };
+        await User.findOneAndUpdate(
+          { _id: users[i]._id },
+          { address: { ...new_location } },
+          { useFindAndModify: false }
+        );
+      }
+      done({
+        EC: 0,
+        EM: "success",
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error,
+      });
+    }
+  },
   getAllUserIDs: (done) => {
     User.find({}, (err, data) => {
       if (err)
@@ -162,7 +199,14 @@ module.exports = {
       });
     }
   },
-  addToCart: (pro_id, pro_type, order_quantity, user_id, done) => {
+  addToCart: (
+    pro_id,
+    pro_type,
+    order_quantity,
+    delivery_location,
+    user_id,
+    done
+  ) => {
     User.findOne({ _id: user_id }, async (err1, userRS) => {
       if (err1) {
         console.error(err1);
@@ -193,7 +237,7 @@ module.exports = {
             let newOrdPrd = new OrderProduct({
               product: pro_id,
               order_quantity: order_quantity,
-              delivery_location: userRS.address,
+              delivery_location: { ...delivery_location },
               pro_type: pro_type,
             });
             let savedOrdPrd = await newOrdPrd.save();
@@ -230,6 +274,7 @@ module.exports = {
       "607a605cdb1a163100e49b4c",
       "607e5047a19f5c20a440d3ac",
       "60818f784c61903d747326a9",
+      "60812aefcdd2af4ba4d33287",
     ];
     for (let i = 0; i < users.length; i++) {
       let newCart = new Cart({
@@ -251,6 +296,10 @@ module.exports = {
         { owner: user_id },
         { $pull: { products: order_prduct_id }, last_changed: new Date() },
         { useFindAndModify: false, new: true }
+      );
+      await OrderProduct.findOneAndDelete(
+        { _id: order_prduct_id },
+        { useFindAndModify: false }
       );
       done({
         EC: 0,

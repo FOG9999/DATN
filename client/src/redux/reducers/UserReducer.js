@@ -5,6 +5,7 @@ export const UserReducer = (
     logged: false,
     name: "",
     cartNum: 0,
+    address: {},
   },
   action
 ) => {
@@ -15,6 +16,7 @@ export const UserReducer = (
         logged: action.logged,
         name: action.name,
         cartNum: action.cartNum,
+        address: { ...action.address },
       };
     }
     case TYPES.LOGOUT: {
@@ -23,6 +25,7 @@ export const UserReducer = (
         logged: false,
         name: "",
         cartNum: 0,
+        address: {},
       };
     }
     case TYPES.ADDCART: {

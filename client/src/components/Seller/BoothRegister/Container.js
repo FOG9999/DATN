@@ -1,13 +1,22 @@
 import { Box } from "@material-ui/core";
 import React, { Component } from "react";
+import SimpleHeader from "../../header/SimpleHeader";
 import BoothRegister from "./BoothRegister";
 
 class BoothRegisterContainer extends Component {
   state = {};
   render() {
     return (
-      <Box className="home-box0">
-        <BoothRegister />
+      <Box
+        maxWidth="xl"
+        minWidth="1325px"
+        className="home-container"
+        // pt="200px"
+      >
+        <SimpleHeader title="Tạo gian hàng" />
+        <Box className="home-box0">
+          <BoothRegister />
+        </Box>
       </Box>
     );
   }

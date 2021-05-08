@@ -31,36 +31,52 @@ ProductRouter.post("/create-samples/:type", (req, res, next) => {
 });
 
 ProductRouter.get("/guest/:role", (req, res, next) => {
-  fetch(`${RECOMMEND_SV}/collaborative-filter/new-user`, {
+  // fetch(`${RECOMMEND_SV}/collaborative-filter/new-user`, {
+  //   method: "GET",
+  //   mode: "cors",
+  // })
+  //   .then((res) => res.json())
+  //   .then((rs) => {
+  //     rs.averages.sort((a, b) => b.average - a.average);
+  //     ProductController.getProductsByIDs(
+  //       rs.averages.map((aver, ind) => aver.itemID),
+  //       (rs) => {
+  //         res.send(rs);
+  //       }
+  //     );
+  //   });
+  fetch(`${RECOMMEND_SV}/most-popular?limit=20`, {
     method: "GET",
     mode: "cors",
   })
     .then((res) => res.json())
     .then((rs) => {
-      rs.averages.sort((a, b) => b.average - a.average);
-      ProductController.getProductsByIDs(
-        rs.averages.map((aver, ind) => aver.itemID),
-        (rs) => {
-          res.send(rs);
-        }
-      );
+      res.send(rs);
     });
 });
 
 ProductRouter.get("/user/:role", authen, (req, res, next) => {
-  fetch(
-    `${RECOMMEND_SV}/collaborative-filter/recommend/${req.cookies.user_id}`,
-    {
-      method: "GET",
-      mode: "cors",
-    }
-  )
+  // fetch(
+  //   `${RECOMMEND_SV}/collaborative-filter/recommend/${req.cookies.user_id}`,
+  //   {
+  //     method: "GET",
+  //     mode: "cors",
+  //   }
+  // )
+  //   .then((res) => res.json())
+  //   .then((rs) => {
+  //     ProductController.getProductsByIDs(
+  //       rs.topNItems.map((top, index) => top.item),
+  //       (result) => res.send(result)
+  //     );
+  //   });
+  fetch(`${RECOMMEND_SV}/most-popular?limit=18`, {
+    method: "GET",
+    mode: "cors",
+  })
     .then((res) => res.json())
     .then((rs) => {
-      ProductController.getProductsByIDs(
-        rs.topNItems.map((top, index) => top.item),
-        (result) => res.send(result)
-      );
+      res.send(rs);
     });
 });
 
@@ -71,29 +87,42 @@ ProductRouter.get("/all", (req, res, next) => {
 });
 
 ProductRouter.get("/guest-view/:prd_id", (req, res, next) => {
-  ProductController.getProductsByIDs([req.params.prd_id], (rs) => {
+  ProductController.viewProduct_beta(req.params.prd_id, (rs) => {
     res.send(rs);
   });
 });
 
 ProductRouter.get("/user-view/:prd_id/:role", authen, (req, res, next) => {
-  ProductController.viewProduct(
-    req.cookies.user_id,
-    req.params.prd_id,
-    (rs) => {
-      res.send(rs);
-    }
-  );
+  // ProductController.viewProduct(
+  //   req.cookies.user_id,
+  //   req.params.prd_id,
+  //   (rs) => {
+  //     res.send(rs);
+  //   }
+  // );
+  ProductController.viewProduct_beta(req.params.prd_id, (rs) => {
+    res.send(rs);
+  });
+});
+
+ProductRouter.get("/get-for-relate/:prd_id", (req, res, next) => {
+  // ProductController.viewProduct(
+  //   req.cookies.user_id,
+  //   req.params.prd_id,
+  //   (rs) => {
+  //     res.send(rs);
+  //   }
+  // );
+  ProductController.getProductsByIDs([req.params.prd_id], (rs) => {
+    res.send(rs);
+  });
 });
 
 ProductRouter.get("/relate/:product", (req, res, next) => {
-  fetch(
-    `${RECOMMEND_SV}/collaborative-filter/product-relate/${req.params.product}`,
-    {
-      method: "GET",
-      mode: "cors",
-    }
-  )
+  fetch(`${RECOMMEND_SV}/user/product-relate/${req.params.product}`, {
+    method: "GET",
+    mode: "cors",
+  })
     .then((res) => res.json())
     .then((rs) => {
       ProductController.getProductsByIDs(
@@ -104,6 +133,34 @@ ProductRouter.get("/relate/:product", (req, res, next) => {
           });
         }
       );
+    });
+});
+
+ProductRouter.post("/relate-beta", (req, res, next) => {
+  // console.log(req.query.category);
+  fetch(`${RECOMMEND_SV}/product/relate`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      type: req.body.type,
+      limit: req.body.limit,
+      category: req.body.category,
+    }),
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      // ProductController.getProductsByIDs(
+      //   rs.data.suggestion.map((product, index) => product.product),
+      //   (result) => {
+      //     res.send({
+      //       ...result,
+      //     });
+      //   }
+      // );
+      res.send(rs);
     });
 });
 
@@ -202,13 +259,25 @@ ProductRouter.get("/sendo-list", (req, res, next) => {
 });
 
 ProductRouter.post("/update-samples", (req, res, next) => {
-  ProductController.updateSamples((rs) => res.send(rs));
+  ProductController.updateSamplesDescription((rs) => res.send(rs));
 });
 
 ProductRouter.post("/delete-user-rate", (req, res, next) => {
   UserRatingController.deleteRatingOfOneUser(req.body.user_id, (rs) =>
     res.send(rs)
   );
+});
+
+ProductRouter.post("/update-samples-location", (req, res, next) => {
+  ItemController.updateSamples((rs) => {
+    if (rs.EC !== 0) {
+      res.send(rs);
+    } else {
+      FoodController.updateSamples((foodRS) => {
+        res.send(foodRS);
+      });
+    }
+  });
 });
 
 module.exports = ProductRouter;

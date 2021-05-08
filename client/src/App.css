@@ -98,6 +98,15 @@
   width: 90%;
 }
 
+.simpleheader-search-input {
+  padding: 10px;
+  font-size: medium;
+}
+
+.simpleheader-search-paper {
+  width: 90%;
+}
+
 .header-searchbar-paper {
   width: 100%;
 }

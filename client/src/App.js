@@ -6,15 +6,18 @@ import Container from "./components/Seller/SellerManagement/Container";
 // import RichTextEditor from "./components/product_detail/details/RichTextEditor";
 import ProductDetail from "./components/product_detail/Container";
 import CartContainer from "./components/Cart/Container";
+import Search from "./components/search/Container";
+import BoothRegister from "./components/Seller/BoothRegister/Container";
 
 function App() {
   return (
     <div className="App">
       <Switch>
-        <Route exact path="/" component={HomeContainer} />
+        <Route exact path="/" component={BoothRegister} />
         <Route path="/m/manage" component={Container} />
         <Route path="/login" component={LoginBackground} />
         <Route path="/m/cart" component={CartContainer} />
+        <Route path="/search/:keyword/:limit" component={Search} />
         <Route path="/prd/:product_id" component={ProductDetail} />
       </Switch>
     </div>

@@ -53,9 +53,9 @@ class MainSector extends Component {
     withDeliver: true,
     product: null,
     location: {
-      detail: "",
-      streetIndex: 0,
-      districtIndex: 0,
+      detail: this.props.address.detail,
+      streetIndex: this.props.address.streetInd,
+      districtIndex: this.props.address.districtInd,
     },
     showModalLocation: false,
   };
@@ -177,6 +177,7 @@ class MainSector extends Component {
             this.props.proID,
             this.state.product.type,
             this.state.orderQuantity,
+            this.state.location,
             (rs) => {
               if (rs.EC !== 0) {
                 toast.error(rs.EM);
@@ -187,6 +188,7 @@ class MainSector extends Component {
                 }, 1000);
               } else {
                 this.props.dispatchAddToCart(rs.data.cartNum);
+                toast.success("Thêm vào giỏ hàng thành công");
               }
             }
           );
@@ -406,11 +408,11 @@ class MainSector extends Component {
               </Box>
               <Box>
                 <Button
-                  variant="contianed"
-                  color="rgb(238,77,46)"
+                  variant="contained"
+                  color="primary"
                   onClick={this.onOpenModalLocation}
                 >
-                  Thay đổi
+                  Sửa
                 </Button>
               </Box>
             </Box>
@@ -467,6 +469,7 @@ const mapStateToProps = (state) => {
   return {
     loading: state.general.loading,
     logged: state.user.logged,
+    address: { ...state.user.address },
   };
 };
 

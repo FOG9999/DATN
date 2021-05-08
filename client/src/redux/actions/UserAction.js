@@ -6,7 +6,7 @@ const UserAction = {
     return (dispatch) => {
       login(username, password, (rs) => {
         if (rs.EC === 0) {
-          const { user_id, h_token, name, cartNum } = rs.data;
+          const { user_id, h_token, name, cartNum, address } = rs.data;
           document.cookie = `user_id=${user_id};path=/`;
           document.cookie = `h_token=${h_token};path=/`;
           // console.log(cartNum);
@@ -15,6 +15,7 @@ const UserAction = {
             logged: true,
             name: name,
             cartNum: cartNum,
+            address: { ...address },
           });
         } else {
           dispatch({
@@ -71,13 +72,14 @@ const UserAction = {
         birthday,
         (rs) => {
           if (rs.EC === 0) {
-            const { user_id, h_token, name } = rs.data;
+            const { user_id, h_token, name, address } = rs.data;
             document.cookie = `user_id=${user_id};path=/`;
             document.cookie = `h_token=${h_token};path=/`;
             dispatch({
               type: TYPES.LOGIN,
               logged: true,
               name: name,
+              address: { ...address },
             });
           } else {
             dispatch({

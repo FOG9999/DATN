@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { Box } from "@material-ui/core";
 import OneProduct from "../../general/OneProduct";
-import { getRelatedProduct } from "../../../apis/item-pool/ItemPool";
+import {
+  getPrdByID,
+  getPrdForRelate,
+  getRelatedProduct,
+} from "../../../apis/item-pool/ItemPool";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -10,13 +14,21 @@ class RecommendationProduct extends Component {
     suggestion: [],
   };
   componentDidMount() {
-    getRelatedProduct(this.props.proID, (rs) => {
+    getPrdForRelate(this.props.proID, (rs) => {
       if (rs.EC !== 0) {
         toast.error(rs.EM);
-      } else
-        this.setState({
-          suggestion: [...rs.data],
+        setTimeout(() => (window.location.href = "/"), 3000);
+      } else {
+        getRelatedProduct(rs.data[0].type, 5, rs.data[0].category, (rs1) => {
+          if (rs1.EC !== 0) {
+            toast.error(rs1.EM);
+          } else
+            this.setState({
+              suggestion: [...rs1.data.suggestion],
+            });
         });
+        // this.props.dispatchLoaded();
+      }
     });
   }
   onClickProduct = (proID) => {

@@ -15,6 +15,7 @@ import CategoryBar from "../categories/CategoryBar";
 class SearchBar extends Component {
   state = {
     winWidth: window.innerWidth,
+    keyword: "",
   };
   updateDimension = () => {
     this.setState({
@@ -24,6 +25,14 @@ class SearchBar extends Component {
   componentDidMount() {
     window.addEventListener("resize", this.updateDimension);
   }
+  onChangeKeyword = (e) => {
+    this.setState({
+      keyword: e.target.value,
+    });
+  };
+  onSearch = () => {
+    window.location.href = "/search/" + this.state.keyword + "/20";
+  };
   render() {
     return (
       <Box display="flex" width="100%">
@@ -38,6 +47,8 @@ class SearchBar extends Component {
             <InputBase
               placeholder="Search"
               className="header-searchbar-inputbase"
+              value={this.state.keyword}
+              onChange={this.onChangeKeyword}
             />
             {this.state.winWidth < 1000 && this.state.winWidth > 550 ? (
               <IconButton type="submit">
@@ -49,7 +60,7 @@ class SearchBar extends Component {
         </Box>
         {this.state.winWidth >= 1000 ? (
           <Box px={3} py={3}>
-            <Button variant="contained" color="primary">
+            <Button variant="contained" color="primary" onClick={this.onSearch}>
               <Search fontSize="large" />
             </Button>
           </Box>

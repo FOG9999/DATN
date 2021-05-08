@@ -25,6 +25,7 @@ UserRouter.post("/login", (req, res, next) => {
         dataToSend.h_token = data.data.token;
         dataToSend.name = data.data.name;
         dataToSend.cartNum = data.data.cartNum;
+        dataToSend.address = data.data.address;
       }
       res.send({
         EC: data.EC,
@@ -63,6 +64,7 @@ UserRouter.post("/register", (req, res, next) => {
         dataToSend.user_id = data.data.user_id;
         dataToSend.h_token = data.data.token;
         dataToSend.name = data.data.name;
+        dataToSend.address = data.data.address;
       }
       /* set cookie failed 
       res.cookie("user_id", data.data.user_id, {

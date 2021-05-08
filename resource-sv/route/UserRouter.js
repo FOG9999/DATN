@@ -34,6 +34,7 @@ UserRouter.put("/add-cart/:role", authen, (req, res, next) => {
     req.body.pro_id,
     req.body.pro_type,
     req.body.order_quantity,
+    req.body.location,
     req.cookies.user_id,
     (rs) => {
       res.send(rs);
@@ -53,6 +54,12 @@ UserRouter.post("/rmv-cart/:role", authen, (req, res, next) => {
       res.send(rs);
     }
   );
+});
+
+UserRouter.post("/update-samples", (req, res, next) => {
+  UserController.updateSamples((rs) => {
+    res.send(rs);
+  });
 });
 
 module.exports = UserRouter;

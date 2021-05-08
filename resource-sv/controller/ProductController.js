@@ -60,6 +60,45 @@ module.exports = {
         }
       });
   },
+  viewProduct_beta: (product_id, done) => {
+    Item.findOneAndUpdate(
+      { _id: product_id },
+      { $inc: { views: 1 } },
+      { useFindAndModify: false, new: true }
+    )
+      .populate("images")
+      .exec((err1, rs1) => {
+        if (err1) {
+          console.error(err1);
+        } else {
+          if (rs1) {
+            done({
+              EC: 0,
+              EM: "success",
+              data: [rs1],
+            });
+          } else {
+            Food.findOneAndUpdate(
+              { _id: product_id },
+              { $inc: { views: 1 } },
+              { useFindAndModify: false, new: true }
+            )
+              .populate("images")
+              .exec((err2, rs2) => {
+                if (err2) {
+                  console.error(err2);
+                } else {
+                  done({
+                    EC: 0,
+                    EM: "success",
+                    data: [rs2],
+                  });
+                }
+              });
+          }
+        }
+      });
+  },
   viewProduct: (user_id, product_id, done) => {
     Item.findOneAndUpdate(
       { _id: product_id },
@@ -168,19 +207,23 @@ module.exports = {
       });
   },
   updateSamples: (done) => {
-    /* cập nhật images cho các sản phẩm ---> DONE
+    /*
+    // /* cập nhật images cho các sản phẩm ---> DONE
     fetch(`${Config.SHOPEE_URL}`, {
       method: "GET",
       mode: "cors",
     })
       .then((res) => res.json())
       .then((rs) => {
-        let items = rs.data.sections[0].data.item.map((i, ind) => ({
-          name: i.name,
+        let items = rs.items.map((i, ind) => ({
+          name: i.item_basic.name,
           images: [
-            ...i.images.map((img, index) => `https://cf.shopee.vn/file/${img}`),
+            ...i.item_basic.images.map(
+              (img, index) => `https://cf.shopee.vn/file/${img}`
+            ),
           ],
           files: [],
+          price: i.item_basic.price,
         }));
         FileController.create(
           items.map((pro, ind) => pro.images),
@@ -193,14 +236,23 @@ module.exports = {
               if (err1) {
                 console.error(err1);
               } else {
-                for (let i = 0; i < rs1.length; i++) {
-                  rs1[i].title = items[i].name;
-                  rs1[i].images = [...items[i].files];
+                for (let i = 0; i < items.length; i++) {
+                  rs1[i + 29 + 12 + 10 + 10 + 15 + 15 + 15].title =
+                    items[i].name;
+                  rs1[i + 29 + 12 + 10 + 10 + 15 + 15 + 15].images = [
+                    ...items[i].files,
+                  ];
+                  rs1[i + 29 + 12 + 10 + 10 + 15 + 15 + 15].price =
+                    items[i].price / 1000;
                 }
                 rs1.forEach((it) => {
                   Item.findOneAndUpdate(
                     { _id: it._id },
-                    { title: it.title, images: [...it.images] },
+                    {
+                      title: it.title,
+                      images: [...it.images],
+                      price: it.price,
+                    },
                     { useFindAndModify: false },
                     (error, result) => {
                       if (error) {
@@ -210,8 +262,13 @@ module.exports = {
                     }
                   );
                 });
+                done({
+                  EC: 0,
+                  EM: "success",
+                });
               }
             });
+            /*
             const food = response_data.data.map((pro, ind) => ({
               name: pro.name,
               images: [pro.thumbnail_url],
@@ -229,8 +286,8 @@ module.exports = {
                     console.error(err1);
                   } else {
                     for (let i = 0; i < rs1.length; i++) {
-                      rs1[i].title = food[i].name;
-                      rs1[i].images = [...food[i].files];
+                      rs1[i+30].title = food[i].name;
+                      rs1[i+30].images = [...food[i].files];
                     }
                     rs1.forEach((it) => {
                       Food.findOneAndUpdate(
@@ -253,12 +310,15 @@ module.exports = {
                 });
               }
             );
+            
           }
         );
       });
       */
+    // */
 
     // cập nhật seller cho các sản phẩm
+
     User.find({}, async (err1, rs1) => {
       if (err1) {
         console.error(err1);
@@ -267,18 +327,27 @@ module.exports = {
           EM: err1,
         });
       } else {
-        const sellers = rs1.slice(0, 6).map((rs, ind) => rs._id);
+        const sellers = rs1.map((rs, ind) => rs._id);
         try {
-          await Item.updateMany(
-            {},
-            { seller: sellers[Math.round(Math.random() * 6)] },
-            { useFindAndModify: false }
-          );
-          await Food.updateMany(
-            {},
-            { seller: sellers[Math.round(Math.random() * 6)] },
-            { useFindAndModify: false }
-          );
+          let rdInd = Math.round(Math.random() * 7);
+          let items = await Item.find({});
+          let food = await Food.find({});
+          for (let i = 0; i < items.length; i++) {
+            rdInd = Math.round(Math.random() * 7);
+            await Item.findOneAndUpdate(
+              { _id: items[i]._id },
+              { seller: sellers[rdInd] },
+              { useFindAndModify: false }
+            );
+          }
+          for (let i = 0; i < food.length; i++) {
+            rdInd = Math.round(Math.random() * 7);
+            await Food.findOneAndUpdate(
+              { _id: food[i]._id },
+              { seller: sellers[rdInd] },
+              { useFindAndModify: false }
+            );
+          }
           done({
             EC: 0,
             EM: "success",
@@ -292,6 +361,139 @@ module.exports = {
       }
     });
   },
+  updateSamplesDescription: (done) => {
+    fetch(`${Config.CHOPP_URL}`, {
+      method: "GET",
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        const snacks = rs[13].products.map((pro, ind) => {
+          return {
+            description: pro.fields.description,
+          };
+        });
+        Food.find({}, (err1, rs1) => {
+          if (err1) {
+            console.error(err1);
+          } else {
+            for (let i = 0; i < snacks.length; i++) {
+              rs1[i + 30 + 24 + 24].description = snacks[i].description;
+            }
+            rs1.forEach((it) => {
+              Food.findOneAndUpdate(
+                { _id: it._id },
+                {
+                  description: it.description,
+                },
+                { useFindAndModify: false },
+                (error, result) => {
+                  if (error) {
+                    console.error(error);
+                  } else {
+                  }
+                }
+              );
+            });
+            done({
+              EC: 0,
+              EM: "success",
+            });
+          }
+        });
+      });
+  },
+  updateSamples_beta: async (done) => {
+    fetch(`${Config.CHOPP_URL}`, {
+      method: "GET",
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        // rau củ trái cây
+        const vegetableAndFruits = rs[1].products.map((pro, ind) => {
+          return {
+            name: pro.fields.name,
+            images: [
+              pro.fields["photo@2x"][0].url,
+              pro.fields["photo@3x"][0].url,
+            ],
+            files: [],
+            price: pro.fields.price,
+            unit: pro.fields.unit,
+          };
+        });
+        // Trái cây tươi
+        const fruits = rs[2].products.map((pro, ind) => {
+          return {
+            name: pro.fields.name,
+            images: [
+              pro.fields["photo@2x"][0].url,
+              pro.fields["photo@3x"][0].url,
+            ],
+            files: [],
+            price: pro.fields.price,
+            unit: pro.fields.unit,
+          };
+        });
+        // Bánh kẹo và snack
+        const snacks = rs[13].products.map((pro, ind) => {
+          return {
+            name: pro.fields.name,
+            images: [
+              pro.fields["photo@2x"][0].url,
+              pro.fields["photo@3x"][0].url,
+            ],
+            files: [],
+            price: pro.fields.price,
+            unit: pro.fields.unit,
+          };
+        });
+        FileController.create(
+          snacks.map((pro, ind) => pro.images),
+          (rs) => {
+            for (let i = 0; i < snacks.length; i++) {
+              snacks[i].files = [...rs.data[i].map((fl, ind) => fl._id)];
+            }
+            // update food here
+            Food.find({}, (err1, rs1) => {
+              if (err1) {
+                console.error(err1);
+              } else {
+                for (let i = 0; i < snacks.length; i++) {
+                  rs1[i + 30 + 24 + 24].title = snacks[i].name;
+                  rs1[i + 30 + 24 + 24].images = [...snacks[i].files];
+                  rs1[i + 30 + 24 + 24].price = snacks[i].price;
+                  rs1[i + 30 + 24 + 24].unit = snacks[i].unit;
+                }
+                rs1.forEach((it) => {
+                  Food.findOneAndUpdate(
+                    { _id: it._id },
+                    {
+                      title: it.title,
+                      images: [...it.images],
+                      price: it.price,
+                      unit: it.unit,
+                    },
+                    { useFindAndModify: false },
+                    (error, result) => {
+                      if (error) {
+                        console.error(error);
+                      } else {
+                      }
+                    }
+                  );
+                });
+                done({
+                  EC: 0,
+                  EM: "success",
+                });
+              }
+            });
+          }
+        );
+      });
+  },
   search: async (page, pagesize, title, user_id, type, category, done) => {
     try {
       let result = [];
@@ -301,6 +503,7 @@ module.exports = {
             $or: [
               { title: new RegExp(`${title}`, "i") },
               { description: new RegExp(`${title}`, "i") },
+              { category: new RegExp(`${title}`, "i") },
             ],
           });
           break;
@@ -310,6 +513,7 @@ module.exports = {
             $or: [
               { title: new RegExp(`${title}`, "i") },
               { description: new RegExp(`${title}`, "i") },
+              { category: new RegExp(`${title}`, "i") },
             ],
           });
           break;
@@ -319,12 +523,14 @@ module.exports = {
             $or: [
               { title: new RegExp(`${title}`, "i") },
               { description: new RegExp(`${title}`, "i") },
+              { category: new RegExp(`${title}`, "i") },
             ],
           });
           let foodFilterRS = await Food.find({
             $or: [
               { title: new RegExp(`${title}`, "i") },
               { description: new RegExp(`${title}`, "i") },
+              { category: new RegExp(`${title}`, "i") },
             ],
           });
           result.push(...itemFilterRS, ...foodFilterRS);
