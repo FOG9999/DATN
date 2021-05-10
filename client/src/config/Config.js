@@ -1,6 +1,7 @@
 const Config = {
   AuthServer: "http://localhost:4000",
   ResourceServer: "http://localhost:5000",
+  UploadServer: "http://localhost:9000",
   ROLE: {
     SYSTEM: {
       admin: "ADMIN",

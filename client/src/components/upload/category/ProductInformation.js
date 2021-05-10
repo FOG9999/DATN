@@ -24,18 +24,29 @@ import {
 } from "../../../others/functions/checkTextForNumberInput";
 import PreviewImage from "../image_upload/PreviewImage";
 import MainImgModal from "../image_upload/MainImgModal";
+import { connect } from "react-redux";
+import { GeneralAction } from "../../../redux/actions/GeneralAction";
+import { UserAction } from "../../../redux/actions/UserAction";
+import { createProduct } from "../../../apis/item-pool/ItemPool";
+import { uploadImageFile } from "../../../apis/other-pool/OtherPool";
+import { Config } from "../../../config/Config";
 
 const itemCategories = [
   "Quần áo",
   "Đồ trang điểm",
-  "Sách truyện",
-  "Nhà bếp",
-  "Phụ kiện trang bị",
-  "Đồ dùng trong nhà",
+  "Giày dép",
+  "Vật dụng",
+  "Trang trí",
+  "Khác",
 ];
-const foodCategories = ["Rau xanh", "Hoa quả", "Trứng", "Thủy sản"];
+const foodCategories = [
+  "Rau củ quả",
+  "Hoa quả tươi",
+  "Sản phẩm thịt",
+  "Bánh kẹo và snack",
+];
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
-const units = ["KG", "Quả", "Con"];
+const units = ["KG", "Quả", "Con", "Hộp", "Vỉ", "Gói"];
 const statusArr = ["Đang vận chuyển", "Hàng mói về", "Hàng xả kho"];
 const maxImageLimit = 12;
 const strings = {
@@ -86,6 +97,7 @@ const productFood = {
   unit: "KG",
   fromDate: "Hôm nay",
   images: [],
+  quantity: "",
   content: {
     value: RTE.createEmptyValue(),
     htmlStr: RTE.createEmptyValue().toString("html"),
@@ -253,6 +265,56 @@ class ProductCategory extends Component {
     }
     if (!!msg) {
       toast.error(msg, undefined);
+    } else {
+      this.props.dispatchLoading();
+      if (this.props.logged) {
+        const type = this.state.proCategory === "Vật phẩm" ? "I" : "F";
+        const path = "/create/CLIENT/" + type;
+        this.props.dispatchAuthen(path, "POST", (auth) => {
+          if (auth.EC !== 0) {
+            toast.error(auth.EM);
+            this.props.dispatchLoaded();
+          } else {
+            const statePro = { ...this.state.product };
+            let transformedImageNames = this.state.uploadImages.imageNames.map(
+              (name, ind) => `${Config.UploadServer}/public/img/${name}`
+            );
+            let uploadProduct = {};
+            uploadProduct.title = statePro.title;
+            uploadProduct.category = statePro.category;
+            uploadProduct.quantity = parseInt(statePro.quantity);
+            uploadProduct.location = {
+              detail: statePro.addressDetail,
+              ...statePro.location,
+            };
+            uploadProduct.brand = statePro.brand;
+            uploadProduct.price = statePro.price;
+            uploadProduct.images = [...transformedImageNames];
+            uploadProduct.description = statePro.content.htmlStr;
+            if (this.state.proCategory === "Thực phẩm") {
+              uploadProduct.unit = statePro.unit;
+            }
+            createProduct(uploadProduct, type, (rs) => {
+              if (rs.EC !== 0) {
+                toast.error(rs.EM);
+                this.props.dispatchLoaded();
+              } else {
+                uploadImageFile(
+                  this.state.uploadImages.imageFiles,
+                  (doneRS) => {
+                    if (doneRS.EC !== 0) {
+                      toast.error(doneRS.EM);
+                      this.props.dispatchLoaded();
+                    } else {
+                      toast.success("Đăng tải sản phẩm thành công");
+                    }
+                  }
+                );
+              }
+            });
+          }
+        });
+      }
     }
   };
   onChangeProductCategory = (e) => {
@@ -626,27 +688,27 @@ class ProductCategory extends Component {
                   />
                 </Box>
               </Box>
-              <Box display="flex" mt={2}>
-                <Box width="300px" pl={2} py={1}>
-                  Số lượng
-                </Box>
-                <Box width="400px">
-                  <TextField
-                    onChange={this.onChangeInputField}
-                    name="quantity"
-                    value={turnNumberToNumberWithSeperator(
-                      this.state.product.quantity
-                    )}
-                    variant="outlined"
-                    fullWidth={true}
-                    size="small"
-                    id="idquantity"
-                    error={this.state.checkFields[4].error}
-                  />
-                </Box>
-              </Box>
             </Box>
           ) : null}
+          <Box display="flex" mt={2}>
+            <Box width="300px" pl={2} py={1}>
+              Số lượng
+            </Box>
+            <Box width="400px">
+              <TextField
+                onChange={this.onChangeInputField}
+                name="quantity"
+                value={turnNumberToNumberWithSeperator(
+                  this.state.product.quantity
+                )}
+                variant="outlined"
+                fullWidth={true}
+                size="small"
+                id="idquantity"
+                error={this.state.checkFields[4].error}
+              />
+            </Box>
+          </Box>
           <Box display="flex" mt={2}>
             <Box width="300px" pl={2} py={1}>
               Trạng thái sản phẩm
@@ -692,32 +754,32 @@ class ProductCategory extends Component {
                 }}
               />
             </Box>
-            {this.state.proCategory === "Vật phẩm" ? null : (
-              <Box display="flex">
-                <Box pl={4} pr={2} py={1}>
-                  Đơn vị
-                </Box>
-                <RadioGroup
-                  row
-                  value={this.state.product.unit}
-                  onChange={this.onChangeInputField}
-                  name="unit"
-                >
-                  {units.map((unit, index) => {
-                    return (
-                      <FormControlLabel
-                        value={unit}
-                        key={index}
-                        control={<Radio />}
-                        label={`/1 ${unit}`}
-                        checked={this.state.product.unit === unit}
-                      />
-                    );
-                  })}
-                </RadioGroup>
-              </Box>
-            )}
           </Box>
+          {this.state.proCategory === "Vật phẩm" ? null : (
+            <Box mt={2} display="flex">
+              <Box width="300px" pl={2} py={1}>
+                Đơn vị
+              </Box>
+              <RadioGroup
+                row
+                value={this.state.product.unit}
+                onChange={this.onChangeInputField}
+                name="unit"
+              >
+                {units.map((unit, index) => {
+                  return (
+                    <FormControlLabel
+                      value={unit}
+                      key={index}
+                      control={<Radio />}
+                      label={`/1 ${unit}`}
+                      checked={this.state.product.unit === unit}
+                    />
+                  );
+                })}
+              </RadioGroup>
+            </Box>
+          )}
           <Box mt={2} display="flex">
             <Box width="300px" pl={2} pt={4}>
               Hình ảnh cho sản phẩm
@@ -815,4 +877,25 @@ class ProductCategory extends Component {
   }
 }
 
-export default ProductCategory;
+const mapStateToProps = (state) => {
+  return {
+    logged: state.user.logged,
+    loading: state.general.loading,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatchLoading: () => {
+      dispatch(GeneralAction.loading());
+    },
+    dispatchLoaded: () => {
+      dispatch(GeneralAction.loaded());
+    },
+    dispatchAuthen: (path, method, done) => {
+      dispatch(UserAction.authen(path, method, done));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductCategory);

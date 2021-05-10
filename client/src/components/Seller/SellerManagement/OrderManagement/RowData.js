@@ -2,7 +2,9 @@ import { Box, Button } from "@material-ui/core";
 import { Message } from "@material-ui/icons";
 import React, { Component } from "react";
 import { turnNumberToNumberWithSeperator } from "../../../../others/functions/checkTextForNumberInput";
-import faker from "faker";
+import cNd from "../../../../others/convincesAndDistricts.json";
+
+const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
 class RowData extends Component {
   state = {};
@@ -88,9 +90,15 @@ class RowData extends Component {
             <p px={1}>
               {this.props.order.product.delivery_location.detail},<br />
               {"đường " +
-                this.props.order.product.delivery_location.street +
+                convincesAndDistricts[1].districts[
+                  this.props.order.product.delivery_location.districtIndex
+                ].streets[
+                  this.props.order.product.delivery_location.streetIndex
+                ].name +
                 " , quận " +
-                this.props.order.product.delivery_location.district +
+                convincesAndDistricts[1].districts[
+                  this.props.order.product.delivery_location.districtIndex
+                ].name +
                 " ," +
                 " thành phố Hà Nội"}
             </p>

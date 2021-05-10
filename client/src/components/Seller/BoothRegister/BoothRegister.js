@@ -21,6 +21,12 @@ import PreviewImage from "../../upload/image_upload/PreviewImage";
 import MainImgModal from "../../upload/image_upload/MainImgModal";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { GeneralAction } from "../../../redux/actions/GeneralAction";
+import { UserAction } from "../../../redux/actions/UserAction";
+import { connect } from "react-redux";
+import { createBooth } from "../../../apis/user-pool/UserPool";
+import { Config } from "../../../config/Config";
+import { uploadImageFile } from "../../../apis/other-pool/OtherPool";
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 const maxImageLimit = 12;
@@ -52,6 +58,7 @@ class BoothRegister extends Component {
         street: convincesAndDistricts[1].districts[0].streets[0].name,
         district: convincesAndDistricts[1].districts[0].name,
         convince: convincesAndDistricts[1].name,
+        detail: "",
       },
       activeFrom: new Date(),
       activeTo: null,
@@ -63,10 +70,10 @@ class BoothRegister extends Component {
       phone: "",
     },
     uploadImages: {
-      filereaders: [],
-      imageSrcs: [],
-      imageNames: [],
-      imageFiles: [],
+      filereaders: [], // để đọc file khi tải lên
+      imageSrcs: [], // để hiển thị trong thẻ img
+      imageNames: [], // để tạo đường link lưu và gửi tới resource server
+      imageFiles: [], // để upload lên upload server
     },
     showView: false,
     selectedImageIndex: -1,
@@ -92,6 +99,17 @@ class BoothRegister extends Component {
       },
     });
   }
+  onChangeLocationDetail = (e) => {
+    this.setState({
+      booth: {
+        ...this.state.booth,
+        location: {
+          ...this.state.booth.location,
+          detail: e.target.value,
+        },
+      },
+    });
+  };
   checkValid = (fieldName) => {
     let value = this.state.booth[fieldName];
     let msg = "";
@@ -252,7 +270,61 @@ class BoothRegister extends Component {
       if (!!msg) break;
     }
     if (!!msg) {
-      toast.error(msg, undefined);
+      toast.error(msg);
+    } else {
+      this.props.dispatchLoading();
+      if (this.props.logged) {
+        const path = "/booth/CLIENT/create";
+        this.props.dispatchAuthen(path, "POST", (auth) => {
+          if (auth.EC !== 0) {
+            toast.error(auth.EM);
+            this.props.dispatchLoaded();
+          } else {
+            let {
+              title,
+              organizationName,
+              leaderName,
+              phone,
+              activeFrom,
+              activeTo,
+              population,
+              location,
+              content,
+            } = this.state.booth;
+            const { imageFiles, imageNames } = this.state.uploadImages;
+            let transformedImageNames = imageNames.map(
+              (name, ind) => `${Config.UploadServer}/public/img/${name}`
+            );
+            createBooth(
+              title,
+              organizationName,
+              leaderName,
+              phone,
+              activeFrom,
+              activeTo,
+              location,
+              population,
+              transformedImageNames,
+              content.htmlStr,
+              (rs) => {
+                if (rs.EC !== 0) {
+                  toast.error(rs.EM);
+                  this.props.dispatchLoaded();
+                } else {
+                  uploadImageFile(imageFiles, (result) => {
+                    if (result.EC !== 0) {
+                      toast.error(result.EM);
+                      this.props.dispatchLoaded();
+                    } else {
+                      toast.success("Yêu cầu tạo gian hàng đã được gửi đi.");
+                    }
+                  });
+                }
+              }
+            );
+          }
+        });
+      }
     }
   };
 
@@ -608,7 +680,7 @@ class BoothRegister extends Component {
                   })}
                 </Select>
               </Box>
-              <Box mr={2}>
+              <Box mr={3}>
                 <Select
                   value={this.state.booth.location.convince}
                   name="conivce"
@@ -622,6 +694,17 @@ class BoothRegister extends Component {
                     );
                   })}
                 </Select>
+              </Box>
+              <Box width="480px">
+                <TextField
+                  size="small"
+                  name="population"
+                  onChange={this.onChangeLocationDetail}
+                  value={this.state.booth.location.detail}
+                  variant="outlined"
+                  placeholder="Địa chỉ chi tiết"
+                  fullWidth={true}
+                />
               </Box>
             </Box>
           </Box>
@@ -721,7 +804,7 @@ class BoothRegister extends Component {
               onClick={this.submitProduct}
               fullWidth={true}
             >
-              Đăng sản phẩm
+              Tạo gian hàng
             </Button>
           </Box>
           <Box mr={3} width="30%">
@@ -740,4 +823,25 @@ class BoothRegister extends Component {
   }
 }
 
-export default BoothRegister;
+const mapStateToProps = (state) => {
+  return {
+    logged: state.user.logged,
+    loading: state.general.loading,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatchLoading: () => {
+      dispatch(GeneralAction.loading());
+    },
+    dispatchLoaded: () => {
+      dispatch(GeneralAction.loaded());
+    },
+    dispatchAuthen: (path, method, done) => {
+      dispatch(UserAction.authen(path, method, done));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BoothRegister);

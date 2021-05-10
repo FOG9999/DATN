@@ -1,3 +1,4 @@
+const BoothController = require("../controller/BoothController");
 const UserController = require("../controller/UserController");
 const UserRatingController = require("../controller/UserRatingController");
 const { authen } = require("../function/Middleware");
@@ -58,6 +59,43 @@ UserRouter.post("/rmv-cart/:role", authen, (req, res, next) => {
 
 UserRouter.post("/update-samples", (req, res, next) => {
   UserController.updateSamples((rs) => {
+    res.send(rs);
+  });
+});
+
+UserRouter.post("/booth/:role/create", (req, res, next) => {
+  const {
+    name,
+    organization_name,
+    leader_name,
+    leader_phone,
+    start_from,
+    end_at,
+    location,
+    population,
+    images,
+    description,
+  } = req.body;
+  BoothController.create(
+    name,
+    req.cookies.user_id,
+    organization_name,
+    leader_name,
+    leader_phone,
+    start_from,
+    end_at,
+    location,
+    population,
+    images,
+    description,
+    (rs) => {
+      res.send(rs);
+    }
+  );
+});
+
+UserRouter.get("/booth/get-list/:role", authen, (req, res, next) => {
+  BoothController.getBoothes(req.cookies.user_id, (rs) => {
     res.send(rs);
   });
 });

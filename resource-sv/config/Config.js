@@ -16,7 +16,7 @@ module.exports = {
   uri:
     "mongodb+srv://fog:thang20899@cluster0.duano.mongodb.net/hn-std-mkt?retryWrites=true&w=majority",
   // RECOMMEND_SV: "https://nice-talented-heather.glitch.me/",
-  RECOMMEND_SV: "http://localhost:6000",
+  RECOMMEND_SV: "http://localhost:9000",
   SHOPEE_URL:
     "https://shopee.vn/api/v4/search/search_items?by=relevancy&keyword=trang%20tr%C3%AD&limit=15&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2",
   SENDO_URL:

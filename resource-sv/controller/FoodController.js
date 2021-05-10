@@ -3,6 +3,7 @@ const FOOD_CATEGORIES = ["Rau xanh", "Hoa quả", "Trứng", "Thủy sản"];
 const { STATUS } = require("../config/Config");
 const faker = require("faker");
 const User = require("../model/User");
+const File = require("../model/File");
 const addresses_json = JSON.parse(
   JSON.stringify(require("../config/convincesAndDistricts.json"))
 );
@@ -114,6 +115,60 @@ module.exports = {
       done({
         EC: 500,
         EM: err,
+      });
+    }
+  },
+  createFood: async (
+    title,
+    price,
+    seller,
+    location,
+    description,
+    quantity,
+    images,
+    category,
+    unit,
+    done
+  ) => {
+    try {
+      let imageFiles = [];
+      for (let i = 0; i < images.length; i++) {
+        let file = new File({
+          link: images[i],
+        });
+        let savedFile = await file.save({ new: true });
+        imageFiles.push(savedFile._id);
+      }
+      let newFood = new Food({
+        title: title,
+        price: price,
+        seller: seller,
+        location: { ...location },
+        withDelivery: false,
+        unit: unit,
+        description: description,
+        quantity: quantity,
+        images: [...imageFiles],
+        category: category,
+        createdAt: new Date(),
+        views: 0,
+        status: STATUS.W, // waiting
+        checkDate: null,
+        type: "F",
+        sold: 0,
+      });
+      let saved = await newFood.save({ new: true });
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          product: { ...saved },
+        },
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.message,
       });
     }
   },

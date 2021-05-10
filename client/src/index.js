@@ -5,7 +5,7 @@ import App from "./App";
 import thunk from "redux-thunk";
 import { GeneralReducer } from "./redux/reducers/GeneralReducer";
 import { UserReducer } from "./redux/reducers/UserReducer";
-import { createStore, applyMiddleware, combineReducers } from "redux";
+import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { persistCombineReducers, persistStore } from "redux-persist";

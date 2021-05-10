@@ -91,6 +91,24 @@ const search = (page, pagesize, title, type, category, done) => {
     });
 };
 
+const createProduct = (product, type, done) => {
+  fetch(`${Config.ResourceServer}/product/create/CLIENT/${type}`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "content-type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      product: { ...product },
+    }),
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
 const searchNoCookie = (page, pagesize, title, type, category, done) => {
   fetch(
     `${Config.ResourceServer}/product/search?type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
@@ -114,4 +132,5 @@ export {
   search,
   searchNoCookie,
   getPrdForRelate,
+  createProduct,
 };

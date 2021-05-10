@@ -2,6 +2,7 @@ const Item = require("../model/Item");
 const faker = require("faker");
 const { STATUS } = require("../config/Config");
 const User = require("../model/User");
+const File = require("../model/File");
 const addresses_json = JSON.parse(
   JSON.stringify(require("../config/convincesAndDistricts.json"))
 );
@@ -114,6 +115,59 @@ module.exports = {
       done({
         EC: 500,
         EM: err,
+      });
+    }
+  },
+  createItem: async (
+    title,
+    price,
+    seller,
+    location,
+    description,
+    quantity,
+    images,
+    category,
+    brand,
+    done
+  ) => {
+    try {
+      let imageFiles = [];
+      for (let i = 0; i < images.length; i++) {
+        let file = new File({
+          link: images[i],
+        });
+        let savedFile = await file.save({ new: true });
+        imageFiles.push(savedFile._id);
+      }
+      let newItem = new Item({
+        title: title,
+        price: price,
+        seller: seller,
+        location: { ...location },
+        description: description,
+        quantity: quantity,
+        images: [...imageFiles],
+        category: category,
+        brand: brand,
+        createdAt: new Date(),
+        views: 0,
+        status: STATUS.W,
+        checkDate: null,
+        type: "I",
+        sold: 0,
+      });
+      let saved = await newItem.save({ new: true });
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          product: { ...saved },
+        },
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.message,
       });
     }
   },

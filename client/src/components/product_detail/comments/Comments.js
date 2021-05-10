@@ -30,7 +30,7 @@ class Comment extends Component {
   }
   render() {
     return (
-      <Box>
+      <Box className="white-background" mt={2}>
         <Box p={2}>
           <big>Binh luận trên sản phẩm</big>
         </Box>

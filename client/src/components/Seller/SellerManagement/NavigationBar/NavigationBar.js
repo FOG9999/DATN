@@ -11,6 +11,7 @@ import {
 import OneDirection from "./OneDirection";
 import OrderManagement from "../OrderManagement/OrderManagement";
 import ProductManagement from "../ProductManagement/ProductManagement";
+import ListBoothes from "../MyBooth/ListBoothes";
 
 const strings = {
   orderManagementContent: "Quản lý đơn hàng",
@@ -18,7 +19,7 @@ const strings = {
   productManagementContent: "Quản lý sản phẩm",
   boothInforManagementContent: "Quản lý thông tin",
   financeContent: "Tài chính",
-  dataContent: "Dữ liệu",
+  boothContent: "Các gian hàng",
 };
 
 const directions = [
@@ -48,15 +49,15 @@ const directions = [
     content: strings.financeContent,
   },
   {
-    icon: <StorageOutlined />, // data
-    main: <div>data main div</div>,
-    content: strings.dataContent,
+    icon: <StorageOutlined />, // boothes
+    main: <ListBoothes />,
+    content: strings.boothContent,
   },
 ];
 
 class NavigationBar extends Component {
   state = {
-    selectedIndex: -1,
+    selectedIndex: 0,
   };
   onClick = (index) => {
     this.props.changeMainComponent(directions[index].main);

@@ -280,4 +280,69 @@ ProductRouter.post("/update-samples-location", (req, res, next) => {
   });
 });
 
+ProductRouter.post("/create/:role/:type", authen, (req, res, next) => {
+  switch (req.params.type) {
+    case "I": {
+      const {
+        title,
+        price,
+        location,
+        description,
+        quantity,
+        images,
+        category,
+        brand,
+      } = req.body.product;
+      ItemController.createItem(
+        title,
+        price,
+        req.cookies.user_id,
+        location,
+        description,
+        quantity,
+        images,
+        category,
+        brand,
+        (rs) => {
+          res.send(rs);
+        }
+      );
+      break;
+    }
+    case "F": {
+      const {
+        title,
+        price,
+        location,
+        description,
+        quantity,
+        images,
+        category,
+        unit,
+      } = req.body.product;
+      FoodController.createFood(
+        title,
+        price,
+        req.cookies.user_id,
+        location,
+        description,
+        quantity,
+        images,
+        category,
+        unit,
+        (rs) => {
+          res.send(rs);
+        }
+      );
+      break;
+    }
+    default: {
+      res.send({
+        EC: -1,
+        EM: "Không thể thực hiện request",
+      });
+    }
+  }
+});
+
 module.exports = ProductRouter;

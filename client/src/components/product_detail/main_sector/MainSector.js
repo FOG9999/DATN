@@ -219,6 +219,7 @@ class MainSector extends Component {
               this.setState({
                 product: { ...rs.data[0] },
               });
+              this.props.getProDesc(rs.data[0].description);
               this.props.dispatchLoaded();
             }
           });
@@ -233,6 +234,7 @@ class MainSector extends Component {
           this.setState({
             product: { ...rs.data[0] },
           });
+          this.props.getProDesc(rs.data[0].description);
           this.props.dispatchLoaded();
         }
       });

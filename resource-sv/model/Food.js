@@ -14,7 +14,7 @@ var Food = mongoose.Schema({
       ref: "File",
     },
   ],
-  descrption: String,
+  description: String,
   createdAt: Date,
   unit: String,
   views: Number,

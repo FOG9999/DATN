@@ -217,6 +217,57 @@ const getSellerProducts = (page, pagesize, done) => {
     });
 };
 
+const createBooth = (
+  name,
+  organization_name,
+  leader_name,
+  leader_phone,
+  start_from,
+  end_at,
+  location,
+  population,
+  images,
+  description,
+  done
+) => {
+  fetch(`${Config.ResourceServer}/user/booth/${Config.ROLE.CLIENT}/create`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "content-type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      name: name,
+      organization_name: organization_name,
+      leader_name: leader_name,
+      leader_phone: leader_phone,
+      start_from: start_from,
+      end_at: end_at,
+      location: { ...location },
+      images: [...images],
+      description: description,
+      population: population,
+    }),
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
+const getListBoothes = (done) => {
+  fetch(`${Config.ResourceServer}/user/booth/get-list/CLIENT`, {
+    method: "GET",
+    mode: "cors",
+    credentials: "include",
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
 export {
   login,
   authen,
@@ -229,4 +280,6 @@ export {
   placeDeliOrder,
   getSellerProducts,
   getUserOrders,
+  getListBoothes,
+  createBooth,
 };

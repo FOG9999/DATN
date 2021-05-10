@@ -69,6 +69,9 @@ class ProductManagement extends Component {
     products: [],
     onSearching: false,
   };
+  onClickUploadNewProduct = () => {
+    window.location.href = "/m/prd/create";
+  };
   onChangeSearchTitle = (e) => {
     this.setState({
       searchTitle: e.target.value,
@@ -361,6 +364,7 @@ class ProductManagement extends Component {
               <Button
                 variant="contained"
                 className="backgroundcolor-orange color-white"
+                onClick={this.onClickUploadNewProduct}
               >
                 <Add />
                 Thêm sản phẩm mới
