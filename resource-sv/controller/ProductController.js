@@ -10,17 +10,48 @@ const User = require("../model/User");
 const File = require("../model/File");
 
 module.exports = {
-  getAllProducts: (done) => {
+  getAllProducts: async (done) => {
     try {
-      Promise.all([Item.find({}), Food.find({})]).then(([items, food]) => {
-        done({
-          EC: 0,
-          EM: "Success",
-          data: {
-            items: [...items.map((item, ind) => item._id)],
-            food: [...food.map((item, ind) => item._id)],
-          },
-        });
+      let items = await Item.find({});
+      let food = await Food.find({});
+      await File.populate(items, {
+        path: "images",
+      });
+      await File.populate(food, {
+        path: "images",
+      });
+      await User.populate(items, {
+        path: "seller",
+      });
+      await User.populate(food, {
+        path: "seller",
+      });
+      done({
+        EC: 0,
+        EM: "Success",
+        data: {
+          items: [...items],
+          food: [...food],
+        },
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.toString(),
+      });
+    }
+  },
+  getAllProductIDs: async (done) => {
+    try {
+      let items = await Item.find({});
+      let food = await Food.find({});
+      done({
+        EC: 0,
+        EM: "Success",
+        data: {
+          items: [...items.map((item, ind) => item._id)],
+          food: [...food.map((item, ind) => item._id)],
+        },
       });
     } catch (err) {
       done({

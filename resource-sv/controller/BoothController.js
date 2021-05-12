@@ -94,4 +94,22 @@ module.exports = {
       });
     }
   },
+  updateStatus: async (status, booth_id, done) => {
+    try {
+      await Booth.findOneAndUpdate(
+        { _id: booth_id },
+        { status: status },
+        { useFindAndModify: false }
+      );
+      done({
+        EC: 0,
+        EM: "success",
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
+  },
 };

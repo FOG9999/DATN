@@ -3,6 +3,7 @@ module.exports = {
     A: "Active",
     W: "Waiting",
     S: "Sold",
+    D: "Deleted",
   },
   status: {
     A: "ACTIVE",

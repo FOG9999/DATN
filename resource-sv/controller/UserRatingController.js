@@ -7,7 +7,7 @@ module.exports = {
     let output = [];
     let products = [];
     let users = [];
-    ProductController.getAllProducts((rs) => {
+    ProductController.getAllProductIDs((rs) => {
       products.push(...rs.data.items, ...rs.data.food);
       UserController.getAllUserIDs(async (us) => {
         users.push(...us.data);
