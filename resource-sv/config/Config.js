@@ -4,6 +4,17 @@ module.exports = {
     W: "Waiting",
     S: "Sold",
   },
+  status: {
+    A: "ACTIVE",
+    B: "BLOCKED",
+    D: "DELETED",
+  },
+  boothStatus: {
+    A: "ACCEPT",
+    W: "WAITING",
+    D: "DENY",
+  },
+  secret: "06102020",
   ROLE: {
     SYSTEM: {
       admin: "ADMIN",
@@ -13,8 +24,7 @@ module.exports = {
     CLIENT: "CLIENT",
   },
   port: process.env.PORT || 5000,
-  uri:
-    "mongodb+srv://fog:thang20899@cluster0.duano.mongodb.net/hn-std-mkt?retryWrites=true&w=majority",
+  uri: "mongodb+srv://fog:thang20899@cluster0.duano.mongodb.net/hn-std-mkt?retryWrites=true&w=majority",
   // RECOMMEND_SV: "https://nice-talented-heather.glitch.me/",
   RECOMMEND_SV: "http://localhost:9000",
   SHOPEE_URL:

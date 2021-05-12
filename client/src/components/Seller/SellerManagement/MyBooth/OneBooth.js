@@ -6,6 +6,21 @@ import { UserAction } from "../../../../redux/actions/UserAction";
 
 class OneBooth extends Component {
   state = {};
+  displayStatus = (status) => {
+    switch (status) {
+      case "WAITING": {
+        return "Chờ xét duyệt";
+      }
+      case "DENY": {
+        return "Từ chối";
+      }
+      case "ACCEPT": {
+        return "Đang hoạt động";
+      }
+      default:
+        return status;
+    }
+  };
   render() {
     return (
       <Box
@@ -25,8 +40,7 @@ class OneBooth extends Component {
           <Box>
             <p>Tổ chức: {this.props.booth.organization_name}</p>
             <p className="color-aaa">
-              Trạng thái:{" "}
-              {this.props.booth.accepted ? "Đã duyệt" : "Chờ xét duyệt"}
+              Trạng thái: {this.displayStatus(this.props.booth.status)}
             </p>
           </Box>
           <Box

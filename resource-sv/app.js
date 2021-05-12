@@ -8,10 +8,11 @@ const UserRouter = require("./route/UserRouter");
 const ItemRouter = require("./route/ItemRouter");
 const cookieParser = require("cookie-parser");
 const OrderRouter = require("./route/OrderRouter");
+const AdminRouter = require("./route/AdminRouter");
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["http://localhost:3000", "http://localhost:3333"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
     credentials: true,
   })
@@ -23,6 +24,7 @@ app.use("/product", ProductRouter);
 app.use("/user", UserRouter);
 app.use("/item", ItemRouter);
 app.use("/order", OrderRouter);
+app.use("/admin", AdminRouter);
 
 mongoose.connect(
   uri,

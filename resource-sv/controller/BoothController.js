@@ -1,3 +1,4 @@
+const Config = require("../config/Config");
 const Booth = require("../model/Booth");
 const File = require("../model/File");
 
@@ -38,6 +39,7 @@ module.exports = {
         population: population,
         images: [...links],
         description: description,
+        status: Config.boothStatus.W,
       });
       await newBooth.save();
       done({
@@ -62,6 +64,27 @@ module.exports = {
         EM: "success",
         data: {
           boothes: [...list],
+        },
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
+  },
+  getListBooth: async (page, pagesize, done) => {
+    try {
+      let boothes = await Booth.find({}).populate("owner").populate("images");
+      let isLastPage = boothes.length <= page * pagesize;
+      let length = boothes.length;
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          boothes: [...boothes.slice(pagesize * (page - 1), pagesize * page)],
+          isLastPage: isLastPage,
+          length: length,
         },
       });
     } catch (error) {

@@ -1,6 +1,7 @@
 const User = require("../model/User");
 const { status, secret, refresh_secret } = require("../config/Config");
 const bcryptjs = require("bcryptjs");
+const ROLE = require("../config/Config").role;
 const jwt = require("jsonwebtoken");
 const Cart = require("../model/Cart");
 const addresses_json = JSON.parse(
@@ -70,22 +71,30 @@ module.exports = {
           done({
             EC: 0,
             EM: "Tạo người dùng thành công",
-            data: {
-              user_id: data2._id,
-              token: bcryptjs.hashSync(token, 10),
-              name: data2.name,
-              address: {
-                districtInd: districtInd,
-                streetInd: streetInd,
-                detail: data2.address.detail,
-              },
-            },
+            data:
+              role === ROLE.client
+                ? {
+                    user_id: data2._id,
+                    token: bcryptjs.hashSync(token, 10),
+                    name: data2.name,
+                    address: {
+                      districtInd: districtInd,
+                      streetInd: streetInd,
+                      detail: data2.address.detail,
+                    },
+                  }
+                : {
+                    user_id: data2._id,
+                    token: bcryptjs.hashSync(token, 10),
+                    name: data2.name,
+                  },
           });
         });
       }
     });
   },
   login: async (password, username, role, done) => {
+    // dùng cho cả 2 phân hệ login
     User.findOne({ username: username, role: role }, (err1, data1) => {
       if (err1) {
         done({
@@ -132,17 +141,24 @@ module.exports = {
                     done({
                       EC: 0,
                       EM: "Đã xác minh người dùng. Token refreshed",
-                      data: {
-                        user_id: userUpd._id,
-                        token: token,
-                        name: userUpd.name,
-                        cartNum: cart.products.length,
-                        address: {
-                          districtInd: districtInd,
-                          streetInd: streetInd,
-                          detail: userUpd.address.detail,
-                        },
-                      },
+                      data:
+                        role === ROLE.client
+                          ? {
+                              user_id: userUpd._id,
+                              token: token,
+                              name: userUpd.name,
+                              cartNum: cart.products.length,
+                              address: {
+                                districtInd: districtInd,
+                                streetInd: streetInd,
+                                detail: userUpd.address.detail,
+                              },
+                            }
+                          : {
+                              user_id: userUpd._id,
+                              token: token,
+                              name: userUpd.name,
+                            },
                     });
                   }
                 }

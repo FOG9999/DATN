@@ -1,4 +1,5 @@
-import { Box } from "@material-ui/core";
+import { Box, Button } from "@material-ui/core";
+import { Add } from "@material-ui/icons";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
@@ -65,17 +66,46 @@ class ListBoothes extends Component {
     } else
       return (
         <Box m="auto" minWidth="800px" my="30px" className="white-background">
-          <Box display="flex" flexWrap="wrap">
-            {this.state.list.map((booth, index) => {
-              return (
-                <OneBooth
-                  booth={booth}
-                  key={index}
-                  onOpenModal={() => this.onOpenDetailModal(index)}
-                />
-              );
-            })}
-          </Box>
+          {this.state.list.length > 0 ? (
+            <Box display="flex" flexWrap="wrap">
+              {this.state.list.map((booth, index) => {
+                return (
+                  <OneBooth
+                    booth={booth}
+                    key={index}
+                    onOpenModal={() => this.onOpenDetailModal(index)}
+                  />
+                );
+              })}
+            </Box>
+          ) : (
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              height="400px"
+              className="white-background"
+            >
+              <Box>
+                <h1 className="color-aaa">
+                  Không có gian hàng nào để hiển thị
+                </h1>
+              </Box>
+              <Box display="flex" alignItems="center">
+                <Button
+                  variant="contained"
+                  className="backgroundcolor-orange color-white"
+                  onClick={() => {
+                    window.location.href = "/m/booth/register";
+                  }}
+                >
+                  <Add />
+                  Thêm gian hàng mới
+                </Button>
+              </Box>
+            </Box>
+          )}
           <ModalShowBooth
             show={this.state.showBoothDetail}
             onClose={this.onCloseModal}

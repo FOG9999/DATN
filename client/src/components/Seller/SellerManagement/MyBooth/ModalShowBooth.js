@@ -4,6 +4,21 @@ import React, { Component } from "react";
 
 class ModalShowBooth extends Component {
   state = {};
+  diplayStatus = (status) => {
+    switch (status) {
+      case "WAITING": {
+        return "Chờ xét duyệt";
+      }
+      case "DENY": {
+        return "Bị từ chối";
+      }
+      case "ACCEPT": {
+        return "Đã xác nhận";
+      }
+      default:
+        return status;
+    }
+  };
   render() {
     if (this.props.booth)
       return (
@@ -134,7 +149,7 @@ class ModalShowBooth extends Component {
                     Trạng thái:
                   </Box>
                   <Box flexGrow={1} display="flex" alignItems="center">
-                    {this.props.booth.accepted ? "Đã duyệt" : "Chờ xét duyệt"}
+                    {this.diplayStatus(this.props.booth.status)}
                   </Box>
                 </Box>
                 <Box display="flex" justifyContent="flex-end">

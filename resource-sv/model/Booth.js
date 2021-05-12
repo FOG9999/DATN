@@ -21,10 +21,7 @@ var Booth = mongoose.Schema({
     },
   ],
   description: String,
-  accepted: {
-    type: Boolean,
-    default: false,
-  },
+  status: String,
 });
 
 module.exports = mongoose.model("Booth", Booth);
