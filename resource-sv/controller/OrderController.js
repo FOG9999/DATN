@@ -3,6 +3,7 @@ const Food = require("../model/Food");
 const Item = require("../model/Item");
 const Order = require("../model/Order");
 const OrderProduct = require("../model/OrderProduct");
+const User = require("../model/User");
 
 module.exports = {
   placeSelfDeliOrder: async (
@@ -119,6 +120,41 @@ module.exports = {
       done({
         EC: 500,
         EM: err,
+      });
+    }
+  },
+  getCheckoutOrder: async (ord_productIDs, done) => {
+    try {
+      let ord_products = await OrderProduct.find({
+        _id: { $in: [...ord_productIDs] },
+      }).populate("owner");
+      await Item.populate(
+        ord_products.filter((ordPrd) => ordPrd.pro_type === "I"),
+        {
+          path: "product",
+        }
+      );
+      await Food.populate(
+        ord_products.filter((ordPrd) => ordPrd.pro_type === "F"),
+        {
+          path: "product",
+        }
+      );
+      await User.populate(ord_products, {
+        path: "product.seller",
+      });
+      await File.populate(ord_products, {
+        path: "product.images",
+      });
+      done({
+        EC: 0,
+        EM: "success",
+        data: { products: [...ord_products] },
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
       });
     }
   },

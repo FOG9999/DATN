@@ -9,6 +9,9 @@ const ItemRouter = require("./route/ItemRouter");
 const cookieParser = require("cookie-parser");
 const OrderRouter = require("./route/OrderRouter");
 const AdminRouter = require("./route/AdminRouter");
+const ChatRouter = require("./route/ChatRouter");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
 
 app.use(
   cors({
@@ -17,6 +20,31 @@ app.use(
     credentials: true,
   })
 );
+
+// app.get(
+//   "/socket.io",
+//   cors({
+//     origin: ["http://localhost:3000"],
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+//     credentials: true,
+//   }),
+//   (req, res) => {
+//     res.end();
+//   }
+// );
+
+// app.post(
+//   "/socket.io",
+//   cors({
+//     origin: ["http://localhost:3000"],
+//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+//     credentials: true,
+//   }),
+//   (req, res) => {
+//     res.end();
+//   }
+// );
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -25,6 +53,7 @@ app.use("/user", UserRouter);
 app.use("/item", ItemRouter);
 app.use("/order", OrderRouter);
 app.use("/admin", AdminRouter);
+app.use("/chat", ChatRouter);
 
 mongoose.connect(
   uri,
@@ -37,6 +66,16 @@ mongoose.connect(
   }
 );
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log("Resource server is listening on port " + port);
+});
+
+io.on("connection", (socket) => {
+  console.log(socket.id + "comes...");
+  socket.on("message", (data) => {
+    console.log(data.data);
+  });
+  socket.on("disconnect", () => {
+    console.log("disconnect");
+  });
 });

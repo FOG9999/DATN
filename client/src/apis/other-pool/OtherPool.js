@@ -25,4 +25,19 @@ const uploadImageFile = (imageFiles, done) => {
     });
 };
 
-export { uploadImageFile };
+const getConversation = (conID, page, pagesize, done) => {
+  fetch(
+    `${Config.ResourceServer}/chat/conversation/${Config.ROLE.CLIENT}?page=${page}&pagesize=${pagesize}&id=${conID}`,
+    {
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    }
+  )
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
+export { uploadImageFile, getConversation };

@@ -11,6 +11,7 @@ import {
   Add,
   ArrowForwardIos,
   LocalShipping,
+  Movie,
   // PlusOneOutlined,
   Remove,
 } from "@material-ui/icons";
@@ -307,11 +308,26 @@ class MainSector extends Component {
               p="10px"
               alignItems="center"
             >
-              <img
-                src={this.state.product.images[this.state.curr_image].link}
-                className="pro-detail-main-img"
-                alt=""
-              />
+              {!this.state.product.images[this.state.curr_image].link.includes(
+                "webm"
+              ) ||
+              !this.state.product.images[this.state.curr_image].link.includes(
+                "mp4"
+              ) ? (
+                <img
+                  src={this.state.product.images[this.state.curr_image].link}
+                  className="pro-detail-main-img"
+                  alt=""
+                />
+              ) : (
+                <video
+                  controls
+                  muted
+                  src={this.state.product.images[this.state.curr_image].link}
+                  width="480px"
+                  height="480px"
+                ></video>
+              )}
             </Box>
             <Box
               display="flex"
@@ -323,13 +339,26 @@ class MainSector extends Component {
                 return index >= this.state.startImgInd &&
                   index < this.state.startImgInd + 5 ? (
                   <Box className="pro-detail-small-image cursor-pointer">
-                    <img
-                      src={image.link}
-                      onClick={() => this.onClickImg(index)}
-                      key={index}
-                      alt=""
-                      className="pro-detail-small-image-img"
-                    />
+                    {!this.state.product.images[
+                      this.state.curr_image
+                    ].link.includes("mp4") ||
+                    !this.state.product.images[
+                      this.state.curr_image
+                    ].link.includes("webm") ? (
+                      <img
+                        src={image.link}
+                        onClick={() => this.onClickImg(index)}
+                        key={index}
+                        alt=""
+                        className="pro-detail-small-image-img"
+                      />
+                    ) : (
+                      <Movie
+                        fontsize="large"
+                        onClick={() => this.onClickImg(index)}
+                        key={index}
+                      />
+                    )}
                   </Box>
                 ) : null;
               })}

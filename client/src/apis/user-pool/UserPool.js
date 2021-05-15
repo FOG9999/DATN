@@ -268,6 +268,18 @@ const getListBoothes = (done) => {
     });
 };
 
+const getUserConversations = (done) => {
+  fetch(`${Config.ResourceServer}/chat/user-list/${Config.ROLE.CLIENT}`, {
+    method: "GET",
+    mode: "cors",
+    credentials: "include",
+  })
+    .then((res) => res.json())
+    .then((rs) => {
+      done(rs);
+    });
+};
+
 export {
   login,
   authen,
@@ -282,4 +294,5 @@ export {
   getUserOrders,
   getListBoothes,
   createBooth,
+  getUserConversations,
 };

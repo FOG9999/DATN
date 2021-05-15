@@ -117,6 +117,7 @@ class ProductCategory extends Component {
       imageSrcs: [],
       imageNames: [],
       imageFiles: [],
+      types: [],
     },
     showView: false,
     selectedImageIndex: -1,
@@ -401,12 +402,8 @@ class ProductCategory extends Component {
     });
   };
   onChangeImageUpload = (e) => {
-    const {
-      imageFiles,
-      imageNames,
-      imageSrcs,
-      filereaders,
-    } = this.state.uploadImages;
+    const { imageFiles, imageNames, imageSrcs, filereaders, types } =
+      this.state.uploadImages;
     let files = [...e.target.files];
     if (files.length + imageSrcs.length > strings.maxImageLimit) {
       toast.error(strings.tooManyImages);
@@ -421,24 +418,49 @@ class ProductCategory extends Component {
       imageFiles.push(file);
       imageNames.push(file.name);
       filereaders[i].onloadend = () => {
-        let preview = new Image();
-        preview.src = filereaders[i].result;
-        // Sau khi filereader đã đọc xong và ảnh đã được load lên (preview.onload) thì ms push vào imageSrcs
-        preview.onload = () => {
+        if (file.type.includes("image")) {
+          let preview = new Image();
+          preview.src = filereaders[i].result;
+          // Sau khi filereader đã đọc xong và ảnh đã được load lên (preview.onload) thì ms push vào imageSrcs?
+          // preview ở đây có vai trò lấy được naturalHeight và naturalWidth
+          // preview.onload = () => {
           imageSrcs.push({
-            src: preview.src,
+            src: filereaders[i].result,
             width: preview.naturalWidth,
             height: preview.naturalHeight,
           });
+          // đánh dấu đây là 1 image
+          types.push("I");
+          // push xong cái cho hiển thị luôn
           this.setState({
             uploadImages: {
               filereaders: [...filereaders],
               imageSrcs: [...imageSrcs],
               imageNames: [...imageNames],
               imageFiles: [...imageFiles],
+              types: [...types],
             },
           });
-        };
+          // };
+        } else if (file.type.includes("video")) {
+          imageSrcs.push({
+            src: filereaders[i].result,
+            width: 800,
+            height: 500,
+          });
+          // đánh dấu đây là 1 video
+          types.push("V");
+          // push xong cái cho hiển thị luôn
+          this.setState({
+            uploadImages: {
+              filereaders: [...filereaders],
+              imageSrcs: [...imageSrcs],
+              imageNames: [...imageNames],
+              imageFiles: [...imageFiles],
+              types: [...types],
+            },
+          });
+        }
       };
       filereaders[i].readAsDataURL(file);
     }
@@ -514,16 +536,17 @@ class ProductCategory extends Component {
             close={this.closeView}
             show={this.state.showView}
             main={{
-              width: this.state.uploadImages.imageSrcs[
-                this.state.selectedImageIndex
-              ].width,
-              height: this.state.uploadImages.imageSrcs[
-                this.state.selectedImageIndex
-              ].height,
+              width:
+                this.state.uploadImages.imageSrcs[this.state.selectedImageIndex]
+                  .width,
+              height:
+                this.state.uploadImages.imageSrcs[this.state.selectedImageIndex]
+                  .height,
               src: this.state.uploadImages.imageSrcs[
                 this.state.selectedImageIndex
               ].src,
             }}
+            type={this.state.uploadImages.types[this.state.selectedImageIndex]}
           />
         ) : null}
         <Box px={2}>
@@ -798,6 +821,7 @@ class ProductCategory extends Component {
                     return (
                       <PreviewImage
                         deleteImage={() => this.deleteImage(index)}
+                        type={this.state.uploadImages.types[index]}
                         src={src.src}
                         width={src.width}
                         height={src.height}

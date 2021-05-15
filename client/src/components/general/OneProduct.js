@@ -2,6 +2,7 @@ import { Box } from "@material-ui/core";
 import React, { Component } from "react";
 import faker from "faker";
 import { turnNumberToNumberWithSeperator } from "../../others/functions/checkTextForNumberInput";
+import { Movie } from "@material-ui/icons";
 
 const WIDTH = 175;
 
@@ -23,21 +24,34 @@ class OneProduct extends Component {
           alignItems="center"
           className="onepro-image-box"
         >
-          <img
-            src={
-              this.props.item
-                ? this.props.item.images[0].link
-                : faker.image.imageUrl(
-                    this.props.WIDTH,
-                    this.props.WIDTH,
-                    "Fashion",
-                    true,
-                    true
-                  )
-            }
-            alt=""
-            className="one-product-general"
-          />
+          {!this.props.item.images[0].link.includes("mp4") ||
+          !this.props.item.images[0].link.includes("webm") ? (
+            <img
+              src={
+                this.props.item
+                  ? this.props.item.images[0].link
+                  : faker.image.imageUrl(
+                      this.props.WIDTH,
+                      this.props.WIDTH,
+                      "Fashion",
+                      true,
+                      true
+                    )
+              }
+              alt=""
+              className="one-product-general"
+            />
+          ) : (
+            <Box
+              width={this.props.WIDTH}
+              height={this.props.WIDTH}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Movie fontsize="large" />
+            </Box>
+          )}
         </Box>
         <Box p="5px" height="75px">
           <small>

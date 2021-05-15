@@ -71,14 +71,27 @@ class CartContainer extends Component {
             window.location.href = "/";
           }, 3000);
         } else {
-          placeDeliOrder(this.state.cart.products, (rs) => {
-            if (rs.EC !== 0) {
-              toast.error(rs.EM);
-            } else {
-              console.log(rs.data);
-              this.props.dispatchLoaded();
+          // placeDeliOrder(this.state.cart.products, (rs) => {
+          //   if (rs.EC !== 0) {
+          //     toast.error(rs.EM);
+          //   } else {
+          //     console.log(rs.data);
+          //     this.props.dispatchLoaded();
+          //   }
+          // });
+          let idsArr = [];
+          for (let i = 0; i < this.state.cart.products.length; i++) {
+            if (this.state.checkedArr[i]) {
+              idsArr.push(this.state.cart.products[i]._id);
             }
-          });
+          }
+          let ids = String(idsArr[0]);
+          let count = 1;
+          while (count < idsArr.length) {
+            ids += "." + String(idsArr[count]);
+            count++;
+          }
+          window.location.href = "/checkout/" + ids;
         }
       });
     }

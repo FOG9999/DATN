@@ -1,6 +1,6 @@
 import { Box, IconButton } from "@material-ui/core";
 import React, { Component } from "react";
-import { Close } from "@material-ui/icons";
+import { Close, Movie } from "@material-ui/icons";
 
 const maxLen = 150;
 
@@ -38,16 +38,24 @@ class PreviewImage extends Component {
           width="150px"
           height="150px"
         >
-          <img
-            src={this.props.src}
-            style={{
-              width: `${this.state.size.width}px`,
-              height: `${this.state.size.height}px`,
-            }}
-            alt=""
-            onClick={this.props.onClickPreviewImage}
-            className="cursor-pointer"
-          />
+          {this.props.type === "I" ? (
+            <img
+              src={this.props.src}
+              style={{
+                width: `${this.state.size.width}px`,
+                height: `${this.state.size.height}px`,
+              }}
+              alt=""
+              onClick={this.props.onClickPreviewImage}
+              className="cursor-pointer"
+            />
+          ) : (
+            <Movie
+              fontSize="large"
+              onClick={this.props.onClickPreviewImage}
+              className="cursor-pointer"
+            />
+          )}
         </Box>
       </Box>
     );

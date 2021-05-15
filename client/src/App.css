@@ -190,6 +190,18 @@
   margin-right: 5px;
 }
 
+.one-conversation-in-list:hover {
+  background-color: #f8f8f8;
+}
+
+.div-scroll {
+  overflow-y: scroll;
+}
+
+.no-outline {
+  outline: none;
+}
+
 .onepro-image-box {
   border: 3px solid orange;
 }
@@ -216,6 +228,10 @@
 
 .backgroundcolor-orange {
   background-color: rgb(238, 77, 46) !important;
+}
+
+.backgroundcolor-aaa {
+  background-color: #aaa;
 }
 
 .input-order-quantity {

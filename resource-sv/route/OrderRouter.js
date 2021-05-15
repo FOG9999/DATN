@@ -36,4 +36,10 @@ OrderRouter.put("/create/:role/deli", (req, res, next) => {
   );
 });
 
+OrderRouter.post("/checkout/:role", authen, (req, res, next) => {
+  OrderController.getCheckoutOrder(req.body.ids, (rs) => {
+    res.send(rs);
+  });
+});
+
 module.exports = OrderRouter;

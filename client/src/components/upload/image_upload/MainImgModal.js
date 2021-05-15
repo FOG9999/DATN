@@ -38,15 +38,25 @@ class MainImgModal extends Component {
           justifyContent="center"
           py="20px"
         >
-          <img
-            src={this.props.main.src}
-            style={{
-              width: this.state.width,
-              height: this.state.height,
-              opacity: "1",
-            }}
-            alt=""
-          />
+          {this.props.type === "I" ? (
+            <img
+              src={this.props.main.src}
+              style={{
+                width: this.state.width,
+                height: this.state.height,
+                opacity: "1",
+              }}
+              alt=""
+            />
+          ) : (
+            <video
+              controls
+              muted
+              src={this.props.main.src}
+              width={this.props.main.width}
+              height={this.props.main.height}
+            ></video>
+          )}
         </Box>
       </Box>
     );

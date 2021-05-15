@@ -42,7 +42,7 @@ class HeaderButtons extends Component {
           {this.props.logged ? (
             <Box p={1} className="color-white">
               <a
-                href="/m/manage"
+                href="/m/manage/order"
                 style={{ textDecoration: "none", color: "white" }}
               >
                 Tôi
