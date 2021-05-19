@@ -12,9 +12,9 @@ class Comment extends Component {
     for (let i = 0; i < 10; i++) {
       let text = faker.lorem.sentences(Math.ceil(Math.random() * 3));
       let images = [
-        faker.image.imageUrl(80, 80, "", true),
-        faker.image.imageUrl(80, 80, "", true),
-        faker.image.imageUrl(80, 80, "", true),
+        faker.image.animals(80, 80),
+        faker.image.animals(80, 80),
+        faker.image.animals(80, 80),
       ];
       contents.push({
         text: text,

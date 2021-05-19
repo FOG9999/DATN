@@ -61,7 +61,7 @@ class BoothManageContainer extends Component {
     mainComponent: <OrderManagement />,
   };
   componentDidMount() {
-    this.props.socket.emit("message", { data: "hello" });
+    // this.props.socket.emit("message", { data: "hello" });
     let main = directions.filter(
       (direct) => direct.key === this.props.match.params.key
     )[0];
@@ -84,12 +84,7 @@ class BoothManageContainer extends Component {
         className="grey-background"
       >
         <Header />
-        <Box
-          px={2}
-          onClick={() => {
-            this.props.socket.emit("message", { data: "hello" });
-          }}
-        >
+        <Box px={2}>
           <h1>Tài khoản của tôi</h1>
           <Divider />
         </Box>
@@ -99,7 +94,9 @@ class BoothManageContainer extends Component {
             changeMainComponent={this.changeMainComponent}
           />
           <Container className="grey-background">
-            {this.state.mainComponent}
+            {React.cloneElement(this.state.mainComponent, {
+              socket: this.props.socket,
+            })}
           </Container>
         </Box>
       </Box>

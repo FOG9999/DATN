@@ -40,6 +40,12 @@ export const UserReducer = (
         cartNum: action.cartNum,
       };
     }
+    case TYPES.LOCATION: {
+      return {
+        ...state,
+        address: { ...action.location },
+      };
+    }
     default:
       return state;
   }

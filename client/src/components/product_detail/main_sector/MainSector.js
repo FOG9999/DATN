@@ -54,9 +54,13 @@ class MainSector extends Component {
     withDeliver: true,
     product: null,
     location: {
-      detail: this.props.address.detail,
-      streetIndex: this.props.address.streetInd,
-      districtIndex: this.props.address.districtInd,
+      detail: this.props.address.detail ? this.props.address.detail : "",
+      streetIndex: this.props.address.streetInd
+        ? this.props.address.streetInd
+        : 0,
+      districtIndex: this.props.address.districtInd
+        ? this.props.address.districtInd
+        : 0,
     },
     showModalLocation: false,
   };
@@ -109,6 +113,7 @@ class MainSector extends Component {
           setTimeout(() => {
             this.props.dispatchLogout(() => {
               toast.error("You are logged out!");
+              this.props.dispatchLoaded();
             });
           }, 1000);
         } else {
@@ -171,6 +176,7 @@ class MainSector extends Component {
           setTimeout(() => {
             this.props.dispatchLogout(() => {
               toast.error("You are logged out!");
+              this.props.dispatchLoaded();
             });
           }, 1000);
         } else {
@@ -185,6 +191,7 @@ class MainSector extends Component {
                 setTimeout(() => {
                   this.props.dispatchLogout(() => {
                     toast.error("You are logged out!");
+                    this.props.dispatchLoaded();
                   });
                 }, 1000);
               } else {
@@ -209,6 +216,7 @@ class MainSector extends Component {
           setTimeout(() => {
             this.props.dispatchLogout(() => {
               toast.error("You are logged out!");
+              this.props.dispatchLoaded();
             });
           }, 1000);
         } else {
@@ -310,9 +318,9 @@ class MainSector extends Component {
             >
               {!this.state.product.images[this.state.curr_image].link.includes(
                 "webm"
-              ) ||
+              ) &&
               !this.state.product.images[this.state.curr_image].link.includes(
-                "mp4"
+                ".mp4"
               ) ? (
                 <img
                   src={this.state.product.images[this.state.curr_image].link}
@@ -341,7 +349,7 @@ class MainSector extends Component {
                   <Box className="pro-detail-small-image cursor-pointer">
                     {!this.state.product.images[
                       this.state.curr_image
-                    ].link.includes("mp4") ||
+                    ].link.includes("mp4") &&
                     !this.state.product.images[
                       this.state.curr_image
                     ].link.includes("webm") ? (
@@ -491,7 +499,10 @@ class MainSector extends Component {
         </Box>
       </Box>
     ) : (
-      <Loading />
+      <Box>
+        <ToastContainer />
+        <Loading />
+      </Box>
     );
   }
 }

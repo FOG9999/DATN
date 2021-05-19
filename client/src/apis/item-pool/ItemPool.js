@@ -123,6 +123,22 @@ const searchNoCookie = (page, pagesize, title, type, category, done) => {
     });
 };
 
+const rcmSameLocationPros = (street, district) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${Config.UploadServer}/recommend/same-locate/some?str=${street}&dis=${district}`,
+      {
+        method: "GET",
+        mode: "cors",
+      }
+    )
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   rcmGuestItems,
   rcmUserItems,
@@ -133,4 +149,5 @@ export {
   searchNoCookie,
   getPrdForRelate,
   createProduct,
+  rcmSameLocationPros,
 };

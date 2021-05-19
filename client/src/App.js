@@ -11,20 +11,32 @@ import BoothRegister from "./components/Seller/BoothRegister/Container";
 import ProductRegister from "./components/upload/Container";
 import CheckoutContainer from "./components/Checkout/CheckoutContainer";
 import { Config } from "./config/Config";
+import { toast } from "react-toastify";
+import { getCookie } from "./others/functions/Cookie";
+import { useEffect } from "react";
+// import { useSelector } from "react-redux";
 // import { useEffect } from "react";
 
 var socket = require("socket.io-client")(Config.ResourceServer, {
   withCredentials: "include",
 });
-socket.on("connect_error", () => {
-  console.log("error");
-});
-
-socket.on('message', (data) => {
-
-})
 
 function App() {
+  // let socket = useSelector((state) => state.user.socket);
+  useEffect(() => {
+    socket.on("connect_error", () => {
+      console.log("error");
+    });
+    // lắng nghe tin nhắn mới, không cần ToastContainer vì hầu như mọi Component đều đã có
+    socket.on("message." + getCookie("user_id"), (data) => {
+      const { message, isGroup, conv_name } = data;
+      const toast_header = `${message.sender.name} ${
+        isGroup ? " trong " + conv_name : ""
+      }:\n`;
+      const toast_content = message.text ? message.text : "[File]";
+      toast.info(toast_header + toast_content);
+    });
+  }, []);
   return (
     <div className="App">
       <Switch>

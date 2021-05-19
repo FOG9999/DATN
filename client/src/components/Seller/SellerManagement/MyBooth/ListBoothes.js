@@ -35,7 +35,10 @@ class ListBoothes extends Component {
       this.props.dispatchAuthen(path, "GET", (auth) => {
         if (auth.EC !== 0) {
           toast.error(auth.EM);
-          this.props.dispatchLoaded();
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
+            window.location.href = "/";
+          });
         } else {
           this.getList();
         }
@@ -133,6 +136,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

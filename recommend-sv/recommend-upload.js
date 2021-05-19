@@ -16,6 +16,7 @@ const uri =
 const UserRatingController = require("./controller/UserRatingController");
 const ProductController = require("./controller/ProductController");
 const UserController = require("./controller/UserController");
+const RecommendRouter = require('./router/RecommendRouter')
 
 // make all the files in 'public' available
 // https://expressjs.com/en/starter/static-files.html
@@ -24,6 +25,7 @@ app.use(upload());
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use('/recommend', RecommendRouter)
 
 app.get("/public/img/:img", (req, res, next) => {
   var img = req.params.img;

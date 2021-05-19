@@ -3,6 +3,7 @@ const Conversation = require("../model/Conversation");
 const faker = require("faker");
 const Seen = require("../model/Seen");
 const User = require("../model/User");
+const File = require("../model/File");
 
 module.exports = {
   createConversationSamples: async (done) => {
@@ -74,16 +75,19 @@ module.exports = {
         path: "conversation.last_message",
       });
       await User.populate(conversations, {
+        path: "conversation.last_message.sender",
+      });
+      await User.populate(conversations, {
         path: "conversation.participants",
       });
-      for (let i = 0; i < conversations.length; i++) {
-        if (conversations[i].conversation.last_message) {
-          let sender = await User.find({
-            _id: conversations[i].conversation.last_message.sender,
-          });
-          conversations[i].conversation.last_message.sender = { ...sender };
-        }
-      }
+      // for (let i = 0; i < conversations.length; i++) {
+      //   if (conversations[i].conversation.last_message) {
+      //     let sender = await User.find({
+      //       _id: conversations[i].conversation.last_message.sender._id,
+      //     });
+      //     conversations[i].conversation.last_message.sender = { ...sender };
+      //   }
+      // }
       const output = [];
       conversations.forEach((conv) => {
         output.push({
@@ -113,10 +117,7 @@ module.exports = {
       let newmsg = new Message({
         sender: users[Math.round(Math.random())],
         text: faker.random.words(Math.round(Math.random() * 6) + 1),
-        file:
-          Math.round(Math.random() * 100) % 10 === 0
-            ? files[Math.round(Math.random())]
-            : null,
+        files: Math.round(Math.random() * 100) % 10 === 0 ? [...files] : [],
         conversation: conID,
         created_at: new Date().getTime(),
       });
@@ -130,13 +131,25 @@ module.exports = {
   getMessagesInConversation: async (user_id, conID, page, pagesize, done) => {
     let messages = await Message.find({ conversation: conID })
       .populate("sender")
-      .populate("file");
+      .populate("files");
     let conversation = await Conversation.findOne({ _id: conID }).populate(
       "participants"
     );
-    messages.sort((m1, m2) => m2.created_at - m1.created_at);
+    // cập nhật đã xem cuộc hội thoại
+    await Seen.findOneAndUpdate(
+      { conversation: conID },
+      { seen: true },
+      { useFindAndModify: false }
+    );
+    // messages.sort((m1, m2) => m2.created_at - m1.created_at);
+    messages.reverse();
     messages = [...messages.slice((page - 1) * pagesize, page * pagesize)];
-    let output = [];
+    let output = [
+      {
+        ...messages[0]._doc,
+        showAvatar: messages[0].sender._id === user_id,
+      },
+    ];
     for (let i = 1; i < messages.length; i++) {
       if (messages[i].sender._id === messages[i - 1].sender._id) {
         output.push({
@@ -158,5 +171,87 @@ module.exports = {
         conversation: { ...conversation },
       },
     });
+  },
+  handleNewMessage: async (conID, message, done) => {
+    try {
+      // tạo tin nhắn mới
+      let files = [];
+      for (let i = 0; i < message.files.length; i++) {
+        let newFile = new File({
+          link: message.files[i],
+        });
+        let savedFile = await newFile.save({ new: true });
+        files.push(savedFile);
+      }
+      let newMsg = new Message({
+        text: message.text,
+        files: [...files],
+        sender: message.sender,
+        conversation: conID,
+        created_at: new Date().getTime(),
+      });
+      let savedMsg = await newMsg.save({ new: true });
+      await Message.populate(savedMsg, {
+        path: "sender",
+      });
+      await File.populate(savedMsg, {
+        path: "files",
+      });
+      // cập nhật cuộc trò chuyện
+      let conversation = await Conversation.findOneAndUpdate(
+        { _id: conID },
+        { last_message: savedMsg._id, last_changed: new Date().getTime() },
+        { useFindAndModify: false, new: true }
+      );
+      await Message.populate(conversation, {
+        path: "last_message",
+      });
+      await User.populate(conversation, {
+        path: "last_message.sender",
+      });
+      // đánh dấu mặc định là cuộc trò chuyện chưa được xem bởi các thành viên trong nhóm
+      for (let i = 0; i < conversation.participants.length; i++) {
+        await Seen.findOneAndUpdate(
+          { conversation: conID, user: conversation.participants[i] },
+          { seen: false },
+          { useFindAndModify: false }
+        );
+      }
+      await User.populate(conversation, {
+        path: "participants",
+      });
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          message: { ...savedMsg._doc },
+          conversation: { ...conversation._doc },
+        },
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.message,
+      });
+    }
+  },
+  // cập nhật khi người dùng đang ở trong phòng và nhận được tin nhắn mới => đã xem
+  handleHaveSeenConversation: async (user_id, conID, done) => {
+    try {
+      await Seen.findOneAndUpdate(
+        { user: user_id, conversation: conID },
+        { seen: true },
+        { useFindAndModify: false }
+      );
+      done({
+        EC: 0,
+        EM: "success",
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
   },
 };

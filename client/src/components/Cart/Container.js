@@ -33,9 +33,13 @@ class CartContainer extends Component {
       this.props.dispatchAuthen(path, "GET", (rs) => {
         if (rs.EC !== 0) {
           toast.error(rs.EM);
-          setTimeout(() => {
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
             window.location.href = "/";
-          }, 3000);
+          });
+          // setTimeout(() => {
+          //   window.location.href = "/";
+          // }, 3000);
         } else {
           getCart((cartRS) => {
             if (cartRS.EC !== 0) {
@@ -256,6 +260,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchGetCart: (cartNum) => {
       dispatch(UserAction.getCart(cartNum));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

@@ -22,11 +22,11 @@ class OneConversation extends Component {
     const conversation = { ...this.props.conversation };
     const sender = { ...conversation.last_message.sender };
     if (String(sender._id) === user_id) {
-      return conversation.last_message.file
+      return conversation.last_message.files.length
         ? "Bạn: [File]"
         : `Bạn: ${conversation.last_message.text.substring(0, 50)}`;
     } else {
-      return conversation.last_message.file
+      return conversation.last_message.files.length
         ? `${conversation.last_message.sender.name}: [File]`
         : `${
             conversation.last_message.sender.name

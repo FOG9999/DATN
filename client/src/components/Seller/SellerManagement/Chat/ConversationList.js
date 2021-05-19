@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import { getUserConversations } from "../../../../apis/user-pool/UserPool";
 import { Config } from "../../../../config/Config";
+import { getCookie } from "../../../../others/functions/Cookie";
 import { GeneralAction } from "../../../../redux/actions/GeneralAction";
 import { UserAction } from "../../../../redux/actions/UserAction";
 import Loading from "../../../general/Loading";
@@ -21,7 +22,10 @@ class ConversationList extends Component {
       this.props.dispatchAuthen(path, "GET", (auth) => {
         if (auth.EC !== 0) {
           toast.error(auth.EM);
-          this.props.dispatchLoaded();
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
+            window.location.href = "/";
+          });
         } else {
           getUserConversations((rs) => {
             let sorted = [...rs.data.conversations];
@@ -29,14 +33,35 @@ class ConversationList extends Component {
             this.setState({
               conversations: [...sorted],
             });
+            // lắng nghe xem có tin nhắn mới không, nếu có thì cập nhật list
+            this.props.socket.on(`chat.${getCookie("user_id")}`, (data) => {
+              this.updateWhenNewMessage(data.conversation);
+            });
             this.props.dispatchLoaded();
           });
         }
       });
     }
   };
+  // componentDidUpdate() {
+  //   this.props.socket.on(`chat.${getCookie("user_id")}`, (data) => {
+  //     this.updateWhenNewMessage(data.conversation);
+  //   });
+  // }
+
+  updateWhenNewMessage = (conver) => {
+    const indexOfConv = this.state.conversations
+      .map((c, i) => c._id)
+      .indexOf(conver._id);
+    const { conversations } = this.state;
+    conversations.splice(indexOfConv, indexOfConv + 1); // xóa cuộc hội thoại đã cũ
+    conversations.unshift(conver); // chèn cuộc hội thoại đã update
+    this.setState({
+      conversations: [...conversations],
+    });
+  };
   componentDidMount() {
-    this.getConversations();
+    this.getConversations(); // Do được gọi ở componentDIdMount nên khi có update socket sẽ bị reconnect và không còn lắng nghe trên kênh chat nữa
   }
   render() {
     if (this.props.loading || this.state.firsttime) {
@@ -118,6 +143,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

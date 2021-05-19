@@ -223,8 +223,11 @@ class ProductManagement extends Component {
         } else {
           getSellerProducts(this.state.page, this.state.pagesize, (rs) => {
             if (rs.EC !== 0) {
-              this.props.dispatchLoaded();
               toast.error(rs.EM);
+              this.props.dispatchLogout(() => {
+                this.props.dispatchLoaded();
+                window.location.href = "/";
+              });
             } else {
               done(rs);
             }
@@ -426,6 +429,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

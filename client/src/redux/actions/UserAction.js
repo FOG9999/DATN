@@ -8,7 +8,7 @@ const UserAction = {
         if (rs.EC === 0) {
           const { user_id, h_token, name, cartNum, address } = rs.data;
           document.cookie = `user_id=${user_id};path=/`;
-          document.cookie = `h_token=${h_token};path=/`;
+          document.cookie = `h_token=${h_token};max-age=86400;path=/`;
           // console.log(cartNum);
           dispatch({
             type: TYPES.LOGIN,
@@ -40,14 +40,14 @@ const UserAction = {
       authen(path, method, (rs) => {
         if (rs.EC !== 0) {
           dispatch({
-            type: TYPES.LOGIN,
+            type: TYPES.LOGOUT,
             logged: false,
             name: "",
           });
         } else {
-          document.cookie = "h_msg=" + rs.h_msg + ";path=/";
-          done(rs);
+          document.cookie = "h_msg=" + rs.h_msg + ";max-age=86400;path=/";
         }
+        done(rs);
       });
     };
   },
@@ -74,7 +74,7 @@ const UserAction = {
           if (rs.EC === 0) {
             const { user_id, h_token, name, address } = rs.data;
             document.cookie = `user_id=${user_id};path=/`;
-            document.cookie = `h_token=${h_token};path=/`;
+            document.cookie = `h_token=${h_token};max-age=86400;path=/`;
             dispatch({
               type: TYPES.LOGIN,
               logged: true,
@@ -126,6 +126,18 @@ const UserAction = {
       dispatch({
         type: TYPES.GETCART,
         cartNum: cartNum,
+      });
+    };
+  },
+  getLocationForClient: (detail, streetInd, districtInd) => {
+    return (dispatch) => {
+      dispatch({
+        type: TYPES.LOCATION,
+        location: {
+          districtInd: districtInd,
+          streetInd: streetInd,
+          detail: detail,
+        },
       });
     };
   },

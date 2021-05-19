@@ -84,4 +84,30 @@ module.exports = {
       }
     }
   },
+  recommendSameLocationPros: async (page, pagesize, location, done) => {
+    try {
+      let items = await Item.find({
+        "location.district": location.district,
+      });
+      let food = await Food.find({
+        "location.district": location.district,
+      });
+      let products = [...items, ...food];
+      let isLastPgae = page * pagesize >= products.length;
+      let output = products.slice((page - 1) * pagesize, pagesize * page);
+      await File.populate(output, {
+        path: "images",
+      });
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          products: [...output],
+          isLastPgae: isLastPgae,
+        },
+      });
+    } catch (error) {
+      done();
+    }
+  },
 };

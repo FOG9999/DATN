@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const OrderRouter = require("./route/OrderRouter");
 const AdminRouter = require("./route/AdminRouter");
 const ChatRouter = require("./route/ChatRouter");
+const ChatController = require("./controller/ChatController");
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
@@ -77,5 +78,39 @@ io.on("connection", (socket) => {
   });
   socket.on("disconnect", () => {
     console.log("disconnect");
+  });
+  socket.on("listen", (data) => {
+    const { new_message, conID } = data;
+    ChatController.handleNewMessage(conID, new_message, (rs) => {
+      if (rs.EC !== 0) {
+        console.log(rs.EM);
+      } else {
+        const { message, conversation } = rs.data;
+        // gửi thông báo cho các thành viên trong cuộc trò chuyện trừ người gửi
+        conversation.participants.forEach((p) => {
+          if (String(p._id) !== String(message.sender)) {
+            io.emit("message." + p._id, {
+              conv_name: conversation.name,
+              isGroup: conversation.participants.length > 2,
+              message: { ...message },
+            });
+            io.emit("chat." + p._id, {
+              conversation: { ...conversation },
+            });
+          }
+          io.emit("room." + p._id, {
+            message: { ...message },
+          });
+        });
+      }
+    });
+  });
+  socket.on("seen", (data) => {
+    const { user_id, conID } = data;
+    ChatController.handleHaveSeenConversation(user_id, conID, (rs) => {
+      if (rs.EC !== 0) {
+        console.log(rs.EM);
+      }
+    });
   });
 });

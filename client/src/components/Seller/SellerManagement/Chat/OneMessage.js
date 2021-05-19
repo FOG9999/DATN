@@ -1,4 +1,5 @@
 import { Box } from "@material-ui/core";
+import { FileCopy } from "@material-ui/icons";
 import React, { Component } from "react";
 
 class OneMessage extends Component {
@@ -31,21 +32,28 @@ class OneMessage extends Component {
           maxWidth="50%"
           className="backgroundcolor-aaa color-white"
         >
-          {this.props.message.file ? (
-            <Box pb="5px" display="flex" flexDirection="flex-end">
-              {!this.props.message.file.link.includes("mp4") ||
-              !this.props.message.file.link.includes("webm") ? (
+          <Box pb="5px" display="flex" flexDirection="flex-end" flexWrap="wrap">
+            {this.props.message.files.map((file, index) => {
+              return !file.link.includes("mp4") ||
+                !file.link.includes("webm") ? (
                 <img
-                  src={this.props.message.file.link}
+                  src={file.link}
                   alt=""
                   width="50px"
                   height="50px"
+                  key={index}
                 />
               ) : (
-                <video controls src={this.props.message.file.link}></video>
-              )}
-            </Box>
-          ) : null}
+                <video
+                  controls
+                  key={index}
+                  width="250px"
+                  height="250px"
+                  src={file.link}
+                ></video>
+              );
+            })}
+          </Box>
           <Box>{this.props.message.text}</Box>
         </Box>
       </Box>

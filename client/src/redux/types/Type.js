@@ -6,6 +6,7 @@ const TYPES = {
   LOGOUT: "LOGOUT",
   ADDCART: "ADDCART",
   GETCART: "GETCART",
+  LOCATION: "LOCATION",
 };
 
 export { TYPES };

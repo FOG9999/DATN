@@ -74,6 +74,10 @@
   color: white !important;
 }
 
+.no-margin {
+  margin: 0px;
+}
+
 .btn-order-now {
   padding: 10px 20px !important;
 }

@@ -8,6 +8,8 @@ const UserRating = require("../model/UserRating");
 const OrderProduct = require("../model/OrderProduct");
 const User = require("../model/User");
 const File = require("../model/File");
+const { turnStringsToRegex } = require("../function/Functions");
+const { setRandomFallback } = require("bcryptjs");
 
 module.exports = {
   getAllProducts: async (done) => {
@@ -528,13 +530,16 @@ module.exports = {
   search: async (page, pagesize, title, user_id, type, category, done) => {
     try {
       let result = [];
+      let strings = title.split(" ");
+      let regexes = turnStringsToRegex(strings);
+      console.log(regexes);
       switch (type) {
         case "I": {
           result = await Item.find({
             $or: [
-              { title: new RegExp(`${title}`, "i") },
-              { description: new RegExp(`${title}`, "i") },
-              { category: new RegExp(`${title}`, "i") },
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
             ],
           });
           break;
@@ -542,9 +547,9 @@ module.exports = {
         case "F": {
           result = await Food.find({
             $or: [
-              { title: new RegExp(`${title}`, "i") },
-              { description: new RegExp(`${title}`, "i") },
-              { category: new RegExp(`${title}`, "i") },
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
             ],
           });
           break;
@@ -552,16 +557,16 @@ module.exports = {
         default: {
           let itemFilterRS = await Item.find({
             $or: [
-              { title: new RegExp(`${title}`, "i") },
-              { description: new RegExp(`${title}`, "i") },
-              { category: new RegExp(`${title}`, "i") },
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
             ],
           });
           let foodFilterRS = await Food.find({
             $or: [
-              { title: new RegExp(`${title}`, "i") },
-              { description: new RegExp(`${title}`, "i") },
-              { category: new RegExp(`${title}`, "i") },
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
             ],
           });
           result.push(...itemFilterRS, ...foodFilterRS);

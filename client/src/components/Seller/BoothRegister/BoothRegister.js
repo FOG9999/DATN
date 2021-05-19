@@ -278,7 +278,10 @@ class BoothRegister extends Component {
         this.props.dispatchAuthen(path, "POST", (auth) => {
           if (auth.EC !== 0) {
             toast.error(auth.EM);
-            this.props.dispatchLoaded();
+            this.props.dispatchLogout(() => {
+              this.props.dispatchLoaded();
+              window.location.href = "/";
+            });
           } else {
             let {
               title,
@@ -388,12 +391,8 @@ class BoothRegister extends Component {
     });
   };
   onChangeImageUpload = (e) => {
-    const {
-      imageFiles,
-      imageNames,
-      imageSrcs,
-      filereaders,
-    } = this.state.uploadImages;
+    const { imageFiles, imageNames, imageSrcs, filereaders } =
+      this.state.uploadImages;
     let files = [...e.target.files];
     if (files.length + imageSrcs.length > strings.maxImageLimit) {
       toast.error(strings.tooManyImages);
@@ -538,12 +537,12 @@ class BoothRegister extends Component {
             close={this.closeView}
             show={this.state.showView}
             main={{
-              width: this.state.uploadImages.imageSrcs[
-                this.state.selectedImageIndex
-              ].width,
-              height: this.state.uploadImages.imageSrcs[
-                this.state.selectedImageIndex
-              ].height,
+              width:
+                this.state.uploadImages.imageSrcs[this.state.selectedImageIndex]
+                  .width,
+              height:
+                this.state.uploadImages.imageSrcs[this.state.selectedImageIndex]
+                  .height,
               src: this.state.uploadImages.imageSrcs[
                 this.state.selectedImageIndex
               ].src,
@@ -840,6 +839,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

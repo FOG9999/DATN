@@ -245,16 +245,19 @@ class ProductCategory extends Component {
     return msg;
   };
   deleteImage = (index) => {
-    const { imageSrcs, imageNames, imageFiles } = this.state.uploadImages;
+    const { imageSrcs, imageNames, imageFiles, types } =
+      this.state.uploadImages;
     imageSrcs.splice(index, 1);
     imageFiles.splice(index, 1);
     imageNames.splice(index, 1);
+    types.splice(index, 1);
     this.setState({
       uploadImages: {
         ...this.state.uploadImages,
-        imnageSrcs: [...imageSrcs],
+        imageSrcs: [...imageSrcs],
         imageFiles: [...imageFiles],
         imageNames: [...imageNames],
+        types: [...types],
       },
     });
   };
@@ -274,7 +277,10 @@ class ProductCategory extends Component {
         this.props.dispatchAuthen(path, "POST", (auth) => {
           if (auth.EC !== 0) {
             toast.error(auth.EM);
-            this.props.dispatchLoaded();
+            this.props.dispatchLogout(() => {
+              this.props.dispatchLoaded();
+              window.location.href = "/";
+            });
           } else {
             const statePro = { ...this.state.product };
             let transformedImageNames = this.state.uploadImages.imageNames.map(
@@ -918,6 +924,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

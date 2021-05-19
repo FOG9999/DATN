@@ -15,4 +15,21 @@ module.exports = {
       });
     });
   },
+  getUserLocation: async (user_id, done) => {
+    try {
+      let user = await User.findOne({ _id: user_id });
+      done({
+        EC: 0,
+        EM: 'success',
+        data: {
+          user: {...user}
+        }
+      })
+    } catch (error) {
+      done({
+        EC: 0,
+        EM: error.message,
+      });
+    }
+  },
 };

@@ -24,7 +24,7 @@ class OneProduct extends Component {
           alignItems="center"
           className="onepro-image-box"
         >
-          {!this.props.item.images[0].link.includes("mp4") ||
+          {!this.props.item.images[0].link.includes("mp4") &&
           !this.props.item.images[0].link.includes("webm") ? (
             <img
               src={

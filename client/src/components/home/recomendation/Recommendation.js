@@ -1,13 +1,20 @@
 import { Box, Divider, Typography } from "@material-ui/core";
 import React, { Component } from "react";
 import OneProduct from "../../general/OneProduct";
-import { rcmGuestItems, rcmUserItems } from "../../../apis/item-pool/ItemPool";
+import {
+  rcmGuestItems,
+  rcmSameLocationPros,
+  rcmUserItems,
+} from "../../../apis/item-pool/ItemPool";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserAction } from "../../../redux/actions/UserAction";
 import { connect } from "react-redux";
 import { GeneralAction } from "../../../redux/actions/GeneralAction";
 import Loading from "../../general/Loading";
+import cNd from "../../../others/convincesAndDistricts.json";
+
+const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
 class Recomendation extends Component {
   constructor(props) {
@@ -16,6 +23,14 @@ class Recomendation extends Component {
   }
   state = {
     items: [],
+    nearmeProducts: [],
+  };
+  getLocationForClient = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {});
+    } else {
+      toast.error("Trình duyệt của bạn không hỗ trợ Geolocation");
+    }
   };
   componentDidMount() {
     this.props.dispatchLoading();
@@ -23,16 +38,29 @@ class Recomendation extends Component {
       const path = "/user/CLIENT";
       this.props.dispatchAuthen(path, "GET", (authRS) => {
         if (authRS.EC !== 0) {
-          document.cookie = "";
+          // document.cookie = "";
           toast.error(authRS.EM);
-          this.props.dispatchLoaded();
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
+            window.location.href = "/";
+          });
         } else {
           rcmUserItems((rs) => {
             if (rs.EC !== 0) {
               toast.error(rs.EM);
             } else {
-              this.setState({
-                items: [...rs.data.products],
+              rcmSameLocationPros(
+                convincesAndDistricts[1].districts[
+                  this.props.address.districtInd
+                ].streets[this.props.address.streetInd].name,
+                convincesAndDistricts[1].districts[
+                  this.props.address.districtInd
+                ].name
+              ).then((pross) => {
+                this.setState({
+                  items: [...rs.data.products],
+                  nearmeProducts: [...pross.data.products],
+                });
               });
               this.props.dispatchLoaded();
             }
@@ -56,6 +84,14 @@ class Recomendation extends Component {
         }
       });
     }
+    // BILLING REQUIRED FOR GOOGLE MAP SERVICES
+    // fetch(
+    //   "https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=AIzaSyCUneKSCHxd1nc-3XBG8JSW5ygBhCcNkdU"
+    // )
+    //   .then((res) => res.json())
+    //   .then((rs) => {
+    //     console.log(rs);
+    //   });
   }
   onClickProduct = (proID) => {
     window.location.href = "/prd/" + proID;
@@ -85,6 +121,22 @@ class Recomendation extends Component {
             );
           })}
         </Box>
+        <Box p={2} mt={2} className="white-background color-orange">
+          <big>GẦN BẠN</big>
+        </Box>
+        <Divider />
+        <Box display="flex" flexWrap="wrap" justifyContent="center">
+          {this.state.nearmeProducts.map((item, index) => {
+            return (
+              <OneProduct
+                key={index}
+                item={item}
+                WIDTH={200}
+                onClickProduct={() => this.onClickProduct(item._id)}
+              />
+            );
+          })}
+        </Box>
       </Box>
     );
   }
@@ -94,6 +146,7 @@ const mapStateToProps = (state) => {
   return {
     logged: state.user.logged,
     loading: state.general.loading,
+    address: state.user.address,
   };
 };
 
@@ -107,6 +160,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchLoaded: () => {
       dispatch(GeneralAction.loaded());
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

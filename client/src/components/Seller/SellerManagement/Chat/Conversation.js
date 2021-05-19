@@ -1,13 +1,28 @@
 import React, { Component } from "react";
-import { Box, Divider, IconButton, OutlinedInput } from "@material-ui/core";
-import { ArrowBackIos, Publish, Send } from "@material-ui/icons";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  OutlinedInput,
+} from "@material-ui/core";
+import {
+  ArrowBackIos,
+  Close,
+  CloudUpload,
+  Publish,
+  Send,
+} from "@material-ui/icons";
 import loading from "../../../../images/mess_loading.gif";
 import OneMessage from "./OneMessage";
 import { getCookie } from "../../../../others/functions/Cookie";
 import { connect } from "react-redux";
 import { Config } from "../../../../config/Config";
 import { toast, ToastContainer } from "react-toastify";
-import { getConversation } from "../../../../apis/other-pool/OtherPool";
+import {
+  getConversation,
+  uploadImageFile,
+} from "../../../../apis/other-pool/OtherPool";
 import { GeneralAction } from "../../../../redux/actions/GeneralAction";
 import { UserAction } from "../../../../redux/actions/UserAction";
 import group_chat from "../../../../images/group_chat.png";
@@ -24,6 +39,13 @@ class Conversation extends Component {
     conID: new URLSearchParams(window.location.search).get("id"),
     firsttime: true,
     conversation: null,
+    text: "",
+    upload: {
+      upfiles: [],
+      upnames: [],
+      upsrcs: [],
+      uptypes: [],
+    },
   };
   displayName = () => {
     const conversation = { ...this.state.conversation };
@@ -44,7 +66,10 @@ class Conversation extends Component {
       this.props.dispatchAuthen(path, "GET", (auth) => {
         if (auth.EC !== 0) {
           toast.error(auth.EM);
-          this.props.dispatchLoaded();
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
+            window.location.href = "/";
+          });
         } else {
           getConversation(conID, page, pagesize, (rs) => {
             if (rs.EC !== 0) {
@@ -52,6 +77,7 @@ class Conversation extends Component {
               this.props.dispatchLoaded();
             } else {
               this.props.dispatchLoaded();
+              rs.data.messages.reverse();
               this.setState({
                 messages: [...rs.data.messages],
                 conversation: { ...rs.data.conversation._doc },
@@ -64,10 +90,16 @@ class Conversation extends Component {
       });
     }
   };
+  onChangeText = (e) => {
+    this.setState({
+      text: e.target.value,
+    });
+  };
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.loading && prevState.firsttime) {
       console.log("xxx");
       setTimeout(() => {
+        // xuống dưới đáy thẻ div để nhìn thấy tin nhắn cuối
         document.querySelector(".div-scroll").scrollTop =
           document.querySelector(".div-scroll").scrollHeight;
         window.scrollTo(
@@ -75,11 +107,117 @@ class Conversation extends Component {
           document.querySelector(".white-background").scrollHeight
         );
       });
+    } else if (prevState.messages.length !== this.state.messages.length) {
+      setTimeout(() => {
+        document.querySelector(".div-scroll").scrollTop =
+          document.querySelector(".div-scroll").scrollHeight;
+      });
     }
   }
   componentDidMount() {
-    this.getConversation(() => {});
+    this.getConversation(() => {
+      this.props.socket.on("room." + getCookie("user_id"), (data) => {
+        const { messages } = this.state;
+        messages.push(data.message);
+        this.setState({
+          messages: [...messages],
+        });
+        this.props.socket.emit("seen", {
+          conID: this.state.conversation._id,
+          user_id: getCookie("user_id"),
+        });
+      });
+    });
   }
+  onChangeImageUpload = (e) => {
+    let files = e.target.files;
+    const { upfiles, upnames, upsrcs, uptypes } = this.state.upload;
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      let reader = new FileReader();
+      if (file.size / 1000000 > 25) {
+        toast.error("File quá lớn");
+        return;
+      }
+      upfiles.push(file);
+      upnames.push(file.name);
+      reader.onloadend = () => {
+        upsrcs.push(reader.result);
+        if (file.type.includes("image")) {
+          uptypes.push("I");
+        } else if (file.type.includes("video")) {
+          uptypes.push("V");
+        }
+        this.setState({
+          upload: {
+            upsrcs: [...upsrcs],
+            upnames: [...upnames],
+            upfiles: [...upfiles],
+            uptypes: [...uptypes],
+          },
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  onSendMessage = () => {
+    if (this.props.logged) {
+      if (this.state.upload.upfiles.length) {
+        uploadImageFile(this.state.upload.upfiles, (uploadRS) => {
+          if (uploadRS.EC !== 0) {
+            toast.error(uploadRS.EM);
+          } else {
+            let transformedImageNames = this.state.upload.upnames.map(
+              (name, ind) => `${Config.UploadServer}/public/img/${name}`
+            );
+            let upmessage = {
+              text: this.state.text,
+              sender: getCookie("user_id"),
+              files: [...transformedImageNames],
+            };
+            this.props.socket.emit("listen", {
+              new_message: { ...upmessage },
+              conID: this.state.conversation._id,
+            });
+          }
+        });
+      } else {
+        let transformedImageNames = this.state.upload.upnames.map(
+          (name, ind) => `${Config.UploadServer}/public/img/${name}`
+        );
+        let upmessage = {
+          text: this.state.text,
+          sender: getCookie("user_id"),
+          files: [...transformedImageNames],
+        };
+        this.props.socket.emit("listen", {
+          new_message: { ...upmessage },
+          conID: this.state.conversation._id,
+        });
+      }
+    } else {
+      toast.error("You are not logged in. Bring you back to homepage in 2s...");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+    }
+  };
+  deleteImage = (index) => {
+    const { upsrcs, upnames, upfiles, uptypes } = this.state.upload;
+    upsrcs.splice(index, 1);
+    upfiles.splice(index, 1);
+    upnames.splice(index, 1);
+    uptypes.splice(index, 1);
+    this.setState({
+      upload: {
+        ...this.state.upload,
+        upsrcs: [...upsrcs],
+        upfiles: [...upfiles],
+        uptypes: [...uptypes],
+        upnames: [...upnames],
+      },
+    });
+  };
   render() {
     if (this.props.loading || this.state.firsttime) {
       return (
@@ -120,8 +258,10 @@ class Conversation extends Component {
                 />
               )}
             </Box>
-            <Box display="flex" alignItems="center">
-              {this.displayName()}
+            <Box display="flex" alignItems="center" m={2}>
+              <big>
+                <b>{this.displayName()}</b>
+              </big>
             </Box>
           </Box>
           <Divider />
@@ -142,28 +282,91 @@ class Conversation extends Component {
                 );
               })}
             </Box>
-            <Box display="flex" p={2}>
-              <Box display="flex" flexGrow={1}>
-                <Box flexGrow={1}>
-                  {/* <Box></Box> */}
-                  <Box p={1}>
+            <Box p={2}>
+              <Box>
+                <Box display="flex" p={2}>
+                  {this.state.upload.upsrcs.map((src, ind) => {
+                    return (
+                      <Box m="2px" position="relative">
+                        <Box
+                          display="flex"
+                          flexDirection="row-reverse"
+                          position="absolute"
+                          top="0px"
+                          zIndex="1"
+                        >
+                          <IconButton onClick={() => this.deleteImage(ind)}>
+                            <Close fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          maxWidth="120px"
+                          maxHeight="100px"
+                        >
+                          {this.state.upload.uptypes[ind] === "I" ? (
+                            <img
+                              src={src}
+                              style={{
+                                width: "80px",
+                                height: "80px",
+                              }}
+                              alt=""
+                              // onClick={this.props.onClickPreviewImage}
+                              className="cursor-pointer"
+                              key={ind}
+                            />
+                          ) : (
+                            <video
+                              controls
+                              width="120px"
+                              src={src}
+                              key={ind}
+                              style={{ margin: "2px" }}
+                            ></video>
+                          )}
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+                <Box display="flex" p={1} justifyContent="center">
+                  <Box p={1} flexGrow={1}>
                     <OutlinedInput
                       rowsMax={5}
                       multiline={true}
                       fullWidth={true}
                       className="no-outline"
+                      value={this.state.text}
+                      onChange={this.onChangeText}
                     />
                   </Box>
-                </Box>
-                <Box display="flex" p={1} justifyContent="center">
-                  <IconButton>
-                    <Publish />
-                  </IconButton>
-                </Box>
-                <Box display="flex" p={1} justifyContent="center">
-                  <IconButton>
-                    <Send fontSize="large" />
-                  </IconButton>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <input
+                      type="file"
+                      hidden
+                      multiple
+                      id="icon-button-file"
+                      // accept="image/*"
+                      onChange={this.onChangeImageUpload}
+                    />
+                    <label htmlFor="icon-button-file">
+                      <IconButton aria-label="upload picture" component="span">
+                        <Publish />
+                      </IconButton>
+                    </label>
+                  </Box>
+                  <Box display="flex" p={1} justifyContent="center">
+                    <IconButton onClick={this.onSendMessage}>
+                      <Send fontSize="large" />
+                    </IconButton>
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -190,6 +393,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchAuthen: (path, method, done) => {
       dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };
