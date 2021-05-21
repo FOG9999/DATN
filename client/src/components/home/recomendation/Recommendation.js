@@ -4,6 +4,7 @@ import OneProduct from "../../general/OneProduct";
 import {
   rcmGuestItems,
   rcmSameLocationPros,
+  rcmUserBaseOnHistory,
   rcmUserItems,
 } from "../../../apis/item-pool/ItemPool";
 import { toast, ToastContainer } from "react-toastify";
@@ -24,6 +25,12 @@ class Recomendation extends Component {
   state = {
     items: [],
     nearmeProducts: [],
+    preferPros: [],
+    near_page: 1,
+    locate_page: 1,
+    history_page: 1,
+    popular_page: 1,
+    pagesize: 24,
   };
   getLocationForClient = () => {
     if (navigator.geolocation) {
@@ -45,7 +52,10 @@ class Recomendation extends Component {
             window.location.href = "/";
           });
         } else {
-          rcmUserItems((rs) => {
+          rcmUserBaseOnHistory(
+            this.state.history_page,
+            this.state.pagesize
+          ).then((rs) => {
             if (rs.EC !== 0) {
               toast.error(rs.EM);
             } else {
@@ -68,7 +78,7 @@ class Recomendation extends Component {
         }
       });
     } else {
-      rcmGuestItems((rs) => {
+      rcmGuestItems(this.state.popular_page, this.state.pagesize, (rs) => {
         if (rs.EC !== 0) {
           toast.error(rs.EM);
           this.setState({

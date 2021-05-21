@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import { searchNoCookie } from "../../../apis/item-pool/ItemPool";
+import { getCookie } from "../../../others/functions/Cookie";
 import { GeneralAction } from "../../../redux/actions/GeneralAction";
 import { UserAction } from "../../../redux/actions/UserAction";
 import Loading from "../../general/Loading";
@@ -18,17 +19,25 @@ class Recomendation extends Component {
   };
   componentDidMount() {
     this.props.dispatchLoading();
-    searchNoCookie(1, this.props.limit, this.props.keyword, "", "", (rs) => {
-      if (rs.EC !== 0) {
-        this.props.dispatchLoaded();
-        toast.error(rs.EM);
-      } else {
-        this.setState({
-          products: [...rs.data.products],
-        });
-        this.props.dispatchLoaded();
+    searchNoCookie(
+      1,
+      this.props.limit,
+      this.props.keyword,
+      "",
+      "",
+      this.props.logged ? getCookie("user_id") : "",
+      (rs) => {
+        if (rs.EC !== 0) {
+          this.props.dispatchLoaded();
+          toast.error(rs.EM);
+        } else {
+          this.setState({
+            products: [...rs.data.products],
+          });
+          this.props.dispatchLoaded();
+        }
       }
-    });
+    );
   }
   onClickProduct = (proID) => {
     window.location.href = "/prd/" + proID;

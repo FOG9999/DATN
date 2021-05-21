@@ -27,6 +27,13 @@ const Config = {
       deliver: "Giao hàng tận nhà",
     },
   },
+  configICE: {
+    iceServers: [
+      {
+        urls: ["stun:stun.l.google.com:19302"],
+      },
+    ],
+  },
 };
 
 export { Config };

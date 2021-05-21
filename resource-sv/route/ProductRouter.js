@@ -45,10 +45,13 @@ ProductRouter.get("/guest/:role", (req, res, next) => {
   //       }
   //     );
   //   });
-  fetch(`${RECOMMEND_SV}/most-popular?limit=20`, {
-    method: "GET",
-    mode: "cors",
-  })
+  fetch(
+    `${RECOMMEND_SV}/most-popular?page=${req.query.page}&pagesize=${req.query.pagesize}`,
+    {
+      method: "GET",
+      mode: "cors",
+    }
+  )
     .then((res) => res.json())
     .then((rs) => {
       res.send(rs);
@@ -87,7 +90,7 @@ ProductRouter.get("/all", (req, res, next) => {
 });
 
 ProductRouter.get("/guest-view/:prd_id", (req, res, next) => {
-  ProductController.viewProduct_beta(req.params.prd_id, (rs) => {
+  ProductController.viewProduct_beta(null, req.params.prd_id, (rs) => {
     res.send(rs);
   });
 });
@@ -100,9 +103,13 @@ ProductRouter.get("/user-view/:prd_id/:role", authen, (req, res, next) => {
   //     res.send(rs);
   //   }
   // );
-  ProductController.viewProduct_beta(req.params.prd_id, (rs) => {
-    res.send(rs);
-  });
+  ProductController.viewProduct_beta(
+    req.cookies.user_id,
+    req.params.prd_id,
+    (rs) => {
+      res.send(rs);
+    }
+  );
 });
 
 ProductRouter.get("/get-for-relate/:prd_id", (req, res, next) => {
@@ -169,7 +176,8 @@ ProductRouter.get("/search", (req, res, next) => {
     req.query.page,
     req.query.pagesize,
     req.query.title,
-    req.cookies.user_id,
+    req.query.id, // người tìm kiếm
+    req.cookies.user_id, // người bán
     req.query.type,
     req.query.category,
     (rs) => {
@@ -259,7 +267,7 @@ ProductRouter.get("/sendo-list", (req, res, next) => {
 });
 
 ProductRouter.post("/update-samples", (req, res, next) => {
-  ProductController.updateSamplesDescription((rs) => res.send(rs));
+  ProductController.updateSamplesPrice((rs) => res.send(rs));
 });
 
 ProductRouter.post("/delete-user-rate", (req, res, next) => {

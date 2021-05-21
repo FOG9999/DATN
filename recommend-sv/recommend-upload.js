@@ -16,16 +16,24 @@ const uri =
 const UserRatingController = require("./controller/UserRatingController");
 const ProductController = require("./controller/ProductController");
 const UserController = require("./controller/UserController");
-const RecommendRouter = require('./router/RecommendRouter')
+const RecommendRouter = require("./router/RecommendRouter");
+const cookieParser = require("cookie-parser");
 
 // make all the files in 'public' available
 // https://expressjs.com/en/starter/static-files.html
 app.use(express.static("public"));
 app.use(upload());
+app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3333"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/recommend', RecommendRouter)
+app.use("/recommend", RecommendRouter);
 
 app.get("/public/img/:img", (req, res, next) => {
   var img = req.params.img;
@@ -343,9 +351,20 @@ app.get("/collaborative-filter/product-relate/:p", (req, res, next) => {
 });
 
 app.get("/most-popular", (req, res, next) => {
-  ProductController.getMostPopular(req.query.limit, (rs) => {
+  ProductController.getMostPopular(req.query.page, req.query.pagesize, (rs) => {
     res.send(rs);
   });
+});
+
+app.get("/user-prefer", (req, res, next) => {
+  ProductController.rcmBaseonHistory(
+    req.query.page,
+    req.query.pagesize,
+    req.cookies.user_id,
+    (rs) => {
+      res.send(rs);
+    }
+  );
 });
 
 app.post("/product/relate", (req, res, next) => {

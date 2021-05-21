@@ -14,6 +14,8 @@ import { Config } from "./config/Config";
 import { toast } from "react-toastify";
 import { getCookie } from "./others/functions/Cookie";
 import { useEffect } from "react";
+import Livestreamer from "./components/Livestream/Sender/Livestreamer";
+import Watcher from "./components/Livestream/Receiver/Watcher";
 // import { useSelector } from "react-redux";
 // import { useEffect } from "react";
 
@@ -40,7 +42,7 @@ function App() {
   return (
     <div className="App">
       <Switch>
-        <Route exact path="/" component={HomeContainer} />
+        <Route exact path="/sd" component={HomeContainer} />
         <Route
           path="/m/manage/:key"
           render={(props) => <Container {...props} socket={socket} />}
@@ -52,6 +54,15 @@ function App() {
         <Route path="/m/prd/create" component={ProductRegister} />
         <Route path="/m/booth/register" component={BoothRegister} />
         <Route path="/checkout/:ids" component={CheckoutContainer} />
+        <Route
+          exact
+          path="/"
+          render={(props) => <Livestreamer {...props} socket={socket} />}
+        />
+        <Route
+          path="/watch/:id"
+          render={(props) => <Watcher {...props} socket={socket} />}
+        />
       </Switch>
     </div>
   );

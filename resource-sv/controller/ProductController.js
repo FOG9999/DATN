@@ -10,6 +10,7 @@ const User = require("../model/User");
 const File = require("../model/File");
 const { turnStringsToRegex } = require("../function/Functions");
 const { setRandomFallback } = require("bcryptjs");
+const UserHistory = require("../model/UserHistory");
 
 module.exports = {
   getAllProducts: async (done) => {
@@ -93,18 +94,25 @@ module.exports = {
         }
       });
   },
-  viewProduct_beta: (product_id, done) => {
+  viewProduct_beta: (user_id, product_id, done) => {
     Item.findOneAndUpdate(
       { _id: product_id },
       { $inc: { views: 1 } },
       { useFindAndModify: false, new: true }
     )
       .populate("images")
-      .exec((err1, rs1) => {
+      .exec(async (err1, rs1) => {
         if (err1) {
           console.error(err1);
         } else {
           if (rs1) {
+            if (user_id) {
+              await UserHistory.findOneAndUpdate(
+                { user: user_id },
+                { last_view_cate: { pro_type: "I", category: rs1.category } },
+                { useFindAndModify: false }
+              );
+            }
             done({
               EC: 0,
               EM: "success",
@@ -117,10 +125,22 @@ module.exports = {
               { useFindAndModify: false, new: true }
             )
               .populate("images")
-              .exec((err2, rs2) => {
+              .exec(async (err2, rs2) => {
                 if (err2) {
                   console.error(err2);
                 } else {
+                  if (user_id) {
+                    await UserHistory.findOneAndUpdate(
+                      { user: user_id },
+                      {
+                        last_view_cate: {
+                          pro_type: "F",
+                          category: rs2.category,
+                        },
+                      },
+                      { useFindAndModify: false }
+                    );
+                  }
                   done({
                     EC: 0,
                     EM: "success",
@@ -436,6 +456,20 @@ module.exports = {
         });
       });
   },
+  updateSamplesPrice: async (done) => {
+    let itemsOverValue = await Item.find({ price: { $gt: 10000000 } });
+    for (let i = 0; i < itemsOverValue.length; i++) {
+      await Item.findOneAndUpdate(
+        { _id: itemsOverValue[i]._id },
+        { price: itemsOverValue[i]._doc.price / 100000 },
+        { useFindAndModify: false }
+      );
+    }
+    done({
+      EC: 0,
+      EM: "success",
+    });
+  },
   updateSamples_beta: async (done) => {
     fetch(`${Config.CHOPP_URL}`, {
       method: "GET",
@@ -527,12 +561,21 @@ module.exports = {
         );
       });
   },
-  search: async (page, pagesize, title, user_id, type, category, done) => {
+  search: async (
+    page,
+    pagesize,
+    title,
+    executor,
+    user_id,
+    type,
+    category,
+    done
+  ) => {
     try {
       let result = [];
       let strings = title.split(" ");
       let regexes = turnStringsToRegex(strings);
-      console.log(regexes);
+      // console.log(regexes);
       switch (type) {
         case "I": {
           result = await Item.find({
@@ -580,6 +623,14 @@ module.exports = {
         result = [
           ...result.filter((pro) => String(pro.seller) === String(user_id)),
         ];
+      }
+      if (executor) {
+        console.log(executor);
+        await UserHistory.findOneAndUpdate(
+          { user: executor },
+          { last_search: title },
+          { useFindAndModify: false }
+        );
       }
       await File.populate(result, {
         path: "images",

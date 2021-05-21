@@ -1,6 +1,8 @@
 const Item = require("../model/Item");
 const Food = require("../model/Food");
 const File = require("../model/File");
+const UserHistory = require("../model/UserHistory");
+const { turnStringsToRegex } = require("../function/Function");
 
 module.exports = {
   getAllProducts: (done) => {
@@ -22,13 +24,14 @@ module.exports = {
       });
     }
   },
-  getMostPopular: async (limit, done) => {
-    let num = parseInt(limit);
+  getMostPopular: async (page, pagesize, done) => {
     // try {
     let items = await Item.find({});
     let food = await Food.find({});
-    let output = [];
-    output.push(...items, ...food);
+    let products = [];
+    products.push(...items, ...food);
+    let isLastPage = products.length <= page * pagesize;
+    let output = products.slice(pagesize * (page - 1), page * pagesize);
     await File.populate(output, {
       path: "images",
     });
@@ -37,7 +40,8 @@ module.exports = {
       EC: 0,
       EM: "success",
       data: {
-        products: [...output.slice(0, num)],
+        products: [...output],
+        isLastPage: isLastPage,
       },
     });
     // } catch (error) {
@@ -108,6 +112,72 @@ module.exports = {
       });
     } catch (error) {
       done();
+    }
+  },
+  rcmBaseonHistory: async (page, pagesize, user_id, done) => {
+    try {
+      let history = await UserHistory.findOne({ user: user_id });
+      let { last_search, last_view_cate } = history._doc;
+      if (last_search || last_view_cate.category) {
+        // tìm kiếm các sản phẩm với tư khóa cuối cùng mà user tìm kiếm -> lấy 5
+        let forSearch = [];
+        let strings = last_search.split(" ");
+        let regexes = turnStringsToRegex(strings);
+        console.log(regexes);
+        if (last_search) {
+          let itemFilterRS = await Item.find({
+            $or: [
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
+            ],
+          });
+          let foodFilterRS = await Food.find({
+            $or: [
+              { title: regexes },
+              { description: regexes },
+              { category: regexes },
+            ],
+          });
+          forSearch.push(...itemFilterRS, ...foodFilterRS);
+        }
+        // tìm kiếm theo category giống sản phẩm cuối cùng mà user xem
+        let forLastCate = [];
+        if (last_view_cate.pro_type === "I") {
+          let cateitems = await Item.find({
+            category: last_view_cate.category,
+          });
+          forLastCate.push(...cateitems);
+        } else {
+          let catefood = await Food.find({ category: last_view_cate.category });
+          forLastCate.push(...catefood);
+        }
+        let products = [...forSearch, ...forLastCate];
+        products.sort((a, b) => b.views - a.views);
+        let isLastPage = page * pagesize >= products.length;
+        let output = products.slice((page - 1) * pagesize, pagesize * page);
+        await File.populate(output, {
+          path: "images",
+        });
+        done({
+          EC: 0,
+          EM: "success",
+          data: {
+            products: [...output],
+            isLastPage: isLastPage,
+          },
+        });
+      } else {
+        done({
+          EC: -1,
+          EM: "no history found",
+        });
+      }
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
     }
   },
 };

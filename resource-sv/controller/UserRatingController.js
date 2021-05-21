@@ -1,3 +1,5 @@
+const User = require("../model/User");
+const UserHistory = require("../model/UserHistory");
 const UserRating = require("../model/UserRating");
 const ProductController = require("./ProductController");
 const UserController = require("./UserController");
@@ -84,6 +86,24 @@ module.exports = {
           EM: "success",
         });
       }
+    });
+  },
+  createUserHistory: async (done) => {
+    let users = await User.find({});
+    for (let i = 0; i < users.length; i++) {
+      let newHistory = new UserHistory({
+        user: users[i]._id,
+        last_search: "",
+        last_view_cate: {
+          pro_type: "",
+          category: "",
+        },
+      });
+      await newHistory.save();
+    }
+    done({
+      EC: 0,
+      EM: "success",
     });
   },
 };

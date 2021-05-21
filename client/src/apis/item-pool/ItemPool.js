@@ -1,10 +1,13 @@
 import { Config } from "../../config/Config";
 
-const rcmGuestItems = (done) => {
-  fetch(`${Config.ResourceServer}/product/guest/${Config.ROLE.CLIENT}`, {
-    method: "GET",
-    mode: "cors",
-  })
+const rcmGuestItems = (page, pagesize, done) => {
+  fetch(
+    `${Config.ResourceServer}/product/guest/${Config.ROLE.CLIENT}?page=${page}&pagesize=${pagesize}`,
+    {
+      method: "GET",
+      mode: "cors",
+    }
+  )
     .then((res) => res.json())
     .then((rs) => done(rs));
 };
@@ -109,9 +112,19 @@ const createProduct = (product, type, done) => {
     });
 };
 
-const searchNoCookie = (page, pagesize, title, type, category, done) => {
+const searchNoCookie = (
+  page,
+  pagesize,
+  title,
+  type,
+  category,
+  user_id,
+  done
+) => {
   fetch(
-    `${Config.ResourceServer}/product/search?type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
+    `${Config.ResourceServer}/product/search?id=${
+      user_id ? user_id : ""
+    }&type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
     {
       method: "GET",
       mode: "cors",
@@ -139,6 +152,23 @@ const rcmSameLocationPros = (street, district) => {
   });
 };
 
+const rcmUserBaseOnHistory = (page, pagesize) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${Config.UploadServer}/recommend/user-prefer?page=${page}&pagesize=${pagesize}`,
+      {
+        method: "GET",
+        mode: "cors",
+        credentials: "include",
+      }
+    )
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   rcmGuestItems,
   rcmUserItems,
@@ -150,4 +180,5 @@ export {
   getPrdForRelate,
   createProduct,
   rcmSameLocationPros,
+  rcmUserBaseOnHistory,
 };

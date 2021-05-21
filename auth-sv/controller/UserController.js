@@ -4,6 +4,7 @@ const bcryptjs = require("bcryptjs");
 const ROLE = require("../config/Config").role;
 const jwt = require("jsonwebtoken");
 const Cart = require("../model/Cart");
+const UserHistory = require("../model/UserHistory");
 const addresses_json = JSON.parse(
   JSON.stringify(require("../config/convincesAndDistricts.json"))
 );
@@ -60,7 +61,7 @@ module.exports = {
           created_at: new Date(),
           online: false,
         });
-        new_user.save({ new: true }, (err2, data2) => {
+        new_user.save({ new: true }, async (err2, data2) => {
           //   console.log(data2);
           let districtInd = addresses_json[1].districts
             .map((dis, ind) => dis.name)
@@ -68,6 +69,16 @@ module.exports = {
           let streetInd = addresses_json[1].districts[districtInd].streets
             .map((strt, ind) => strt.name)
             .indexOf(new_user.address.street);
+          // Tạo lịch sử cho người dùng mới
+          let newHistory = new UserHistory({
+            user: data2._id,
+            last_search: "",
+            last_view_cate: {
+              pro_type: "",
+              category: "",
+            },
+          });
+          await newHistory.save();
           done({
             EC: 0,
             EM: "Tạo người dùng thành công",

@@ -30,6 +30,12 @@ UserRouter.get("/cart/:role", authen, (req, res, next) => {
   });
 });
 
+UserRouter.post("/create-history-samples", (req, res, next) => {
+  UserRatingController.createUserHistory((rs) => {
+    res.send(rs);
+  });
+});
+
 UserRouter.put("/add-cart/:role", authen, (req, res, next) => {
   UserController.addToCart(
     req.body.pro_id,

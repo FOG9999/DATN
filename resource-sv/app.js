@@ -13,6 +13,7 @@ const ChatRouter = require("./route/ChatRouter");
 const ChatController = require("./controller/ChatController");
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const ss = require("socket.io-stream");
 
 app.use(
   cors({
@@ -71,8 +72,10 @@ http.listen(port, () => {
   console.log("Resource server is listening on port " + port);
 });
 
+const broadcasters = [];
+
 io.on("connection", (socket) => {
-  console.log(socket.id + "comes...");
+  console.log(socket.id + " comes...");
   socket.on("message", (data) => {
     console.log(data.data);
   });
@@ -112,5 +115,57 @@ io.on("connection", (socket) => {
         console.log(rs.EM);
       }
     });
+  });
+  // livestream handler
+  socket.on("broadcasters", (streamID) => {
+    console.log("Phòng stream: " + streamID);
+    broadcasters.push(streamID);
+    socket.emit(`watchers.${streamID}`, socket.id);
+  });
+  // có người xem mới
+  socket.on("watchers", (broadcasterID) => {
+    console.log(
+      "Nguoi xem tai phong co broadcaster: " +
+        broadcasterID +
+        " co id: " +
+        socket.id
+    );
+    io.emit(`broadcaster.watchers.${broadcasterID}`, socket.id);
+  });
+  // broadcaster gửi sdp
+  socket.on("sdp", (broadcasterID, broasdcastSDP) => {
+    console.log("SDP: " + broasdcastSDP + ", Broadcaster: " + broadcasterID);
+    io.emit(`watchers.sdp.${broadcasterID}`, broasdcastSDP);
+  });
+  // watcher gửi sdp
+  socket.on("SDPanswer", (broadcasterID, watcherSDP) => {
+    console.log("SDP cua nguoi xem: " + socket.id + " la: " + watcherSDP);
+    io.emit(`broadcaster.sdp.${broadcasterID}`, socket.id, watcherSDP);
+  });
+  // broadcaster gửi candidate
+  socket.on("candidates", (broadcasterID, broadcasterCandidate) => {
+    console.log(
+      "Broadcaster " +
+        broadcasterID +
+        " co candidate: " +
+        JSON.stringify(broadcasterCandidate)
+    );
+    io.emit(`watchers.candidates.${broadcasterID}`, broadcasterCandidate);
+  });
+  // watcher gửi candidate
+  socket.on("watchers.candidates", (broadcasterID, watcherCandidate) => {
+    console.log(
+      "Watcher " +
+        socket.id +
+        " tai broadcaster: " +
+        broadcasterID +
+        " co candidate: " +
+        JSON.stringify(watcherCandidate)
+    );
+    io.emit(
+      `broadcaster.candidates.${broadcasterID}`,
+      socket.id,
+      watcherCandidate
+    );
   });
 });
