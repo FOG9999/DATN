@@ -88,6 +88,20 @@ const logout = (done) => {
     });
 };
 
+const getUserAvatar = (user_id) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/user/get-avatar`, {
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 const getCart = (done) => {
   fetch(`${Config.ResourceServer}/user/cart/${Config.ROLE.CLIENT}`, {
     method: "GET",
@@ -295,4 +309,5 @@ export {
   getListBoothes,
   createBooth,
   getUserConversations,
+  getUserAvatar,
 };

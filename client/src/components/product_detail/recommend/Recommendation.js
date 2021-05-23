@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Box } from "@material-ui/core";
 import OneProduct from "../../general/OneProduct";
 import {
-  getPrdByID,
+  // getPrdByID,
   getPrdForRelate,
   getRelatedProduct,
 } from "../../../apis/item-pool/ItemPool";

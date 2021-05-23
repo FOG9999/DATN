@@ -12,6 +12,11 @@
   height: 130px;
 }
 
+.my-message-stream {
+  background-color: rgb(238, 77, 46);
+  color: white;
+}
+
 .image-avatar {
   border-radius: 50%;
 }

@@ -72,7 +72,90 @@ http.listen(port, () => {
   console.log("Resource server is listening on port " + port);
 });
 
-const broadcasters = [];
+const broadcasters = new Map();
+
+// người dùng tạo trên diao giện
+app.post("/livestream", (req, res, next) => {
+  const { title, id, name } = req.body;
+  const broadcaster = req.cookies.user_id;
+  if (title && id && broadcaster && !broadcasters.has([broadcaster])) {
+    broadcasters.set(`${broadcaster}`, {
+      title: title,
+      name: name,
+      id: id,
+      watchers: 1,
+      started: false,
+    });
+    res.send({
+      EC: 0,
+      EM: "success",
+      data: {
+        user: req.cookies.user_id,
+        id: id,
+      },
+    });
+  } else
+    res.send({
+      EC: -1,
+      EM: "failed",
+    });
+});
+
+// được gọi đến khi người dùng load trang livestream -> nếu đã online rồi thì không thể vào lại nữa
+app.get("/stream-init", (req, res, next) => {
+  const id = req.query.id;
+  const user = req.cookies.user_id;
+  if (broadcasters.get(`${user}`)) {
+    let oldState = broadcasters.get(`${user}`);
+    if (oldState.started) {
+      res.send({
+        EC: -1,
+        EM: "stream started",
+      });
+    } else {
+      broadcasters.set(`${user}`, { ...oldState, started: true });
+      res.send({
+        EC: 0,
+        EM: "success",
+        data: {
+          title: oldState.title,
+          id: oldState.id,
+          name: oldState.name,
+        },
+      });
+    }
+  } else {
+    res.send({
+      EC: -1,
+      EM: "stream not exsit",
+    });
+  }
+});
+
+app.get("/watch-stream", (req, res, next) => {
+  const { id } = req.query;
+  let found = false;
+  broadcasters.forEach((live) => {
+    if (live.id === id) {
+      found = true;
+      res.send({
+        EC: 0,
+        EM: "success",
+        data: {
+          title: live.title,
+          id: live.id,
+          name: live.name,
+        },
+      });
+    }
+  });
+  if (!found) {
+    res.send({
+      EC: -1,
+      EM: "stream not found",
+    });
+  }
+});
 
 io.on("connection", (socket) => {
   console.log(socket.id + " comes...");
@@ -119,7 +202,6 @@ io.on("connection", (socket) => {
   // livestream handler
   socket.on("broadcasters", (streamID) => {
     console.log("Phòng stream: " + streamID);
-    broadcasters.push(streamID);
     socket.emit(`watchers.${streamID}`, socket.id);
   });
   // có người xem mới
@@ -167,5 +249,13 @@ io.on("connection", (socket) => {
       socket.id,
       watcherCandidate
     );
+  });
+  //stream kết thúc
+  socket.on("destroy", (broadcaster) => {
+    broadcasters.delete(broadcaster);
+  });
+  // lắng nghe các tin nhắn trên kênh livestream
+  socket.on("stream.messages", (streamID, message) => {
+    io.emit("stream.messages." + streamID, message);
   });
 });

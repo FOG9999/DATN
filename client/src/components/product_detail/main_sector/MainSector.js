@@ -16,7 +16,6 @@ import {
   Remove,
 } from "@material-ui/icons";
 import React, { Component } from "react";
-import faker from "faker";
 import {
   getPrdByID,
   getPrdByIDForUser,
@@ -38,8 +37,8 @@ import cNd from "../../../others/convincesAndDistricts.json";
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
-const BIG_WIDTH = 480,
-  SMALL_WIDTH = 92;
+const BIG_WIDTH = 480;
+// SMALL_WIDTH = 92;
 
 const strings = {
   overLimit: "Vượt quá số lượng hàng đang có",

@@ -42,7 +42,7 @@ function App() {
   return (
     <div className="App">
       <Switch>
-        <Route exact path="/sd" component={HomeContainer} />
+        <Route exact path="/" component={HomeContainer} />
         <Route
           path="/m/manage/:key"
           render={(props) => <Container {...props} socket={socket} />}
@@ -56,11 +56,11 @@ function App() {
         <Route path="/checkout/:ids" component={CheckoutContainer} />
         <Route
           exact
-          path="/"
+          path="/livestream/:id"
           render={(props) => <Livestreamer {...props} socket={socket} />}
         />
         <Route
-          path="/watch/:id"
+          path="/watch/:id/:broadcaster"
           render={(props) => <Watcher {...props} socket={socket} />}
         />
       </Switch>

@@ -40,4 +40,59 @@ const getConversation = (conID, page, pagesize, done) => {
     });
 };
 
-export { uploadImageFile, getConversation };
+const createLivestream = (streamID, name, title) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/livestream`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        title: title,
+        id: streamID,
+        name: name,
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const getStream = (id) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/stream-init?id=${id}`, {
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const joinStream = (id) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/watch-stream?id=${id}`, {
+      method: "GET",
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+export {
+  uploadImageFile,
+  getConversation,
+  createLivestream,
+  getStream,
+  joinStream,
+};

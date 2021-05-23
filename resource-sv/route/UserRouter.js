@@ -106,4 +106,10 @@ UserRouter.get("/booth/get-list/:role", authen, (req, res, next) => {
   });
 });
 
+UserRouter.get("/get-avatar", (req, res, next) => {
+  UserController.getAvatar(req.cookies.user_id, (rs) => {
+    res.send(rs);
+  });
+});
+
 module.exports = UserRouter;

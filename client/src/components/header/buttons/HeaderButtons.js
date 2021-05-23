@@ -1,13 +1,18 @@
 import React, { Component } from "react";
 import { Box } from "@material-ui/core";
-import { ShoppingCart } from "@material-ui/icons";
+import { ShoppingCart, Videocam } from "@material-ui/icons";
 import { connect } from "react-redux";
 import { UserAction } from "../../../redux/actions/UserAction";
+import { GeneralAction } from "../../../redux/actions/GeneralAction";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ModalCreateStream from "./ModalCreateStream";
+import { createLivestream } from "../../../apis/other-pool/OtherPool";
 
 class HeaderButtons extends Component {
-  state = {};
+  state = {
+    openModal: false,
+  };
   onLogout = () => {
     this.props.dispatchLogout((rs) => {
       if (rs.EC !== 0) {
@@ -17,13 +22,36 @@ class HeaderButtons extends Component {
       }
     });
   };
+  createLivestream = (title, name, id) => {
+    this.props.dispatchLoading();
+    createLivestream(id, name, title).then((rs) => {
+      if (rs.EC !== 0) {
+        toast.error(rs.EM);
+      } else {
+        window.location.href = "/livestream/" + rs.data.id;
+      }
+      this.props.dispatchLoaded();
+    });
+  };
+  onCloseModal = () => {
+    this.setState({
+      openModal: false,
+    });
+  };
+  onOpenModal = () => {
+    if (this.props.logged)
+      this.setState({
+        openModal: true,
+      });
+    else toast.error("Bạn chưa đăng nhập -_-");
+  };
   render() {
     return (
       <Box display="flex" flexDirection="row">
         <ToastContainer />
         <Box display="flex" flexGrow={1} justifyContent="flex-start">
-          <Box py={1} px={2} className="color-white">
-            Giá siêu rẻ
+          <Box py={1} px={2} className="color-white" onClick={this.onOpenModal}>
+            Livestream
           </Box>
           <Box py={1} px={2} className="color-white">
             Gần tôi
@@ -35,6 +63,12 @@ class HeaderButtons extends Component {
             Lịch sử
           </Box>
         </Box>
+        <ModalCreateStream
+          open={this.state.openModal}
+          onClose={this.onCloseModal}
+          createLivestream={this.createLivestream}
+          name={this.props.name}
+        />
         <Box display="flex" justifyContent="flex-end">
           <Box p={1} className="color-white">
             Thông báo
@@ -86,6 +120,7 @@ const mapStateToProps = (state) => {
     logged: state.user.logged,
     name: state.user.name,
     cartNum: state.user.cartNum,
+    loading: state.general.loading,
   };
 };
 
@@ -93,6 +128,12 @@ const mapDispatchToProps = (dispatch) => {
   return {
     dispatchLogout: (done) => {
       dispatch(UserAction.logout(done));
+    },
+    dispatchLoading: () => {
+      dispatch(GeneralAction.loading());
+    },
+    dispatchLoaded: () => {
+      dispatch(GeneralAction.loaded());
     },
   };
 };

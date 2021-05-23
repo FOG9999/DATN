@@ -312,4 +312,14 @@ module.exports = {
       });
     }
   },
+  getAvatar: async (user_id, done) => {
+    let avatar = await User.findOne({ _id: user_id }, "avatar");
+    done({
+      EC: 0,
+      EM: "success",
+      data: {
+        avatar: avatar,
+      },
+    });
+  },
 };
