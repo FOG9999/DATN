@@ -6,18 +6,21 @@ class OneStreamMessage extends Component {
   render() {
     return (
       <Box display="flex" maxWidth="80%">
-        <Box p={1}>
+        <Box p={2}>
           <img
             src={this.props.message.avatar}
-            width="20px"
-            height="20px"
+            width="25px"
+            height="25px"
             alt=""
             className="image-avatar"
           />
         </Box>
         <Box p={1}>
           <Box py="3px">
-            {this.props.message.name} vào lúc <i>{this.props.message.time}</i>
+            <small>
+              {this.props.message.sender} vào lúc{" "}
+              <i>{this.props.message.time}</i>
+            </small>
           </Box>
           <Box
             className={

@@ -28,7 +28,14 @@ class SimpleHeader extends Component {
           alignItems="center"
           className="color-white"
         >
-          <h2>{this.props.title}</h2>
+          <span>
+            <h2>{this.props.title}</h2>
+            {this.props.miniTitle ? (
+              <small>
+                <i>{this.props.miniTitle}</i>
+              </small>
+            ) : null}
+          </span>
         </Box>
         <Box display="flex" width="400px" alignItems="center">
           <Paper component="form" className="simpleheader-search-paper">

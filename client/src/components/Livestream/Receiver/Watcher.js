@@ -17,36 +17,55 @@ class Watcher extends Component {
     broadcaster_name: "",
     muted: false,
     loadcomplete: false,
+    watchers: 2,
+    timer: 0,
+    created: null,
   };
   optionComponent = () => {
     return (
-      <Box display="flex" alignItems="center" justifyContent="center" p={1}>
-        <Box mx={1}>
-          <IconButton>
-            <Favorite />
-          </IconButton>
-        </Box>
-        <Box mx={1}>
-          <IconButton>
-            <ThumbUp />
-          </IconButton>
-        </Box>
-        <Box mx={1}>
-          <IconButton>
-            <Share />
-          </IconButton>
-        </Box>
-        <Box mx={1}>
-          <IconButton>
-            <PermIdentity />
-          </IconButton>
+      <Box>
+        <input
+          id="hiddenLink"
+          style={{ visibility: "hidden" }}
+          value={`Link tới livestream này: \n${window.location.href}`}
+        />
+        <Box display="flex" alignItems="center" justifyContent="center" p={1}>
+          <Box mx={1}>
+            <IconButton>
+              <Favorite />
+            </IconButton>
+          </Box>
+          <Box mx={1}>
+            <IconButton>
+              <ThumbUp />
+            </IconButton>
+          </Box>
+          <Box mx={1}>
+            <IconButton onClick={() => this.shareLink()}>
+              <Share />
+            </IconButton>
+          </Box>
+          <Box mx={1}>
+            <IconButton>
+              <PermIdentity />
+            </IconButton>
+          </Box>
         </Box>
       </Box>
     );
   };
+  setTimer = () => {
+    this.setState({
+      timer: Math.round((new Date().getTime() - this.state.created) / 1000),
+    });
+  };
+  shareLink = async () => {
+    let hiddenLink = document.getElementById("hiddenLink");
+    await navigator.clipboard.writeText(hiddenLink.value);
+    toast.info("Đã sao chép");
+  };
   componentDidMount() {
-    const video = document.querySelector("video");
-    this.props.socket.emit("watchers", this.props.match.params.id);
+    this.props.socket.emit("watchers", this.props.match.params.broadcaster);
     console.log("Đã gửi watcherID");
     joinStream(this.props.match.params.id).then((rs) => {
       if (rs.EC !== 0) {
@@ -58,65 +77,73 @@ class Watcher extends Component {
           live_title: rs.data.title,
           broadcaster_name: rs.data.name,
           loadcomplete: true,
+          created: rs.data.created,
         });
+        setInterval(() => this.setTimer(), 1000);
         this.props.dispatchLoaded();
+        peerConnection = new RTCPeerConnection(Config.configICE);
+        this.props.socket.on(
+          `watchers.sdp.${this.props.match.params.broadcaster}`,
+          (broadcasterSDP) => {
+            console.log("Nhan duoc broadcasterSDP: " + broadcasterSDP);
+            peerConnection
+              .setRemoteDescription(broadcasterSDP)
+              .then(() => peerConnection.createAnswer())
+              .then((sdp) => peerConnection.setLocalDescription(sdp))
+              .then(() => {
+                this.props.socket.emit(
+                  "SDPanswer",
+                  this.props.match.params.broadcaster,
+                  peerConnection.localDescription
+                );
+                console.log("Da gui localDescription cua watcher");
+              });
+            // thay đổi src video khi có track mới
+            peerConnection.ontrack = (event) => {
+              console.log(event.streams[0]);
+              try {
+                const video = document.querySelector("video");
+                video.srcObject = event.streams[0];
+              } catch (err) {
+                console.log(err);
+              }
+            };
+            peerConnection.onicecandidate = (event) => {
+              if (event.candidate) {
+                console.log(
+                  "Setting candidate for watcher: " + event.candidate
+                );
+                this.props.socket.emit(
+                  "watchers.candidates",
+                  this.props.match.params.broadcaster,
+                  event.candidate
+                );
+              }
+            };
+          }
+        );
+        this.props.socket.on(
+          `watchers.candidates.${this.props.match.params.broadcaster}`,
+          (broadcasterCandidate) => {
+            console.log(
+              "Nhan duoc Candidate cura broadcaster: " + broadcasterCandidate
+            );
+            peerConnection.addIceCandidate(
+              new RTCIceCandidate(broadcasterCandidate)
+            );
+          }
+        );
+        this.props.socket.on(
+          `watchers.${this.props.match.params.broadcaster}`,
+          (broadcasterID) => {
+            console.log(broadcasterID);
+          }
+        );
       }
     });
-    this.props.socket.on(
-      `watchers.sdp.${this.props.match.params.broadcaster}`,
-      (broadcasterSDP) => {
-        console.log("Nhan duoc broadcasterSDP: " + broadcasterSDP);
-        peerConnection = new RTCPeerConnection(Config.configICE);
-        peerConnection
-          .setRemoteDescription(broadcasterSDP)
-          .then(() => peerConnection.createAnswer())
-          .then((sdp) => peerConnection.setLocalDescription(sdp))
-          .then(() => {
-            this.props.socket.emit(
-              "SDPanswer",
-              this.props.match.params.broadcaster,
-              peerConnection.localDescription
-            );
-            console.log("Da gui localDescription cua watcher");
-          });
-        // thay đổi src video khi có track mới
-        peerConnection.ontrack = (event) => {
-          console.log(event.streams[0]);
-          try {
-            video.srcObject = event.streams[0];
-          } catch (err) {
-            console.log(err);
-          }
-        };
-        peerConnection.onicecandidate = (event) => {
-          if (event.candidate) {
-            console.log("Setting candidate for watcher: " + event.candidate);
-            this.props.socket.emit(
-              "watchers.candidates",
-              this.props.match.params.broadcaster,
-              event.candidate
-            );
-          }
-        };
-      }
-    );
-    this.props.socket.on(
-      `watchers.candidates.${this.props.match.params.broadcaster}`,
-      (broadcasterCandidate) => {
-        console.log(
-          "Nhan duoc Candidate cura broadcaster: " + broadcasterCandidate
-        );
-        peerConnection.addIceCandidate(
-          new RTCIceCandidate(broadcasterCandidate)
-        );
-      }
-    );
-    this.props.socket.on(
-      `watchers.${this.props.match.params.broadcaster}`,
-      (broadcasterID) => {
-        console.log(broadcasterID);
-      }
-    );
+  }
+  componentWillUnmount() {
+    clearInterval();
   }
   render() {
     if (this.props.loading || !this.state.live_title) {
@@ -136,6 +163,12 @@ class Watcher extends Component {
           socket={this.props.socket}
           id={this.props.match.params.id}
           name={this.props.name}
+          miniTitle={
+            this.props.name
+              ? `Chào ${this.props.name}, bạn đang xem livestream trên Hanoi Buffaloes. Hãy nói gì đó!`
+              : null
+          }
+          timer={this.state.timer}
         />
       );
   }

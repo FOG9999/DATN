@@ -85,6 +85,7 @@ app.post("/livestream", (req, res, next) => {
       id: id,
       watchers: 1,
       started: false,
+      created: new Date().getTime(),
     });
     res.send({
       EC: 0,
@@ -121,6 +122,7 @@ app.get("/stream-init", (req, res, next) => {
           title: oldState.title,
           id: oldState.id,
           name: oldState.name,
+          created: oldState.created,
         },
       });
     }
@@ -145,6 +147,8 @@ app.get("/watch-stream", (req, res, next) => {
           title: live.title,
           id: live.id,
           name: live.name,
+          created: live.created,
+          watchers: live.watchers,
         },
       });
     }
@@ -163,7 +167,7 @@ io.on("connection", (socket) => {
     console.log(data.data);
   });
   socket.on("disconnect", () => {
-    console.log("disconnect");
+    console.log(socket.id + " disconnect");
   });
   socket.on("listen", (data) => {
     const { new_message, conID } = data;
@@ -212,6 +216,11 @@ io.on("connection", (socket) => {
         " co id: " +
         socket.id
     );
+    // let oldState = broadcasters.get(broadcasterID);
+    // broadcasters.set(broadcasterID, {
+    //   ...oldState,
+    //   watchers: oldState.watchers + 1,
+    // });
     io.emit(`broadcaster.watchers.${broadcasterID}`, socket.id);
   });
   // broadcaster gửi sdp
@@ -256,6 +265,7 @@ io.on("connection", (socket) => {
   });
   // lắng nghe các tin nhắn trên kênh livestream
   socket.on("stream.messages", (streamID, message) => {
+    console.log("Gửi tin nhắn đến phòng stream: " + streamID);
     io.emit("stream.messages." + streamID, message);
   });
 });

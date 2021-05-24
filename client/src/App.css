@@ -12,6 +12,10 @@
   height: 130px;
 }
 
+.color-red {
+  color: red;
+}
+
 .my-message-stream {
   background-color: rgb(238, 77, 46);
   color: white;

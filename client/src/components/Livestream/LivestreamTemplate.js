@@ -43,38 +43,61 @@ class LivestreamTemplate extends Component {
       time: new Date().toTimeString().substring(0, 5),
       avatar: this.state.avatar,
     };
-    this.props.socket.emit("stream.messages", messageToSend);
+    this.props.socket.emit("stream.messages", this.props.id, messageToSend);
+    this.setState({
+      text: "",
+    });
+  };
+  onChangeText = (e) => {
+    this.setState({
+      text: e.target.value,
+    });
+  };
+  showTimer = () => {
+    let hour = Math.floor(this.props.timer / 3600);
+    let min = Math.floor((this.props.timer - hour * 3600) / 60);
+    let sec = this.props.timer - hour * 3600 - min * 60;
+    return `${hour} ${hour < 2 ? "hour" : "hours"} ${min} ${
+      min < 2 ? "min" : "mins"
+    } ${sec} ${sec < 2 ? "sec" : "secs"}`;
   };
   render() {
     return (
       <Box height="100%">
-        <SimpleHeader title="Livestream" />
+        <SimpleHeader title="Livestream" miniTitle={this.props.miniTitle} />
         <ToastContainer />
         <Box display="flex" p={1} height="70%">
           <Box id="video-panel-container" width="70%">
             <Box id="video-panel-title" m={1}>
-              <Box py={1}>
-                <b>{this.props.live_title}</b>
-              </Box>
-              <Box className="color-aaa" display="flex" alignItems="center">
-                {this.props.broadcaster_name}
+              <Box py={1} display="flex">
                 <Box display="flex" alignItems="center">
-                  <FiberManualRecord color="action" />
+                  <b>{this.props.live_title}</b>
+                </Box>
+                <Box display="flex" mx={1} alignItems="center">
+                  <FiberManualRecord className="color-red" />
+                </Box>
+                <Box display="flex" mx={1} alignItems="center">
+                  <i>{this.showTimer()}</i>
                 </Box>
               </Box>
+              <Box className="color-aaa">{this.props.broadcaster_name}</Box>
             </Box>
             <Box
               id="video-stream"
               style={{ minHeight: "500px", height: "70%" }}
             >
               <Box id="main-video-stream">
-                <video
-                  constrols
-                  //   src={Meme}
-                  muted={this.props.muted}
-                  width="100%"
-                  height="100%"
-                ></video>
+                {this.props.muted ? (
+                  <video
+                    autoPlay
+                    //   src={Meme}
+                    muted
+                    width="100%"
+                    height="100%"
+                  ></video>
+                ) : (
+                  <video controls width="100%" height="100%"></video>
+                )}
               </Box>
             </Box>
             <Box id="stream-options">{this.props.OptionComponent}</Box>
@@ -96,7 +119,7 @@ class LivestreamTemplate extends Component {
                 {this.state.messages.map((message, ind) => {
                   return (
                     <OneStreamMessage
-                      mymessage={this.props.name === message.name}
+                      mymessage={this.props.name === message.sender}
                       message={message}
                       key={ind}
                     />
@@ -110,13 +133,13 @@ class LivestreamTemplate extends Component {
                     multiline={true}
                     fullWidth={true}
                     className="no-outline"
-                    //   value={this.state.text}
-                    //   onChange={this.onChangeText}
+                    value={this.state.text}
+                    onChange={this.onChangeText}
                   />
                 </Box>
                 <Box display="flex" py={1} justifyContent="center">
                   <IconButton
-                    disabled={this.state.avatar}
+                    disabled={!this.state.avatar}
                     onClick={this.sendMessage}
                   >
                     <Send fontSize="small" />
