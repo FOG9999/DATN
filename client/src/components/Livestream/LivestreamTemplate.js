@@ -1,5 +1,11 @@
 import { Box, Divider, IconButton, OutlinedInput } from "@material-ui/core";
-import { FiberManualRecord, Send } from "@material-ui/icons";
+import {
+  EmojiEmotions,
+  Favorite,
+  FiberManualRecord,
+  Send,
+  ThumbUp,
+} from "@material-ui/icons";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -9,12 +15,17 @@ import SimpleHeader from "../header/SimpleHeader";
 import { getUserAvatar } from "../../apis/user-pool/UserPool";
 import { getCookie } from "../../others/functions/Cookie";
 import OneStreamMessage from "./OneStreamMessage";
+import { turnNumberToNumberWithSeperator } from "../../others/functions/checkTextForNumberInput";
+import faker from "faker";
 
 class LivestreamTemplate extends Component {
   state = {
     messages: [],
     text: "",
     avatar: "",
+    likes: this.props.emotions.likes,
+    love: this.props.emotions.love,
+    haha: this.props.emotions.haha,
   };
   componentDidMount() {
     let video = document.querySelector("video");
@@ -35,6 +46,34 @@ class LivestreamTemplate extends Component {
     } else {
       toast.warn("Bạn chưa đăng nhập nên không thể chat...");
     }
+    // lắng nghe sự kiện tương tác (like, heart,...)
+    this.props.socket.on(`actions.${this.props.broadcasterID}`, (actionID) => {
+      switch (actionID) {
+        case 0: {
+          // like
+          this.setState({
+            likes: this.state.likes + 1,
+          });
+          break;
+        }
+        case 1: {
+          // heart
+          this.setState({
+            love: this.state.love + 1,
+          });
+          break;
+        }
+        case 2: {
+          // heart
+          this.setState({
+            haha: this.state.haha + 1,
+          });
+          break;
+        }
+        default:
+          break;
+      }
+    });
   }
   sendMessage = () => {
     let messageToSend = {
@@ -66,7 +105,13 @@ class LivestreamTemplate extends Component {
       <Box height="100%">
         <SimpleHeader title="Livestream" miniTitle={this.props.miniTitle} />
         <ToastContainer />
-        <Box display="flex" p={1} height="70%">
+        <Box
+          display="flex"
+          p={1}
+          height="70%"
+          id="container-div"
+          style={{ position: "relative" }}
+        >
           <Box id="video-panel-container" width="70%">
             <Box id="video-panel-title" m={1}>
               <Box py={1} display="flex">
@@ -80,7 +125,13 @@ class LivestreamTemplate extends Component {
                   <i>{this.showTimer()}</i>
                 </Box>
               </Box>
-              <Box className="color-aaa">{this.props.broadcaster_name}</Box>
+              <Box className="color-aaa">
+                {this.props.broadcaster_name}{" "}
+                <i>
+                  {turnNumberToNumberWithSeperator(this.props.watchers)} người
+                  đang xem
+                </i>
+              </Box>
             </Box>
             <Box
               id="video-stream"
@@ -113,6 +164,20 @@ class LivestreamTemplate extends Component {
                 <big>
                   <b>Live Chat</b>
                 </big>
+              </Box>
+              <Box display="flex">
+                <Box display="flex" alignItems="center" flexGrow={1}>
+                  <ThumbUp style={{ color: "#286fad" }} />
+                  &nbsp;{this.state.likes}
+                </Box>
+                <Box display="flex" alignItems="center" flexGrow={1}>
+                  <Favorite style={{ color: "#d61522" }} />
+                  &nbsp;{this.state.love}
+                </Box>
+                <Box display="flex" alignItems="center" flexGrow={1}>
+                  <EmojiEmotions style={{ color: "#f0d50c" }} />
+                  &nbsp;{this.state.haha}
+                </Box>
               </Box>
               <Divider />
               <Box className="div-scroll" height="500px">

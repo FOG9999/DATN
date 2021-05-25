@@ -375,3 +375,18 @@
 .App {
   height: 100%;
 }
+
+@keyframes actioncss {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.div-action-css {
+  animation-name: actioncss;
+  animation-duration: 2s;
+  position: absolute;
+}

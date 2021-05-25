@@ -49,6 +49,7 @@ class ModalCreateStream extends Component {
                 value={this.state.streamTitle}
                 fullWidth={true}
                 placeholder="Nói gì đó về livestream của bạn"
+                autoFocus
               />
             </Box>
             <Box p={1}>

@@ -1,5 +1,11 @@
 import { Box, IconButton } from "@material-ui/core";
-import { Favorite, PermIdentity, Share, ThumbUp } from "@material-ui/icons";
+import {
+  EmojiEmotions,
+  Favorite,
+  PermIdentity,
+  Share,
+  ThumbUp,
+} from "@material-ui/icons";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
@@ -20,6 +26,11 @@ class Watcher extends Component {
     watchers: 2,
     timer: 0,
     created: null,
+    emotions: {
+      likes: 0,
+      love: 0,
+      haha: 0,
+    },
   };
   optionComponent = () => {
     return (
@@ -31,13 +42,18 @@ class Watcher extends Component {
         />
         <Box display="flex" alignItems="center" justifyContent="center" p={1}>
           <Box mx={1}>
-            <IconButton>
+            <IconButton onClick={() => this.emitAction(1)}>
               <Favorite />
             </IconButton>
           </Box>
           <Box mx={1}>
-            <IconButton>
+            <IconButton onClick={() => this.emitAction(0)}>
               <ThumbUp />
+            </IconButton>
+          </Box>
+          <Box mx={1}>
+            <IconButton onClick={() => this.emitAction(2)}>
+              <EmojiEmotions />
             </IconButton>
           </Box>
           <Box mx={1}>
@@ -54,6 +70,14 @@ class Watcher extends Component {
       </Box>
     );
   };
+  emitAction = (actionID) => {
+    this.props.socket.emit(
+      "actions",
+      this.props.match.params.broadcaster,
+      this.props.match.params.id,
+      actionID
+    );
+  };
   setTimer = () => {
     this.setState({
       timer: Math.round((new Date().getTime() - this.state.created) / 1000),
@@ -65,8 +89,20 @@ class Watcher extends Component {
     toast.info("Đã sao chép");
   };
   componentDidMount() {
-    this.props.socket.emit("watchers", this.props.match.params.broadcaster);
+    this.props.socket.emit(
+      "watchers",
+      this.props.match.params.broadcaster,
+      this.props.match.params.id
+    );
     console.log("Đã gửi watcherID");
+    this.props.socket.on(
+      `watchers.add.${this.props.match.params.broadcaster}`,
+      (watchers) => {
+        this.setState({
+          watchers: watchers,
+        });
+      }
+    );
     joinStream(this.props.match.params.id).then((rs) => {
       if (rs.EC !== 0) {
         toast.error(rs.EM);
@@ -78,6 +114,7 @@ class Watcher extends Component {
           broadcaster_name: rs.data.name,
           loadcomplete: true,
           created: rs.data.created,
+          emotions: { ...rs.data.emotions },
         });
         setInterval(() => this.setTimer(), 1000);
         this.props.dispatchLoaded();
@@ -139,6 +176,14 @@ class Watcher extends Component {
             console.log(broadcasterID);
           }
         );
+        this.props.socket.on(
+          `watchers.leaving.${this.props.match.params.broadcaster}`,
+          () => {
+            this.setState({
+              watchers: this.state.watchers - 1,
+            });
+          }
+        );
       }
     });
   }
@@ -169,6 +214,9 @@ class Watcher extends Component {
               : null
           }
           timer={this.state.timer}
+          watchers={this.state.watchers}
+          broadcasterID={this.props.match.params.broadcaster}
+          emotions={this.state.emotions}
         />
       );
   }

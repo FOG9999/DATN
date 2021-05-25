@@ -23,6 +23,11 @@ class Livestreamer extends Component {
     timer: 0,
     created: null,
     watchers: 1,
+    emotions: {
+      likes: 0,
+      love: 0,
+      haha: 0,
+    },
   };
   optionComponent = () => {
     return (
@@ -76,6 +81,7 @@ class Livestreamer extends Component {
           broadcaster_name: rs.data.name,
           loadcomplete: true,
           created: rs.data.created,
+          emotions: { ...rs.data.emotions },
         });
         setInterval(() => this.setTimer(), 1000);
         this.props.dispatchLoaded();
@@ -94,6 +100,10 @@ class Livestreamer extends Component {
           `broadcaster.watchers.${this.props.socket.id}`,
           (watcherID) => {
             console.log("Nhận được id của watcher: " + watcherID);
+            let watchers = this.state.watchers;
+            this.setState({
+              watchers: watchers + 1,
+            });
             // add các track của MediaStream vào peer
             peerConns[watcherID] = new RTCPeerConnection(Config.configICE);
             peerConns[watcherID].addStream(meme.srcObject);
@@ -146,6 +156,15 @@ class Livestreamer extends Component {
             );
           }
         );
+        // lắng nghe mỗi khi có một socket leave
+        this.props.socket.on("leaving", (socketID) => {
+          if (Object.keys(peerConns).indexOf(socketID) >= 0) {
+            this.setState({
+              watchers: this.state.watchers - 1,
+            });
+            this.props.socket.emit("watchers.leaving", this.props.socket.id);
+          }
+        });
       }
     });
     // console.log(this.props.socket.id);
@@ -177,6 +196,9 @@ class Livestreamer extends Component {
           name={this.props.name}
           miniTitle={`Chào ${this.props.name}, bạn đang livestream tại Hanoi Buffaloes. Enjoy!`}
           timer={this.state.timer}
+          watchers={this.state.watchers}
+          broadcasterID={this.props.socket.id}
+          emotions={this.state.emotions}
         />
       );
   }

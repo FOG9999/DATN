@@ -86,6 +86,11 @@ app.post("/livestream", (req, res, next) => {
       watchers: 1,
       started: false,
       created: new Date().getTime(),
+      emotions: {
+        likes: 0,
+        love: 0,
+        haha: 0,
+      },
     });
     res.send({
       EC: 0,
@@ -123,6 +128,7 @@ app.get("/stream-init", (req, res, next) => {
           id: oldState.id,
           name: oldState.name,
           created: oldState.created,
+          emotions: { ...oldState.emotions },
         },
       });
     }
@@ -149,6 +155,7 @@ app.get("/watch-stream", (req, res, next) => {
           name: live.name,
           created: live.created,
           watchers: live.watchers,
+          emotions: { ...live.emotions },
         },
       });
     }
@@ -168,6 +175,7 @@ io.on("connection", (socket) => {
   });
   socket.on("disconnect", () => {
     console.log(socket.id + " disconnect");
+    io.emit("leaving", socket.id);
   });
   socket.on("listen", (data) => {
     const { new_message, conID } = data;
@@ -209,19 +217,25 @@ io.on("connection", (socket) => {
     socket.emit(`watchers.${streamID}`, socket.id);
   });
   // có người xem mới
-  socket.on("watchers", (broadcasterID) => {
+  socket.on("watchers", (broadcasterID, streamID) => {
     console.log(
       "Nguoi xem tai phong co broadcaster: " +
         broadcasterID +
         " co id: " +
         socket.id
     );
-    // let oldState = broadcasters.get(broadcasterID);
-    // broadcasters.set(broadcasterID, {
-    //   ...oldState,
-    //   watchers: oldState.watchers + 1,
-    // });
+    let watchers = 0;
+    broadcasters.forEach((br, key, map) => {
+      if (br.id === streamID) {
+        broadcasters.set(key, {
+          ...br,
+          watchers: br.watchers + 1,
+        });
+        watchers = br.watchers + 1;
+      }
+    });
     io.emit(`broadcaster.watchers.${broadcasterID}`, socket.id);
+    io.emit(`watchers.add.${broadcasterID}`, watchers);
   });
   // broadcaster gửi sdp
   socket.on("sdp", (broadcasterID, broasdcastSDP) => {
@@ -262,10 +276,32 @@ io.on("connection", (socket) => {
   //stream kết thúc
   socket.on("destroy", (broadcaster) => {
     broadcasters.delete(broadcaster);
+    console.log("Livestream kết thúc");
   });
   // lắng nghe các tin nhắn trên kênh livestream
   socket.on("stream.messages", (streamID, message) => {
     console.log("Gửi tin nhắn đến phòng stream: " + streamID);
     io.emit("stream.messages." + streamID, message);
+  });
+  // lắng nghe sự kiện broadcaster thông báo cho các watcher khi có 1 ng rời đi
+  socket.on("watchers.leaving", (broadcasterID) => {
+    io.emit("watchers.leaving." + broadcasterID);
+  });
+  // lắng nghe sự kiện tương tác của watcher vs livestream (like, heart,..)
+  socket.on("actions", (broadcasterID, streamID, actionID) => {
+    console.log("Watcher tương tác " + actionID);
+    let emo = actionID === 0 ? "likes" : actionID === 1 ? "love" : "haha";
+    broadcasters.forEach((br, key) => {
+      if (br.id === streamID) {
+        broadcasters.set(key, {
+          ...br,
+          emotions: {
+            ...br.emotions,
+            [emo]: br.emotions[emo] + 1,
+          },
+        });
+      }
+    });
+    io.emit(`actions.${broadcasterID}`, actionID);
   });
 });

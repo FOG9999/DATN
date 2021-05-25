@@ -7,7 +7,7 @@ const UserAction = {
       login(username, password, (rs) => {
         if (rs.EC === 0) {
           const { user_id, h_token, name, cartNum, address } = rs.data;
-          document.cookie = `user_id=${user_id};path=/`;
+          document.cookie = `user_id=${user_id};max-age=2147483647;path=/`;
           document.cookie = `h_token=${h_token};max-age=86400;path=/`;
           // console.log(cartNum);
           dispatch({
@@ -73,7 +73,7 @@ const UserAction = {
         (rs) => {
           if (rs.EC === 0) {
             const { user_id, h_token, name, address } = rs.data;
-            document.cookie = `user_id=${user_id};path=/`;
+            document.cookie = `user_id=${user_id};max-age=2147483647;path=/`;
             document.cookie = `h_token=${h_token};max-age=86400;path=/`;
             dispatch({
               type: TYPES.LOGIN,
