@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { GeneralAction } from "../../redux/actions/GeneralAction";
 import Loading from "../../components/general/Loading";
-import { getCheckoutOrder } from "../../apis/order-pool/OrderPool";
+import { getCheckoutOrder, makePayment } from "../../apis/order-pool/OrderPool";
 import { UserAction } from "../../redux/actions/UserAction";
 import { Config } from "../../config/Config";
 import { toast, ToastContainer } from "react-toastify";
@@ -17,6 +17,7 @@ class CheckoutContainer extends Component {
     products: [],
     shipFeeArr: [],
     total: 0,
+    paymentMethod: "PayPal",
   };
   componentDidMount() {
     this.getCheckout();
@@ -55,28 +56,35 @@ class CheckoutContainer extends Component {
       window.location.href = "/";
     }
   };
+  onChangePaymentMethod = (e) => {
+    this.setState({
+      paymentMethod: e.target.value,
+    });
+  };
   placeOrder = () => {
-    // this.props.dispatchLoading();
-    // if (this.props.logged) {
-    //   const path = "/order/create/" + Config.ROLE.CLIENT + "/deli";
-    //   this.props.dispatchAuthen(path, "PUT", (rs) => {
-    //     if (rs.EC !== 0) {
-    //       toast.error(rs.EM);
-    //       setTimeout(() => {
-    //         window.location.href = "/";
-    //       }, 3000);
-    //     } else {
-    //       placeDeliOrder(this.state.cart.products, (rs) => {
-    //         if (rs.EC !== 0) {
-    //           toast.error(rs.EM);
-    //         } else {
-    //           console.log(rs.data);
-    //           this.props.dispatchLoaded();
-    //         }
-    //       });
-    //     }
-    //   });
-    // }
+    this.props.dispatchLoading();
+    if (this.props.logged) {
+      const path = "/make-payment/" + Config.ROLE.CLIENT;
+      this.props.dispatchAuthen(path, "POST", (rs) => {
+        if (rs.EC !== 0) {
+          toast.error(rs.EM);
+          // setTimeout(() => {
+          //   window.location.href = "/";
+          // }, 3000);
+        } else {
+          const { total, paymentMethod, products, shipFeeArr } = this.state;
+          makePayment(total, paymentMethod, products, shipFeeArr).then((rs) => {
+            if (rs.EC !== 0) {
+              toast.error(rs.EM);
+              this.props.dispatchLoaded();
+            } else {
+              localStorage.setItem("temp_ord", JSON.stringify(rs.data));
+              window.location.href = rs.data.approve;
+            }
+          });
+        }
+      });
+    }
   };
   recalculateTotal = (shipFees, products) => {
     let total = 0;
@@ -107,19 +115,33 @@ class CheckoutContainer extends Component {
             <ToastContainer />
             <Box mt={3}>
               <CheckoutRowHeader />
-              {this.state.products.map((orderProduct, index) => {
-                return (
-                  <CheckoutRowData
-                    orderProduct={orderProduct}
-                    key={index}
-                    index={index}
-                    shipFee={this.state.shipFeeArr[index]}
-                  />
-                );
-              })}
+              <Box minHeight="250px">
+                {this.state.products.length ? (
+                  <Box>
+                    {this.state.products.map((orderProduct, index) => {
+                      return (
+                        <CheckoutRowData
+                          orderProduct={orderProduct}
+                          key={index}
+                          index={index}
+                          shipFee={this.state.shipFeeArr[index]}
+                        />
+                      );
+                    })}
+                  </Box>
+                ) : (
+                  <Box>
+                    <h1 className="color-aaa">
+                      <i>Không có đơn hàng nào để hiển thị</i>
+                    </h1>
+                  </Box>
+                )}
+              </Box>
               <CheckoutTotalBar
                 total={this.state.total}
-                // placeOrder={this.placeOrder}
+                paymentMethod={this.state.paymentMethod}
+                onChangePaymentMethod={this.onChangePaymentMethod}
+                placeOrder={this.placeOrder}
               />
             </Box>
           </Box>

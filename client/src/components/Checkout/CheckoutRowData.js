@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Select,
   // FormControl,
   // FormControlLabel,
   //   IconButton,
@@ -36,6 +37,7 @@ const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 class CheckoutRowData extends Component {
   state = {
     orderQuantity: this.props.orderProduct.order_quantity,
+    selectedMethod: "PayPal",
   };
   onClickLink = () => {
     window.location.href = "/prd/" + this.props.orderProduct.product._id;
@@ -116,22 +118,6 @@ class CheckoutRowData extends Component {
               justifyContent="center"
             >
               <Box display="flex" alignItems="center" justifyContent="center">
-                {/* <IconButton
-                  onClick={this.onMinusOneOrderQuantity}
-                  disabled={this.state.orderQuantity === 1}
-                >
-                  <Remove />
-                </IconButton>
-                <input
-                  type="text"
-                  value={this.state.orderQuantity}
-                  onChange={this.onChangeInputField}
-                  name="orderQuantity"
-                  className="text-center input-order-quantity"
-                />
-                <IconButton>
-                  <Add onClick={this.onAddOneOrderQuantity} />
-                </IconButton> */}
                 {this.state.orderQuantity}
               </Box>
             </Box>

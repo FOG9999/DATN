@@ -18,4 +18,66 @@ const getCheckoutOrder = (ord_productIDs, done) => {
     });
 };
 
-export { getCheckoutOrder };
+const captureOrder = (orderID, products, total, shipFeeArr, paymentMethod) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/order/capture`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        orderID: orderID,
+        products: [...products],
+        total: total,
+        shipFeeArr: [...shipFeeArr],
+        paymentMethod: paymentMethod,
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const makePayment = (total, paymentMethod, products, shipFeeArr) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/order/make-payment/${Config.ROLE.CLIENT}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      mode: "cors",
+      credentials: "include",
+      body: JSON.stringify({
+        value: total,
+        shipFeeArr: [...shipFeeArr],
+        products: [...products],
+        paymentMethod: paymentMethod,
+        return_url: "http://localhost:3000/processing",
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const getInvoices = () => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/order/my-invoices/${Config.ROLE.CLIENT}`, {
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+export { getCheckoutOrder, makePayment, getInvoices, captureOrder };

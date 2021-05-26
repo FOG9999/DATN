@@ -34,4 +34,8 @@ module.exports = {
     "https://searchlist-api.sendo.vn/web/categories/2399/products?listing_algo=algo13&page=1&platform=web&size=60&sortType=vasup_desc",
   CHOPP_URL:
     "https://chopp.vn/api/group/products?populate=true&groupBy=category&locale=vi&page=1&limit=30&groupLimit=24&where={%22stores%22:%22rec3QEkwij7iPa2Oz%22}&segment=recgOahZUvejuv2WV",
+  PAYPAL_CLIENT:
+    "ATEKqQGUaj65xkx6-cZuWaxuSSP7VGNpaJj0VKOZntRrgV63QgWQVJvO0Xu-z9ZiL8_pws2T7fI2vnnx",
+  PAYPAL_SECRET:
+    "ELUjqFDS5Y2zyZ2iV9AEyCz5CG-z5C4WN1BcZ57jjUFIEauAogpwW3tKrbb1XASPb9d8LN39YiFoo6i7",
 };

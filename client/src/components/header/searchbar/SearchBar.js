@@ -60,7 +60,12 @@ class SearchBar extends Component {
         </Box>
         {this.state.winWidth >= 1000 ? (
           <Box px={3} py={3}>
-            <Button variant="contained" color="primary" onClick={this.onSearch}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.onSearch}
+              disabled={/[a-z]/.test(this.state.keyword)}
+            >
               <Search fontSize="large" />
             </Button>
           </Box>

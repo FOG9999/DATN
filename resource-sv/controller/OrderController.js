@@ -1,5 +1,6 @@
 const File = require("../model/File");
 const Food = require("../model/Food");
+const Invoice = require("../model/Invoice");
 const Item = require("../model/Item");
 const Order = require("../model/Order");
 const OrderProduct = require("../model/OrderProduct");
@@ -88,7 +89,7 @@ module.exports = {
       });
     }
   },
-  placeDeliOrder: async (order_products, buyer, done) => {
+  placeDeliOrder: async (order_products, paymentMethodArr, buyer, done) => {
     let orders = [];
     try {
       for (let i = 0; i < order_products.length; i++) {
@@ -155,6 +156,120 @@ module.exports = {
       done({
         EC: 500,
         EM: error.message,
+      });
+    }
+  },
+  captureOrder: async (
+    paypalOrder,
+    products,
+    shipFeeArr,
+    total,
+    paymentMethod,
+    buyer,
+    done
+  ) => {
+    try {
+      let captureStatus = 0;
+      for (let i = 0; i < products.length; i++) {
+        // kiểm tra số lượng hàng còn lại của mỗi sản phẩm trong đơn hàng
+        let prd;
+        if (products[i].pro_type === "I") {
+          prd = await Item.findOne({ _id: products[i].product._id });
+        } else {
+          prd = await Food.findOne({ _id: products[i].product._id });
+        }
+        if (prd.quantity < products[i].order_quantity) {
+          captureStatus = -1;
+          break;
+        } else {
+          // update số lượng
+          if (products[i].pro_type === "I") {
+            await Item.findOneAndUpdate(
+              { _id: products[i].product._id },
+              { quantity: prd._doc.quantity - products[i].order_quantity },
+              { useFindAndModify: false }
+            );
+          } else {
+            await Food.findOneAndUpdate(
+              { _id: products[i].product._id },
+              { quantity: prd._doc.quantity - products[i].order_quantity },
+              { useFindAndModify: false }
+            );
+          }
+        }
+      }
+      if (captureStatus !== 0) {
+        done({
+          EC: -1,
+          EM: "Không còn đủ hàng trong kho. Vui lòng kiểm tra lại đơn hàng",
+        });
+      } else {
+        // tạo hóa đơn mới nếu tất cả hàng đều đủ
+        let newInvoice = new Invoice({
+          orders: [...products.map((or, ind) => or._id)],
+          ship_fees: [...shipFeeArr],
+          total: total * 23000,
+          created_at: new Date(),
+          buyer: buyer,
+          payment_method: paymentMethod,
+          paypalOrder: paypalOrder,
+        });
+        await newInvoice.save();
+        done({
+          EC: 0,
+          EM: "success",
+        });
+      }
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
+  },
+  getUserInvoices: async (user_id, done) => {
+    let invoices = await Invoice.find({ buyer: user_id });
+    let ordersForInvoices = [];
+    if (invoices.length > 0) {
+      for (let i = 0; i < invoices.length; i++) {
+        let ord_products = await OrderProduct.find({
+          _id: { $in: [...invoices[i].orders] },
+        }).populate("owner");
+        await Item.populate(
+          ord_products.filter((ordPrd) => ordPrd.pro_type === "I"),
+          {
+            path: "product",
+          }
+        );
+        await Food.populate(
+          ord_products.filter((ordPrd) => ordPrd.pro_type === "F"),
+          {
+            path: "product",
+          }
+        );
+        await User.populate(ord_products, {
+          path: "product.seller",
+        });
+        await File.populate(ord_products, {
+          path: "product.images",
+        });
+        ordersForInvoices.push(ord_products);
+      }
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          ordersForInvoices: [...ordersForInvoices],
+          invoices: [...invoices],
+        },
+      });
+    } else {
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          invoices: [],
+        },
       });
     }
   },

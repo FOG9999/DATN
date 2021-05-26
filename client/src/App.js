@@ -16,6 +16,7 @@ import { getCookie } from "./others/functions/Cookie";
 import { useEffect } from "react";
 import Livestreamer from "./components/Livestream/Sender/Livestreamer";
 import Watcher from "./components/Livestream/Receiver/Watcher";
+import ProcessingOrder from "./components/Checkout/ProcessingOrder";
 // import { useSelector } from "react-redux";
 // import { useEffect } from "react";
 
@@ -63,6 +64,7 @@ function App() {
           path="/watch/:id/:broadcaster"
           render={(props) => <Watcher {...props} socket={socket} />}
         />
+        <Route path="/processing" component={ProcessingOrder} />
       </Switch>
     </div>
   );
