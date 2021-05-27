@@ -38,16 +38,16 @@ module.exports = {
           "line"
         ),
         images: [],
-        category: "Bánh kẹo và snack",
+        category: "Mỳ và Nui",
         createdAt: new Date(),
         views: Math.round(Math.random() * 10) + 10,
         status: STATUS.A,
-        checkDate: new Date("02-05-2021"),
+        checkDate: new Date("05-27-2021"),
         type: "F",
         sold: 0,
         withDelivery: Math.random() > 0.5 ? true : false,
-        unit: "KG",
-        seller: null,
+        unit: "gói",
+        seller: sellers[sellerInd],
         quantity: Math.round(Math.random() * 10),
       });
       try {

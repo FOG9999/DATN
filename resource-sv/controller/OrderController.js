@@ -89,7 +89,7 @@ module.exports = {
       });
     }
   },
-  placeDeliOrder: async (order_products, paymentMethodArr, buyer, done) => {
+  placeDeliOrder: async (order_products, buyer, done) => {
     let orders = [];
     try {
       for (let i = 0; i < order_products.length; i++) {
@@ -126,6 +126,7 @@ module.exports = {
   },
   getCheckoutOrder: async (ord_productIDs, done) => {
     try {
+      let orders = await Order.find({});
       let ord_products = await OrderProduct.find({
         _id: { $in: [...ord_productIDs] },
       }).populate("owner");
@@ -170,6 +171,7 @@ module.exports = {
   ) => {
     try {
       let captureStatus = 0;
+      let orders = [];
       for (let i = 0; i < products.length; i++) {
         // kiểm tra số lượng hàng còn lại của mỗi sản phẩm trong đơn hàng
         let prd;
@@ -196,6 +198,22 @@ module.exports = {
               { useFindAndModify: false }
             );
           }
+          // tạo order cho các order product
+          let newOrder = new Order({
+            createdAt: new Date(),
+            buyer: buyer,
+            delivery_type: "deliver",
+            total: products[i].product.price * products[i].order_quantity,
+            product: products[i]._id,
+            delivery_date: null,
+            status: "0",
+            received_date: null,
+            order_type: "Giao hàng tận nhà",
+            pstatus: ["0"],
+            last_changed: new Date(),
+          });
+          let savedOrd = await newOrder.save({ new: true });
+          orders.push(savedOrd);
         }
       }
       if (captureStatus !== 0) {
@@ -206,9 +224,9 @@ module.exports = {
       } else {
         // tạo hóa đơn mới nếu tất cả hàng đều đủ
         let newInvoice = new Invoice({
-          orders: [...products.map((or, ind) => or._id)],
+          orders: [...orders.map((or, ind) => or._id)],
           ship_fees: [...shipFeeArr],
-          total: total * 23000,
+          total: total,
           created_at: new Date(),
           buyer: buyer,
           payment_method: paymentMethod,
@@ -228,12 +246,15 @@ module.exports = {
     }
   },
   getUserInvoices: async (user_id, done) => {
-    let invoices = await Invoice.find({ buyer: user_id });
+    let invoices = await Invoice.find({ buyer: user_id }).populate("orders");
     let ordersForInvoices = [];
+    OrderProduct.populate(invoices, {
+      path: "orders.product",
+    });
     if (invoices.length > 0) {
       for (let i = 0; i < invoices.length; i++) {
         let ord_products = await OrderProduct.find({
-          _id: { $in: [...invoices[i].orders] },
+          _id: { $in: [...invoices[i].orders.map((ord, ind) => ord.product)] },
         }).populate("owner");
         await Item.populate(
           ord_products.filter((ordPrd) => ordPrd.pro_type === "I"),
@@ -269,6 +290,7 @@ module.exports = {
         EM: "success",
         data: {
           invoices: [],
+          ordersForInvoices: [],
         },
       });
     }

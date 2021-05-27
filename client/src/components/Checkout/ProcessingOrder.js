@@ -17,10 +17,11 @@ class ProcessingOrder extends Component {
     ).then((rs) => {
       if (rs.EC !== 0) {
         toast.error(rs.EM);
-        // setTimeout(() => (window.location.href = "/m/cart"), 5000);
+        setTimeout(() => (window.location.href = "/m/cart"), 5000);
       } else {
         localStorage.removeItem("temp_ord");
         toast.success("Đặt hàng thành công !");
+        setTimeout(() => (window.location.href = "/m/order-history"), 2000);
       }
     });
   }

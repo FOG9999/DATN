@@ -26,8 +26,8 @@ module.exports = {
   },
   getMostPopular: async (page, pagesize, done) => {
     // try {
-    let items = await Item.find({});
-    let food = await Food.find({});
+    let items = await Item.find({ status: "Active" });
+    let food = await Food.find({ status: "Active" });
     let products = [];
     products.push(...items, ...food);
     let isLastPage = products.length <= page * pagesize;
@@ -55,9 +55,10 @@ module.exports = {
     let num = parseInt(limit);
     switch (type) {
       case "I": {
-        let itemsSameCate = await Item.find({ category: category }).populate(
-          "images"
-        );
+        let itemsSameCate = await Item.find({
+          category: category,
+          status: "Active",
+        }).populate("images");
         itemsSameCate.sort((a, b) => b.views - a.views);
         done({
           EC: 0,
@@ -69,9 +70,10 @@ module.exports = {
         break;
       }
       case "F": {
-        let foodSameCate = await Food.find({ category: category }).populate(
-          "images"
-        );
+        let foodSameCate = await Food.find({
+          category: category,
+          status: "Active",
+        }).populate("images");
         foodSameCate.sort((a, b) => b.views - a.views);
         done({
           EC: 0,
@@ -92,9 +94,11 @@ module.exports = {
     try {
       let items = await Item.find({
         "location.district": location.district,
+        status: "Active",
       });
       let food = await Food.find({
         "location.district": location.district,
+        status: "Active",
       });
       let products = [...items, ...food];
       let isLastPgae = page * pagesize >= products.length;
@@ -131,6 +135,7 @@ module.exports = {
               { description: regexes },
               { category: regexes },
             ],
+            status: "Active",
           });
           let foodFilterRS = await Food.find({
             $or: [
@@ -138,6 +143,7 @@ module.exports = {
               { description: regexes },
               { category: regexes },
             ],
+            status: "Active",
           });
           forSearch.push(...itemFilterRS, ...foodFilterRS);
         }
@@ -146,19 +152,31 @@ module.exports = {
         if (last_view_cate.pro_type === "I") {
           let cateitems = await Item.find({
             category: last_view_cate.category,
+            status: "Active",
           });
           forLastCate.push(...cateitems);
         } else {
-          let catefood = await Food.find({ category: last_view_cate.category });
+          let catefood = await Food.find({
+            category: last_view_cate.category,
+            status: "Active",
+          });
           forLastCate.push(...catefood);
         }
         let products = [...forSearch, ...forLastCate];
         products.sort((a, b) => b.views - a.views);
         let isLastPage = page * pagesize >= products.length;
-        let output = products.slice((page - 1) * pagesize, pagesize * page);
-        await File.populate(output, {
+        await File.populate(products, {
           path: "images",
         });
+        let uniqueoutputID = [];
+        let uniqueoutput = [];
+        products.forEach((ele) => {
+          if (uniqueoutputID.indexOf(String(ele.title)) < 0) {
+            uniqueoutput.push(ele);
+            uniqueoutputID.push(String(ele.title));
+          }
+        });
+        let output = uniqueoutput.slice((page - 1) * pagesize, pagesize * page);
         done({
           EC: 0,
           EM: "success",
@@ -179,5 +197,23 @@ module.exports = {
         EM: error.message,
       });
     }
+  },
+  recommendCheapProducts: async (done) => {
+    let items = await Item.find({ status: "Active" })
+      .populate("images")
+      .sort({ price: 1 })
+      .limit(3);
+    let food = await Food.find({})
+      .populate("images")
+      .sort({ price: 1 })
+      .limit(3);
+    let cheaps = [...items, ...food];
+    done({
+      EC: 0,
+      EM: "success",
+      data: {
+        products: [...cheaps],
+      },
+    });
   },
 };

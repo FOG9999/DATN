@@ -346,6 +346,10 @@
   text-decoration: none;
   color: black;
 }
+.link-no-text-decoration-2 {
+  text-decoration: none;
+  color: white;
+}
 .searchfilter-btn-apply {
   width: 100%;
   color: white !important;

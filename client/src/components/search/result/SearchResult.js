@@ -54,7 +54,7 @@ class Recomendation extends Component {
       return (
         <Box mt={2} flexGrow={1}>
           <Box p={2} className="white-background color-orange">
-            <big>KẾT QUẢ TÌM KIẾM CHO BẠN</big>
+            <big>KẾT QUẢ TÌM KIẾM CHO {`\"${this.props.keyword}\"`}</big>
           </Box>
           <Divider />
           <Box display="flex" flexWrap="wrap" justifyContent="center">

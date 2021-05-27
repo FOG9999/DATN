@@ -383,16 +383,16 @@ module.exports = {
         const sellers = rs1.map((rs, ind) => rs._id);
         try {
           let rdInd = Math.round(Math.random() * 7);
-          let items = await Item.find({});
+          // let items = await Item.find({});
           let food = await Food.find({});
-          for (let i = 0; i < items.length; i++) {
-            rdInd = Math.round(Math.random() * 7);
-            await Item.findOneAndUpdate(
-              { _id: items[i]._id },
-              { seller: sellers[rdInd] },
-              { useFindAndModify: false }
-            );
-          }
+          // for (let i = 0; i < items.length; i++) {
+          //   rdInd = Math.round(Math.random() * 7);
+          //   await Item.findOneAndUpdate(
+          //     { _id: items[i]._id },
+          //     { seller: sellers[rdInd] },
+          //     { useFindAndModify: false }
+          //   );
+          // }
           for (let i = 0; i < food.length; i++) {
             rdInd = Math.round(Math.random() * 7);
             await Food.findOneAndUpdate(
@@ -478,7 +478,7 @@ module.exports = {
       .then((res) => res.json())
       .then((rs) => {
         // rau củ trái cây
-        const vegetableAndFruits = rs[1].products.map((pro, ind) => {
+        const noodles = rs[13].products.map((pro, ind) => {
           return {
             name: pro.fields.name,
             images: [
@@ -491,7 +491,7 @@ module.exports = {
           };
         });
         // Trái cây tươi
-        const fruits = rs[2].products.map((pro, ind) => {
+        const nuts = rs[10].products.map((pro, ind) => {
           return {
             name: pro.fields.name,
             images: [
@@ -517,21 +517,23 @@ module.exports = {
           };
         });
         FileController.create(
-          snacks.map((pro, ind) => pro.images),
+          noodles.map((pro, ind) => pro.images),
           (rs) => {
-            for (let i = 0; i < snacks.length; i++) {
-              snacks[i].files = [...rs.data[i].map((fl, ind) => fl._id)];
+            for (let i = 0; i < noodles.length; i++) {
+              noodles[i].files = [...rs.data[i].map((fl, ind) => fl._id)];
             }
             // update food here
             Food.find({}, (err1, rs1) => {
               if (err1) {
                 console.error(err1);
               } else {
-                for (let i = 0; i < snacks.length; i++) {
-                  rs1[i + 30 + 24 + 24].title = snacks[i].name;
-                  rs1[i + 30 + 24 + 24].images = [...snacks[i].files];
-                  rs1[i + 30 + 24 + 24].price = snacks[i].price;
-                  rs1[i + 30 + 24 + 24].unit = snacks[i].unit;
+                for (let i = 0; i < noodles.length; i++) {
+                  rs1[i + 30 + 24 + 24 + 13 + 21].title = noodles[i].name;
+                  rs1[i + 30 + 24 + 24 + 13 + 21].images = [
+                    ...noodles[i].files,
+                  ];
+                  rs1[i + 30 + 24 + 24 + 13 + 21].price = noodles[i].price;
+                  rs1[i + 30 + 24 + 24 + 13 + 21].unit = noodles[i].unit;
                 }
                 rs1.forEach((it) => {
                   Food.findOneAndUpdate(

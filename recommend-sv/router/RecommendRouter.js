@@ -35,4 +35,10 @@ RecommendRouter.get("/user-prefer", (req, res, next) => {
   );
 });
 
+RecommendRouter.get("/cheap-pros", (req, res, next) => {
+  ProductController.recommendCheapProducts((rs) => {
+    res.send(rs);
+  });
+});
+
 module.exports = RecommendRouter;

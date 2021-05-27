@@ -12,7 +12,9 @@ class TotalBar extends Component {
             onChange={this.props.onChange}
             checked={this.props.checkAll}
           />
-          <Box display="flex">Chọn tất cả</Box>
+          <Box display="flex" alignItems="center">
+            Chọn tất cả
+          </Box>
         </Box>
         <Box display="flex">
           <Box display="flex" alignItems="center">

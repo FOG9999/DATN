@@ -131,7 +131,12 @@ class Recomendation extends Component {
             );
           })}
         </Box>
-        <Box p={2} mt={2} className="white-background color-orange">
+        <Box
+          p={2}
+          mt={2}
+          id="near-me"
+          className="white-background color-orange"
+        >
           <big>GẦN BẠN</big>
         </Box>
         <Divider />

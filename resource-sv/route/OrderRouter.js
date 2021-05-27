@@ -33,7 +33,6 @@ OrderRouter.get("/user-get/:role", (req, res, next) => {
 OrderRouter.put("/create/:role/deli", (req, res, next) => {
   OrderController.placeDeliOrder(
     req.body.order_products,
-    req.body.paymentMethodArr,
     req.cookies.user_id,
     (rs) => {
       res.send(rs);
@@ -88,7 +87,7 @@ OrderRouter.post("/make-payment/:role", authen, async (req, res, next) => {
       approve: order.result.links[1].href,
       orderID: order.result.id,
       products: [...req.body.products],
-      total: value,
+      total: req.body.value,
       shipFeeArr: [...req.body.shipFeeArr],
       paymentMethod: req.body.paymentMethod,
     },
@@ -115,7 +114,7 @@ OrderRouter.post("/capture", (req, res, next) => {
   );
 });
 
-OrderRouter.get("my-invoices/:role", authen, (req, res, next) => {
+OrderRouter.get("/my-invoices/:role", authen, (req, res, next) => {
   OrderController.getUserInvoices(req.cookies.user_id, (rs) => {
     res.send(rs);
   });

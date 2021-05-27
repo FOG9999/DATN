@@ -24,6 +24,19 @@ const rcmUserItems = (done) => {
     });
 };
 
+const rcmCheapPros = () => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.UploadServer}/recommend/cheap-pros`, {
+      method: "GET",
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 const getPrdByID = (itemID, done) => {
   fetch(`${Config.ResourceServer}/product/guest-view/${itemID}`, {
     method: "GET",
@@ -181,4 +194,5 @@ export {
   createProduct,
   rcmSameLocationPros,
   rcmUserBaseOnHistory,
+  rcmCheapPros,
 };

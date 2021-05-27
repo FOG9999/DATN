@@ -134,7 +134,7 @@ class CheckoutRowData extends Component {
             </Box>
             <Box
               display="flex"
-              width="13%"
+              width="10%"
               justifyContent="center"
               alignItems="center"
             >

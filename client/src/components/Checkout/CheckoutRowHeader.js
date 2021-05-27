@@ -16,7 +16,8 @@ class CheckoutRowHeader extends Component {
       <Box
         className="white-background"
         display="flex"
-        border="2px solid #e8e8e8"
+        borderBottom="2px solid #e8e8e8"
+        borderTop="2px solid #e8e8e8"
         width="100%"
       >
         <Box
@@ -63,7 +64,7 @@ class CheckoutRowHeader extends Component {
         >
           <b>{strings.totalHeader}</b>
         </Box>
-        <Box display="flex" py={2} alignItems="center" px={1} width="13%">
+        <Box display="flex" py={2} alignItems="center" px={1} width="10%">
           <b>{strings.shipFeeHeader}</b>
         </Box>
       </Box>

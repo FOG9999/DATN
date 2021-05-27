@@ -64,7 +64,7 @@ class SearchBar extends Component {
               variant="contained"
               color="primary"
               onClick={this.onSearch}
-              disabled={/[a-z]/.test(this.state.keyword)}
+              disabled={!/[a-z]/.test(this.state.keyword)}
             >
               <Search fontSize="large" />
             </Button>

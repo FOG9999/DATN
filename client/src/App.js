@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import Livestreamer from "./components/Livestream/Sender/Livestreamer";
 import Watcher from "./components/Livestream/Receiver/Watcher";
 import ProcessingOrder from "./components/Checkout/ProcessingOrder";
+import OrderHistoryContainer from "./components/OrderHistory/OrderHistoryContainer";
 // import { useSelector } from "react-redux";
 // import { useEffect } from "react";
 
@@ -65,6 +66,7 @@ function App() {
           render={(props) => <Watcher {...props} socket={socket} />}
         />
         <Route path="/processing" component={ProcessingOrder} />
+        <Route path="/m/order-history" component={OrderHistoryContainer} />
       </Switch>
     </div>
   );

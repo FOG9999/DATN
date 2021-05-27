@@ -54,13 +54,20 @@ class HeaderButtons extends Component {
             Livestream
           </Box>
           <Box py={1} px={2} className="color-white">
-            Gần tôi
+            Giá rẻ
           </Box>
           <Box py={1} px={2} className="color-white">
-            Đăng bán
+            <a
+              href="http://localhost:3000#near-me"
+              className="link-no-text-decoration-2"
+            >
+              Gần tôi
+            </a>
           </Box>
           <Box py={1} px={2} className="color-white">
-            Lịch sử
+            <a href="/order-history" className="link-no-text-decoration-2">
+              Lịch sử
+            </a>
           </Box>
         </Box>
         <ModalCreateStream

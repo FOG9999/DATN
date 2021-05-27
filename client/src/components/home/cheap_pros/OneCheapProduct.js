@@ -1,6 +1,7 @@
 import { Box } from "@material-ui/core";
 import React, { Component } from "react";
 import faker from "faker";
+import { turnNumberToNumberWithSeperator } from "../../../others/functions/checkTextForNumberInput";
 
 class OneCheapProduct extends Component {
   state = {};
@@ -13,14 +14,16 @@ class OneCheapProduct extends Component {
           display="flex"
           alignItems="center"
           p={1}
+          onClick={() => (window.location.href = "/prd/" + this.props.pro._id)}
         >
           <img
-            src={faker.image.imageUrl(190, 190, "Fashion", true, true)}
+            src={this.props.pro.images[0].link}
             alt=""
+            style={{ width: "190px", height: "190px" }}
           />
         </Box>
         <Box className="price" textAlign="center" pb={1}>
-          đ{Math.ceil(faker.commerce.price(0, 50))}.000
+          đ{turnNumberToNumberWithSeperator(this.props.pro.price)}
         </Box>
       </Box>
     );

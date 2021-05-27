@@ -68,9 +68,9 @@ class CheckoutContainer extends Component {
       this.props.dispatchAuthen(path, "POST", (rs) => {
         if (rs.EC !== 0) {
           toast.error(rs.EM);
-          // setTimeout(() => {
-          //   window.location.href = "/";
-          // }, 3000);
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 3000);
         } else {
           const { total, paymentMethod, products, shipFeeArr } = this.state;
           makePayment(total, paymentMethod, products, shipFeeArr).then((rs) => {
@@ -111,6 +111,11 @@ class CheckoutContainer extends Component {
           // pt="200px"
         >
           <Header />
+          <Box py={1} pl={2} borderBottom="1px solid #e8e8e8">
+            <big>
+              <b className="color-orange">Thông tin đơn hàng</b>
+            </big>
+          </Box>
           <Box className="home-box0">
             <ToastContainer />
             <Box mt={3}>

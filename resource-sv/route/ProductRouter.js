@@ -267,7 +267,7 @@ ProductRouter.get("/sendo-list", (req, res, next) => {
 });
 
 ProductRouter.post("/update-samples", (req, res, next) => {
-  ProductController.updateSamplesPrice((rs) => res.send(rs));
+  ProductController.updateSamples((rs) => res.send(rs));
 });
 
 ProductRouter.post("/delete-user-rate", (req, res, next) => {

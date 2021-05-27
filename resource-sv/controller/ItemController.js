@@ -48,11 +48,11 @@ module.exports = {
           "line"
         ),
         images: [],
-        category: "Trang trí",
+        category: "Mỳ và Nui",
         createdAt: new Date(),
         views: Math.round(Math.random() * 10) + 10,
         status: STATUS.A,
-        checkDate: new Date("02-05-2021"),
+        checkDate: new Date("27-05-2021"),
         type: "I",
         quantity: Math.round(Math.random() * 10),
         sold: 0,
