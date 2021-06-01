@@ -144,23 +144,26 @@ module.exports = {
     // messages.sort((m1, m2) => m2.created_at - m1.created_at);
     messages.reverse();
     messages = [...messages.slice((page - 1) * pagesize, page * pagesize)];
-    let output = [
-      {
-        ...messages[0]._doc,
-        showAvatar: messages[0].sender._id === user_id,
-      },
-    ];
-    for (let i = 1; i < messages.length; i++) {
-      if (messages[i].sender._id === messages[i - 1].sender._id) {
-        output.push({
-          ...messages[i]._doc,
-          showAvatar: false,
-        });
-      } else {
-        output.push({
-          ...messages[i]._doc,
-          showAvatar: true,
-        });
+    let output = [];
+    if (messages.length > 0) {
+      output = [
+        {
+          ...messages[0]._doc,
+          showAvatar: messages[0].sender._id === user_id,
+        },
+      ];
+      for (let i = 1; i < messages.length; i++) {
+        if (messages[i].sender._id === messages[i - 1].sender._id) {
+          output.push({
+            ...messages[i]._doc,
+            showAvatar: false,
+          });
+        } else {
+          output.push({
+            ...messages[i]._doc,
+            showAvatar: true,
+          });
+        }
       }
     }
     done({
@@ -251,6 +254,90 @@ module.exports = {
       done({
         EC: 500,
         EM: error.message,
+      });
+    }
+  },
+  creatNewConversation: async (participants, name, done) => {
+    try {
+      let newConver = new Conversation({
+        participants: [...participants],
+        last_message: null,
+        last_changed: new Date().getTime(),
+        name: name,
+      });
+      let saved = await newConver.save({ new: true });
+      for (let i = 0; i < participants.length; i++) {
+        let newSeen = new Seen({
+          user: participants[i],
+          conversation: saved._id,
+          seen: false,
+        });
+        await newSeen.save();
+      }
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          _id: saved._id,
+        },
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
+  },
+  checkConverExsit: async (participants, done) => {
+    let exist = await Conversation.findOne({ participants: participants });
+    done({
+      EC: 0,
+      EM: "success",
+      data: {
+        _id: exist ? exist._id : null,
+        exist: exist !== null,
+      },
+    });
+  },
+  searchOnConversations: async (keyword, user_id, done) => {
+    try {
+      let conversations = await Seen.find({ user: user_id }).populate(
+        "conversation"
+      );
+      let user = await User.findOne({ _id: user_id });
+      await Message.populate(conversations, {
+        path: "conversation.last_message",
+      });
+      await User.populate(conversations, {
+        path: "conversation.last_message.sender",
+      });
+      await User.populate(conversations, {
+        path: "conversation.participants",
+      });
+      const output = [];
+      conversations.forEach((conv) => {
+        let satisfy = conv.conversation.participants
+          .map((participate) => participate.name)
+          .filter(
+            (name) => new RegExp(keyword, "i").test(name) && name !== user.name
+          ).length;
+        if (satisfy > 0)
+          output.push({
+            ...conv.conversation._doc,
+            seen: conv.seen,
+          });
+      });
+      done({
+        EC: 0,
+        EM: "success",
+        data: {
+          conversations: [...output],
+        },
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.message,
       });
     }
   },

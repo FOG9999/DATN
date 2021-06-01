@@ -1,8 +1,8 @@
 import { Box, Button, IconButton, Modal } from "@material-ui/core";
 import { Close } from "@material-ui/icons";
 import React from "react";
-import { Config } from "../../../config/Config";
-import { turnNumberToNumberWithSeperator } from "../../../others/Function";
+import { Config } from "../../../../config/Config";
+import { turnNumberToNumberWithSeperator } from "../../../../others/functions/checkTextForNumberInput";
 
 function ModalPrdUploadShow(props) {
   function diplayStatus(status) {
@@ -77,7 +77,7 @@ function ModalPrdUploadShow(props) {
                   Đăng ngày:
                 </Box>
                 <Box flexGrow={1} display="flex" alignItems="center">
-                  {new Date(props.product.created_at).toLocaleDateString()}
+                  {new Date(props.product.createdAt).toLocaleDateString()}
                 </Box>
               </Box>
               <Box display="flex">
@@ -137,39 +137,15 @@ function ModalPrdUploadShow(props) {
                 </Box>
               </Box>
               <Box display="flex" justifyContent="flex-end">
-                {props.product.status !== Config.PRD_STATUS.D ? (
-                  <Box mx={1}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => props.update(Config.PRD_STATUS.D)}
-                    >
-                      Xóa sản phẩm
-                    </Button>
-                  </Box>
-                ) : null}
-                {props.product.status === Config.PRD_STATUS.W ? (
-                  <Box mx={1}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => props.update(Config.PRD_STATUS.A)}
-                    >
-                      Duyệt sản phẩm
-                    </Button>
-                  </Box>
-                ) : null}
-                {props.product.status === Config.PRD_STATUS.D ? (
-                  <Box mx={1}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => props.onClose()}
-                    >
-                      Đóng
-                    </Button>
-                  </Box>
-                ) : null}
+                <Box mx={1}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={props.onClose}
+                  >
+                    Đóng
+                  </Button>
+                </Box>
               </Box>
             </Box>
           </Box>

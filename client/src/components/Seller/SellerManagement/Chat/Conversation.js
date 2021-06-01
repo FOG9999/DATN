@@ -179,6 +179,9 @@ class Conversation extends Component {
               new_message: { ...upmessage },
               conID: this.state.conversation._id,
             });
+            this.setState({
+              text: "",
+            });
           }
         });
       } else {
@@ -193,6 +196,9 @@ class Conversation extends Component {
         this.props.socket.emit("listen", {
           new_message: { ...upmessage },
           conID: this.state.conversation._id,
+        });
+        this.setState({
+          text: "",
         });
       }
     } else {
@@ -231,7 +237,11 @@ class Conversation extends Component {
         <Box m="auto" minWidth="800px" my="30px" className="white-background">
           <Box display="flex" p={2}>
             <Box display="flex" alignItems="center">
-              <IconButton>
+              <IconButton
+                onClick={() =>
+                  (window.location.href = "/m/manage/conversations")
+                }
+              >
                 <ArrowBackIos />
               </IconButton>
             </Box>

@@ -31,7 +31,7 @@ class SearchBar extends Component {
     });
   };
   onSearch = () => {
-    window.location.href = "/search/" + this.state.keyword + "/20";
+    window.location.href = "/search/" + this.state.keyword + "/50";
   };
   render() {
     return (

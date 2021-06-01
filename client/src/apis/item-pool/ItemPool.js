@@ -92,19 +92,19 @@ const getRelatedProduct = (type, limit, category, done) => {
     .then((rs) => done(rs));
 };
 
-const search = (page, pagesize, title, type, category, done) => {
-  fetch(
-    `${Config.ResourceServer}/product/search?type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
-    {
+const search = (page, pagesize, title, type, category) => {
+  let url = `${Config.ResourceServer}/product/search?type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`;
+  return new Promise((resolve, reject) => {
+    fetch(url, {
       method: "GET",
       mode: "cors",
       credentials: "include",
-    }
-  )
-    .then((res) => res.json())
-    .then((rs) => {
-      done(rs);
-    });
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
 };
 
 const createProduct = (product, type, done) => {
@@ -132,21 +132,26 @@ const searchNoCookie = (
   type,
   category,
   user_id,
-  done
+  district,
+  min,
+  max
 ) => {
-  fetch(
-    `${Config.ResourceServer}/product/search?id=${
-      user_id ? user_id : ""
-    }&type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`,
-    {
+  let url = `${Config.ResourceServer}/product/search?id=${
+    user_id ? user_id : ""
+  }&type=${type}&title=${title}&category=${category}&page=${page}&pagesize=${pagesize}`;
+  if (district) url += `&district=${district}`;
+  if (min) url += `&min=${min}`;
+  if (max) url += `&max=${max}`;
+  return new Promise((resolve, reject) => {
+    fetch(url, {
       method: "GET",
       mode: "cors",
-    }
-  )
-    .then((res) => res.json())
-    .then((rs) => {
-      done(rs);
-    });
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
 };
 
 const rcmSameLocationPros = (street, district) => {

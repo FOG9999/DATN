@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { turnNumberToNumberWithSeperator } from "../../others/functions/checkTextForNumberInput";
 import { connect } from "react-redux";
-// import { GeneralAction } from "../../redux/actions/GeneralAction";
+import { GeneralAction } from "../../redux/actions/GeneralAction";
+import { UserAction } from "../../redux/actions/UserAction";
 import Loading from "../../components/general/Loading";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,6 +10,7 @@ import {
   Box,
   Button,
   Checkbox,
+  IconButton,
   Select,
   // FormControl,
   // FormControlLabel,
@@ -23,8 +25,13 @@ import {
 //   // PlusOneOutlined,
 //   Remove,
 // } from "@material-ui/icons";
-// import ModalChangeLocation from "../general/modal-location/ModalChangeLocation";
+import { getCookie } from "../../others/functions/Cookie";
 import cNd from "../../others/convincesAndDistricts.json";
+import { Message } from "@material-ui/icons";
+import {
+  checkConverExist,
+  createNewConver,
+} from "../../apis/user-pool/UserPool";
 // import faker from 'faker'
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
@@ -41,6 +48,34 @@ class CheckoutRowData extends Component {
   };
   onClickLink = () => {
     window.location.href = "/prd/" + this.props.orderProduct.product._id;
+  };
+  goToConversation = () => {
+    this.props.dispatchLoading();
+    checkConverExist([
+      this.props.orderProduct.product.seller._id,
+      getCookie("user_id"),
+    ]).then((rs) => {
+      if (rs.EC !== 0) {
+        toast.error(rs.EM);
+        this.props.dispatchLoaded();
+      } else {
+        if (rs.data.exsit) {
+          window.location.href = "/m/manage/chat?id=" + rs.data._id;
+        } else {
+          createNewConver(
+            [this.props.orderProduct.product.seller._id, getCookie("user_id")],
+            new Date().toString()
+          ).then((rs) => {
+            if (rs.EC !== 0) {
+              toast.error(rs.EM);
+              this.props.dispatchLoaded();
+            } else {
+              window.location.href = "/m/manage/chat?id=" + rs.data._id;
+            }
+          });
+        }
+      }
+    });
   };
   render() {
     if (!this.props.loading)
@@ -59,6 +94,11 @@ class CheckoutRowData extends Component {
             </Box>
             <Box display="flex" alignItems="center">
               {this.props.orderProduct.product.seller.name}
+            </Box>
+            <Box mx={1} display="flex" alignItems="center">
+              <IconButton onClick={this.goToConversation}>
+                <Message />
+              </IconButton>
             </Box>
           </Box>
           <Box display="flex" borderBottom="1px solid #e8e8e8" py={2}>
@@ -154,4 +194,18 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, null)(CheckoutRowData);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    dispatchLoading: () => {
+      dispatch(GeneralAction.loading());
+    },
+    dispatchAuthen: (path, method, done) => {
+      dispatch(UserAction.authen(path, method, done));
+    },
+    dispatchLoaded: () => {
+      dispatch(GeneralAction.loaded());
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CheckoutRowData);

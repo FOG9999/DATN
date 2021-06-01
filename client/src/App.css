@@ -359,6 +359,27 @@
   background-color: rgb(200, 70, 16) !important;
 }
 
+.see-more-title:hover {
+  color: rgb(238, 77, 46);
+}
+
+.cheap-pros-div {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.cheap-pros-bar {
+  position: absolute;
+  animation-duration: 8s;
+  animation-name: scroll-cheapbar;
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
+  animation-delay: 2s;
+  animation-timing-function: linear;
+}
+
 /*-------------- Responsive ---------------------*/
 @media only screen and (max-width: 750px) {
   .login-loginbox-box0 {
@@ -387,6 +408,19 @@
   to {
     opacity: 0;
   }
+}
+
+@keyframes scroll-cheapbar {
+  from {
+    left: 50px;
+  }
+  to {
+    left: -750px;
+  }
+}
+
+.div-hover-aaa:hover {
+  background-color: #f8f8f8;
 }
 
 .div-action-css {

@@ -569,6 +569,9 @@ module.exports = {
     title,
     executor,
     user_id,
+    district,
+    minPrice,
+    maxPrice,
     type,
     category,
     done
@@ -627,12 +630,23 @@ module.exports = {
         ];
       }
       if (executor) {
-        console.log(executor);
+        // console.log(executor);
         await UserHistory.findOneAndUpdate(
           { user: executor },
           { last_search: title },
           { useFindAndModify: false }
         );
+      }
+      if (district) {
+        result = [
+          ...result.filter((pro) => pro.location.district === district),
+        ];
+      }
+      if (minPrice) {
+        result = [...result.filter((pro) => pro.price >= minPrice)];
+      }
+      if (maxPrice) {
+        result = [...result.filter((pro) => pro.price <= maxPrice)];
       }
       await File.populate(result, {
         path: "images",

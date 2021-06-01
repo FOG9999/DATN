@@ -38,7 +38,7 @@ class OneConversation extends Component {
       <Box
         display="flex"
         p={1}
-        className="one-conversation-in-list cursor-pointer"
+        className="one-conversation-in-list div-hover-aaa cursor-pointer"
         onClick={() =>
           (window.location.href =
             "/m/manage/chat?id=" + this.props.conversation._id)

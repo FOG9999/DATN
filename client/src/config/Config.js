@@ -34,6 +34,12 @@ const Config = {
       },
     ],
   },
+  PRD_STATUS: {
+    A: "Active",
+    W: "Waiting",
+    S: "Sold",
+    D: "Deleted",
+  },
 };
 
 export { Config };

@@ -3,6 +3,7 @@ import { RotateLeft, Search } from "@material-ui/icons";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
+import { searchInConverList } from "../../../../apis/other-pool/OtherPool";
 import { getUserConversations } from "../../../../apis/user-pool/UserPool";
 import { Config } from "../../../../config/Config";
 import { getCookie } from "../../../../others/functions/Cookie";
@@ -14,6 +15,7 @@ import OneConversation from "./OneConversation";
 class ConversationList extends Component {
   state = {
     conversations: [],
+    searchTitle: "",
   };
   getConversations = () => {
     this.props.dispatchLoading();
@@ -43,12 +45,29 @@ class ConversationList extends Component {
       });
     }
   };
-  // componentDidUpdate() {
-  //   this.props.socket.on(`chat.${getCookie("user_id")}`, (data) => {
-  //     this.updateWhenNewMessage(data.conversation);
-  //   });
-  // }
-
+  onChangeSearchTitle = (e) => {
+    this.setState({
+      searchTitle: e.target.value,
+    });
+  };
+  search = () => {
+    if (this.state.searchTitle) {
+      this.props.dispatchLoading();
+      searchInConverList(this.state.searchTitle).then((rs) => {
+        if (rs.EC !== 0) {
+          toast.error(rs.EM);
+          this.props.dispatchLoaded();
+        } else {
+          let sorted = [...rs.data.conversations];
+          sorted.sort((cnv1, cnv2) => cnv2.last_changed - cnv1.last_changed);
+          this.setState({
+            conversations: [...sorted],
+          });
+          this.props.dispatchLoaded();
+        }
+      });
+    }
+  };
   updateWhenNewMessage = (conver) => {
     const indexOfConv = this.state.conversations
       .map((c, i) => c._id)
@@ -59,6 +78,9 @@ class ConversationList extends Component {
     this.setState({
       conversations: [...conversations],
     });
+  };
+  resetSearch = () => {
+    this.getConversations();
   };
   componentDidMount() {
     this.getConversations(); // Do được gọi ở componentDIdMount nên khi có update socket sẽ bị reconnect và không còn lắng nghe trên kênh chat nữa
@@ -77,18 +99,19 @@ class ConversationList extends Component {
           <Box p={3}>
             <Box display="flex">
               <Box display="flex" flexGrow="1" alignItems="center">
-                <Box display="flex" alignItems="center" pr={2}>
+                <Box display="flex" alignItems="center" pr={2} width="100px">
                   Tìm kiếm
                 </Box>
                 <TextField
                   size="small"
                   value={this.state.searchTitle}
-                  //   onChange={this.onChangeSearchTitle}
-                  placeholder="Tên sản phẩm"
+                  onChange={this.onChangeSearchTitle}
+                  fullWidth
+                  placeholder="Tên người dùng, cuộc hội thoại"
                 />
               </Box>
-              <Box display="flex" flexGrow="1" alignItems="center">
-                <Box display="flex" alignItems="center" pr={2}>
+              <Box display="flex" flexGrow={1} alignItems="center">
+                <Box display="flex" alignItems="center" pl={2}>
                   <Button className="backgroundcolor-orange color-white">
                     Tạo cuộc hội thoại mới
                   </Button>
@@ -99,7 +122,7 @@ class ConversationList extends Component {
               <Box display="flex" alignItems="center" pr={1} py={1}>
                 <Button
                   className="backgroundcolor-orange color-white"
-                  // onClick={this.onClickSearch}
+                  onClick={this.search}
                 >
                   <Search />
                   Tìm
@@ -107,7 +130,7 @@ class ConversationList extends Component {
               </Box>
               <Box display="flex" alignItems="center" p={1}>
                 <Button
-                  // onClick={this.resetSearch}
+                  onClick={this.resetSearch}
                   className="backgroundcolor-orange color-white"
                 >
                   <RotateLeft />

@@ -1,4 +1,4 @@
-import { Box, Checkbox } from "@material-ui/core";
+import { Box, Radio } from "@material-ui/core";
 import React, { Component } from "react";
 
 class RecommendKeyWords extends Component {
@@ -14,7 +14,7 @@ class RecommendKeyWords extends Component {
             {this.props.keywords.map((keyword, index) => {
               return (
                 <li key={index} className="padding-block-start-zero">
-                  <Checkbox /> <span>{keyword}</span>
+                  <Radio /> <span>{keyword}</span>
                 </li>
               );
             })}

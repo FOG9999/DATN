@@ -61,15 +61,17 @@ class OneProduct extends Component {
           </small>
         </Box>
         <Box p="5px" className="color-aaa">
-          {this.props.item
-            ? this.props.item.location.detail +
-              "," +
-              this.props.item.location.street +
-              "," +
-              this.props.item.location.district +
-              "," +
-              "Hà Nội"
-            : faker.address.streetName() + ", " + faker.address.state.name}
+          <small>
+            {this.props.item
+              ? this.props.item.location.detail +
+                " , " +
+                this.props.item.location.street +
+                " , " +
+                this.props.item.location.district +
+                " , " +
+                "Hà Nội"
+              : faker.address.streetName() + ", " + faker.address.state.name}
+          </small>
         </Box>
         <Box className="price" textAlign="center" pb={1}>
           đ{turnNumberToNumberWithSeperator(this.props.item.price)}

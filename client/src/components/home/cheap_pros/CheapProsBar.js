@@ -17,25 +17,25 @@ class OneProduct extends Component {
   }
   render() {
     return (
-      <Box className="white-background" mt={1}>
+      <Box className="white-background cheap-pros-div" mt={1}>
         <Box p={2} className="color-orange">
           <big>GIÁ RẺ TUẦN NÀY</big>
         </Box>
         <Divider />
-        <Box display="flex" justifyContent="center">
-          <Box display="flex" alignItems="center">
+        <Box display="flex" justifyContent="center" className="cheap-pros-bar">
+          {/* <Box display="flex" alignItems="center">
             <button className="direction-btn">
               <img src={right} className="direct-img left-direction" alt="" />
             </button>
-          </Box>
+          </Box> */}
           {this.state.cheaps.map((cheap, ind) => {
             return <OneCheapProduct pro={cheap} key={ind} />;
           })}
-          <Box display="flex" alignItems="center">
+          {/* <Box display="flex" alignItems="center">
             <button className="direction-btn">
               <img src={right} className="direct-img right-direction" alt="" />
             </button>
-          </Box>
+          </Box> */}
         </Box>
       </Box>
     );

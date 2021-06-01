@@ -89,10 +89,28 @@ const joinStream = (id) => {
   });
 };
 
+const searchInConverList = (keyword, page, pagesize) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/chat/search?keyword=${keyword}`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   uploadImageFile,
   getConversation,
   createLivestream,
   getStream,
   joinStream,
+  searchInConverList,
 };

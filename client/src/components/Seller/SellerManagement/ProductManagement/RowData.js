@@ -1,8 +1,16 @@
 import { Box } from "@material-ui/core";
 import React, { Component } from "react";
+import ModalViewProduct from "./ModalViewProduct";
 
 class RowData extends Component {
-  state = {};
+  state = {
+    showModal: false,
+  };
+  onClose = () => {
+    this.setState({
+      showModal: false,
+    });
+  };
   displayType = (type) => {
     switch (type) {
       case "F": {
@@ -15,11 +23,21 @@ class RowData extends Component {
         break;
     }
   };
+  onOpen = () => {
+    this.setState({
+      showModal: true,
+    });
+  };
   render() {
     return (
       <Box border="1px solid #e8e8e8" mt={2}>
         <Box display="flex" borderBottom="1px solid #e8e8e8">
           <Box display="flex" width="35%" alignItems="center" py={1}>
+            <ModalViewProduct
+              show={this.state.showModal}
+              onClose={this.onClose}
+              product={this.props.item}
+            />
             <Box display="flex" justifyContent="center" width="20%">
               <img
                 style={{ width: "50px", height: "50px" }}
@@ -49,7 +67,9 @@ class RowData extends Component {
             {this.props.item.sold}
           </Box>
           <Box display="flex" width="15%" alignItems="center">
-            <span className="cursor-pointer color-blue">Xem thêm</span>
+            <span className="cursor-pointer color-blue" onClick={this.onOpen}>
+              Xem thêm
+            </span>
           </Box>
         </Box>
       </Box>

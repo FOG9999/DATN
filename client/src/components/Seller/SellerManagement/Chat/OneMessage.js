@@ -34,7 +34,7 @@ class OneMessage extends Component {
         >
           <Box pb="5px" display="flex" flexDirection="flex-end" flexWrap="wrap">
             {this.props.message.files.map((file, index) => {
-              return !file.link.includes("mp4") ||
+              return !file.link.includes("mp4") &&
                 !file.link.includes("webm") ? (
                 <img
                   src={file.link}

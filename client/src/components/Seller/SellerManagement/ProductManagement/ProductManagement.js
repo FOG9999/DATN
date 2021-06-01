@@ -116,28 +116,27 @@ class ProductManagement extends Component {
         : this.state.selectedType === "Thực phẩm"
         ? "F"
         : "",
-      this.state.selectedCate,
-      (rs) => {
-        if (rs.EC !== 0) {
-          this.props.dispatchLoaded();
-          toast.error(rs.EM);
+      this.state.selectedCate
+    ).then((rs) => {
+      if (rs.EC !== 0) {
+        this.props.dispatchLoaded();
+        toast.error(rs.EM);
+      } else {
+        if (rs.data.products.length > 0) {
+          this.setState({
+            products: [...rs.data.products],
+            numOfProducts: rs.data.numOfProducts,
+            onSearching: true,
+          });
         } else {
-          if (rs.data.products.length > 0) {
-            this.setState({
-              products: [...rs.data.products],
-              numOfProducts: rs.data.numOfProducts,
-              onSearching: true,
-            });
-          } else {
-            toast.warn("Không còn sản phẩm để hiển thị");
-            this.setState({
-              page: this.state.page - 1,
-            });
-          }
-          this.props.dispatchLoaded();
+          toast.warn("Không còn sản phẩm để hiển thị");
+          this.setState({
+            page: this.state.page - 1,
+          });
         }
+        this.props.dispatchLoaded();
       }
-    );
+    });
   };
   resetSearch = () => {
     this.setState({

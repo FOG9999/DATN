@@ -31,12 +31,73 @@ class Recomendation extends Component {
     history_page: 1,
     popular_page: 1,
     pagesize: 24,
+    hasMoreHistory: false,
+    hasMoreNearMe: false,
+    hasMorePopular: false,
   };
   getLocationForClient = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {});
     } else {
       toast.error("Trình duyệt của bạn không hỗ trợ Geolocation");
+    }
+  };
+  seeMorePopular = () => {
+    this.props.dispatchLoading();
+    rcmGuestItems(this.state.popular_page + 1, this.state.pagesize, (rs) => {
+      if (rs.EC !== 0) {
+        toast.error(rs.EM);
+        this.setState({
+          username: "",
+          password: "",
+        });
+        this.props.dispatchLoaded();
+      } else {
+        this.setState({
+          items: [...this.state.items, ...rs.data.products],
+          hasMorePopular: !rs.data.isLastPage,
+          popular_page: this.state.popular_page + 1,
+        });
+        this.props.dispatchLoaded();
+      }
+    });
+  };
+  // seeMoreNearMe = () => {
+  //   this.props.dispatchLoading();
+  //   rcmSameLocationPros(
+  //     convincesAndDistricts[1].districts[this.props.address.districtInd]
+  //       .streets[this.props.address.streetInd].name,
+  //     convincesAndDistricts[1].districts[this.props.address.districtInd].name
+  //   ).then((pross) => {
+  //     this.setState({
+  //       // items: [...rs.data.products],
+  //       nearmeProducts: [...this.state.nearmeProducts, ...pross.data.products],
+  //     });
+  //   });
+  //   this.props.dispatchLoaded();
+  // };
+  seeMoreHistory = () => {
+    this.props.dispatchLoading();
+    rcmUserBaseOnHistory(this.state.history_page + 1, this.state.pagesize).then(
+      (rs) => {
+        if (rs.EC !== 0) {
+          toast.error(rs.EM);
+        } else {
+          this.setState({
+            items: [...this.state.items, ...rs.data.products],
+            history_page: this.state.history_page + 1,
+            hasMoreHistory: !rs.data.isLastPage,
+          });
+          this.props.dispatchLoaded();
+        }
+      }
+    );
+  };
+  seeMore = () => {
+    if (this.props.logged) {
+      this.seeMoreHistory();
+    } else {
+      this.seeMorePopular();
     }
   };
   componentDidMount() {
@@ -70,6 +131,7 @@ class Recomendation extends Component {
                 this.setState({
                   items: [...rs.data.products],
                   nearmeProducts: [...pross.data.products],
+                  hasMoreHistory: !rs.data.isLastPage,
                 });
               });
               this.props.dispatchLoaded();
@@ -89,6 +151,7 @@ class Recomendation extends Component {
         } else {
           this.setState({
             items: [...rs.data.products],
+            hasMorePopular: !rs.data.isLastPage,
           });
           this.props.dispatchLoaded();
         }
@@ -106,6 +169,7 @@ class Recomendation extends Component {
   onClickProduct = (proID) => {
     window.location.href = "/prd/" + proID;
   };
+
   render() {
     return this.props.loading ? (
       <Box>
@@ -131,6 +195,16 @@ class Recomendation extends Component {
             );
           })}
         </Box>
+        {this.state.hasMoreHistory || this.state.hasMorePopular ? (
+          <Box display="flex" p={1} justifyContent="center">
+            <span
+              className="see-more-title cursor-pointer"
+              onClick={this.seeMore}
+            >
+              <b>Xem thêm</b>
+            </span>
+          </Box>
+        ) : null}
         <Box
           p={2}
           mt={2}

@@ -294,6 +294,47 @@ const getUserConversations = (done) => {
     });
 };
 
+const checkConverExist = (participants) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/chat/check-exsit`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        participants: [...participants],
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const createNewConver = (participants, name) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/chat/create-conversation`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        participants: [...participants],
+        name: name,
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   login,
   authen,
@@ -310,4 +351,6 @@ export {
   createBooth,
   getUserConversations,
   getUserAvatar,
+  checkConverExist,
+  createNewConver,
 };

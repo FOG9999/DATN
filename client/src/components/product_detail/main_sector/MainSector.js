@@ -34,6 +34,7 @@ import {
 import ModalChangeLocation from "../../general/modal-location/ModalChangeLocation";
 // import { getCookie } from "../../../others/functions/Cookie";
 import cNd from "../../../others/convincesAndDistricts.json";
+import { getCookie } from "../../../others/functions/Cookie";
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
@@ -490,6 +491,7 @@ class MainSector extends Component {
                 variant="contained"
                 className="backgroundcolor-orange color-white btn-order-now"
                 onClick={this.onPlaceOrder}
+                disabled={this.state.product.seller === getCookie("user_id")}
               >
                 <big>Đặt hàng ngay</big>
               </Button>

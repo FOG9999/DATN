@@ -178,6 +178,9 @@ ProductRouter.get("/search", (req, res, next) => {
     req.query.title,
     req.query.id, // người tìm kiếm
     req.cookies.user_id, // người bán
+    req.query.district,
+    req.query.min,
+    req.query.max,
     req.query.type,
     req.query.category,
     (rs) => {

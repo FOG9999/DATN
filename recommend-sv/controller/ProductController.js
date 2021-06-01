@@ -202,11 +202,11 @@ module.exports = {
     let items = await Item.find({ status: "Active" })
       .populate("images")
       .sort({ price: 1 })
-      .limit(3);
+      .limit(5);
     let food = await Food.find({})
       .populate("images")
       .sort({ price: 1 })
-      .limit(3);
+      .limit(5);
     let cheaps = [...items, ...food];
     done({
       EC: 0,

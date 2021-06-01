@@ -65,7 +65,7 @@ class HeaderButtons extends Component {
             </a>
           </Box>
           <Box py={1} px={2} className="color-white">
-            <a href="/order-history" className="link-no-text-decoration-2">
+            <a href="/m/order-history" className="link-no-text-decoration-2">
               Lịch sử
             </a>
           </Box>

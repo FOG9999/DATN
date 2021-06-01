@@ -33,4 +33,27 @@ ChatRouter.get("/conversation/:role", authen, (req, res, next) => {
   );
 });
 
+ChatRouter.post("/check-exsit", (req, res, next) => {
+  ChatController.checkConverExsit(req.body.participants, (rs) => {
+    res.send(rs);
+  });
+});
+
+ChatRouter.post("/create-conversation", (req, res, next) => {
+  const { participants, name } = req.body;
+  ChatController.creatNewConversation(participants, name, (rs) => {
+    res.send(rs);
+  });
+});
+
+ChatRouter.get("/search", (req, res, next) => {
+  ChatController.searchOnConversations(
+    req.query.keyword,
+    req.cookies.user_id,
+    (rs) => {
+      res.send(rs);
+    }
+  );
+});
+
 module.exports = ChatRouter;
