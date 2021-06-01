@@ -90,7 +90,7 @@ class Livestreamer extends Component {
         const meme = document.querySelector("video");
         navigator.mediaDevices
           .getUserMedia({
-            video: false,
+            video: true,
             audio: true,
           })
           .then((vidStream) => {
