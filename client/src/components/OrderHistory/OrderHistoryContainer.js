@@ -12,6 +12,10 @@ import OrderHistoryRowData from "./OrderHistoryRowData";
 import OrderHistoryRowHeader from "./OrderHsitoryRowHeader";
 
 class OrderHistoryContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Lịch sử mua hàng";
+  }
   state = {
     invoices: [],
     orders: [],

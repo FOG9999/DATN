@@ -5,6 +5,10 @@ import Header from "../header/Container";
 import ProductDetails from "./details/ProductDetail";
 
 class ProductDetailContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Sản phẩm " + this.props.match.params.product_id;
+  }
   state = {
     productDescription: "",
   };

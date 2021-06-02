@@ -11,6 +11,10 @@ import { searchNoCookie } from "../../apis/item-pool/ItemPool";
 import { toast } from "react-toastify";
 
 class SearchContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Tìm kiếm sản phẩm";
+  }
   state = {
     products: [],
   };

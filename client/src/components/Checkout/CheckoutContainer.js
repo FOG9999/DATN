@@ -13,6 +13,10 @@ import Header from "../../components/header/Container";
 import CheckoutTotalBar from "./CheckoutTotalBar";
 
 class CheckoutContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Kiểm tra đơn hàng";
+  }
   state = {
     products: [],
     shipFeeArr: [],

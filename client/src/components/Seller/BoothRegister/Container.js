@@ -4,6 +4,10 @@ import SimpleHeader from "../../header/SimpleHeader";
 import BoothRegister from "./BoothRegister";
 
 class BoothRegisterContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Tạo gian hàng";
+  }
   state = {};
   render() {
     return (

@@ -5,6 +5,10 @@ import { captureOrder } from "../../apis/order-pool/OrderPool";
 import Loading from "../general/Loading";
 
 class ProcessingOrder extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Đang chờ xử lý đơn hàng";
+  }
   state = {};
   componentDidMount() {
     let temp_ord = JSON.parse(localStorage.getItem("temp_ord"));

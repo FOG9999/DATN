@@ -18,6 +18,10 @@ import LivestreamTemplate from "../LivestreamTemplate";
 let peerConnection;
 
 class Watcher extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Livestream";
+  }
   state = {
     live_title: "",
     broadcaster_name: "",

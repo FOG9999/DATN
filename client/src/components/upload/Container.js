@@ -4,6 +4,10 @@ import SimpleHeader from "../header/SimpleHeader";
 import ProductInformation from "./category/ProductInformation";
 
 class UploadContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Đăng tải sản phẩm";
+  }
   state = {};
   render() {
     return (

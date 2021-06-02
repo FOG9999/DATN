@@ -335,6 +335,20 @@ const createNewConver = (participants, name) => {
   });
 };
 
+const getUserInfo = () => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.AuthServer}/user/info`, {
+      method: "GET",
+      credentials: "include",
+      mode: "cors",
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   login,
   authen,
@@ -353,4 +367,5 @@ export {
   getUserAvatar,
   checkConverExist,
   createNewConver,
+  getUserInfo,
 };

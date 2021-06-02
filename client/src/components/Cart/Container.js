@@ -17,6 +17,10 @@ import Header from "../../components/header/Container";
 import TotalBar from "./TotalBar";
 
 class CartContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Giỏ hàng của tôi";
+  }
   state = {
     cart: {},
     checkedArr: [],

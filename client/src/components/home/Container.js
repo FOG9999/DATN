@@ -6,6 +6,10 @@ import CheapProsBar from "./cheap_pros/CheapProsBar";
 import Recommendation from "./recomendation/Recommendation";
 
 class HomeContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Chợ sinh viên - Hanoi Buffaloes";
+  }
   state = {};
   render() {
     return (

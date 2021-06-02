@@ -4,6 +4,10 @@ import LoginBox from "./LoginBox";
 import RegisterBox from "./RegisterBox";
 
 class Background extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Đăng nhập";
+  }
   state = {
     showLogin: true,
   };

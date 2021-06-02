@@ -8,6 +8,7 @@ import ProductManagement from "./ProductManagement/ProductManagement";
 import ConversationList from "./Chat/ConversationList";
 import ListBoothes from "./MyBooth/ListBoothes";
 import Conversation from "./Chat/Conversation";
+import SellerInfo from "./SellerInfor/SellerInfo";
 
 const strings = {
   orderManagementContent: "Quản lý đơn hàng",
@@ -35,7 +36,7 @@ const directions = [
     key: "conversations",
   },
   {
-    main: <div>infor main div</div>,
+    main: <SellerInfo />,
     content: strings.boothInforManagementContent,
     key: "infor",
   },
@@ -57,6 +58,10 @@ const directions = [
 ];
 
 class BoothManageContainer extends Component {
+  constructor(props) {
+    super(props);
+    document.title = "Tài khoản của tôi";
+  }
   state = {
     mainComponent: <OrderManagement />,
   };

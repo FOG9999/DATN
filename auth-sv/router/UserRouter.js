@@ -102,4 +102,10 @@ UserRouter.post("/logout", (req, res, next) => {
   });
 });
 
+UserRouter.get("/info", (req, res, next) => {
+  UserController.getUserInfo(req.cookies.user_id, (rs) => {
+    res.send(rs);
+  });
+});
+
 module.exports = UserRouter;

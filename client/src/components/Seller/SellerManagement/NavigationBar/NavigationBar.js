@@ -13,6 +13,7 @@ import OrderManagement from "../OrderManagement/OrderManagement";
 import ProductManagement from "../ProductManagement/ProductManagement";
 import ListBoothes from "../MyBooth/ListBoothes";
 import ConversationList from "../Chat/ConversationList";
+import SellerInfo from "../SellerInfor/SellerInfo";
 
 const strings = {
   orderManagementContent: "Quản lý đơn hàng",
@@ -44,7 +45,7 @@ const directions = [
   },
   {
     icon: <StorefrontOutlined />, // information management
-    main: <div>infor main div</div>,
+    main: <SellerInfo />,
     content: strings.boothInforManagementContent,
     key: "infor",
   },
