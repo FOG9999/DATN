@@ -349,6 +349,51 @@ const getUserInfo = () => {
   });
 };
 
+const updateUserInfo = (newInfo) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.AuthServer}/user/update`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        newInfo: { ...newInfo },
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const changePassword = (from, oldPw, newPw, message) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${Config.ResourceServer}/user/change-password/${Config.ROLE.CLIENT}`,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          from: from,
+          msg: message,
+          oldPw: oldPw,
+          newPw: newPw,
+        }),
+      }
+    )
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   login,
   authen,
@@ -368,4 +413,6 @@ export {
   checkConverExist,
   createNewConver,
   getUserInfo,
+  updateUserInfo,
+  changePassword,
 };

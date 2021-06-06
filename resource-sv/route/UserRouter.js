@@ -3,6 +3,7 @@ const UserController = require("../controller/UserController");
 const UserRatingController = require("../controller/UserRatingController");
 const { authen } = require("../function/Middleware");
 const UserRouter = require("express").Router();
+const Config = require("../config/Config");
 
 UserRouter.post("/create-samples", (req, res, next) => {
   const number = req.body.number;
@@ -110,6 +111,25 @@ UserRouter.get("/get-avatar", (req, res, next) => {
   UserController.getAvatar(req.cookies.user_id, (rs) => {
     res.send(rs);
   });
+});
+
+UserRouter.post("/change-password/:role", authen, (req, res, next) => {
+  const to = Config.SMS_DEFAULT_TO;
+  const { from, msg, oldPw, newPw } = req.body;
+  UserController.authenBeforeChangePassword(
+    req.cookies.user_id,
+    req.cookies.h_token,
+    oldPw,
+    (authenRS) => {
+      if (authenRS.EC === 0) {
+        UserController.changePassword(req.cookies.user_id, newPw, (rs) => {
+          res.send(rs);
+        });
+      } else {
+        res.send(authenRS);
+      }
+    }
+  );
 });
 
 module.exports = UserRouter;

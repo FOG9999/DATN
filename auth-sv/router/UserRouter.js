@@ -108,4 +108,10 @@ UserRouter.get("/info", (req, res, next) => {
   });
 });
 
+UserRouter.post("/update", (req, res, next) => {
+  UserController.updateUser(req.body.newInfo, (rs) => {
+    res.send(rs);
+  });
+});
+
 module.exports = UserRouter;

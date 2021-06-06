@@ -9,9 +9,12 @@ const mongoose = require("mongoose");
 const Item = require("../model/Item");
 const Food = require("../model/Food");
 const File = require("../model/File");
+const { sendSMS } = require("../function/Functions");
 const addresses_json = JSON.parse(
   JSON.stringify(require("../config/convincesAndDistricts.json"))
 );
+const bcrypt = require("bcryptjs");
+const OTP = require("../model/OTP");
 
 module.exports = {
   createSamples: async (number, done) => {
@@ -321,5 +324,90 @@ module.exports = {
         avatar: avatar,
       },
     });
+  },
+  authenBeforeChangePassword: async (user_id, h_token, oldPw, done) => {
+    let user = await User.findOne({ _id: user_id });
+    if (user) {
+      let same = bcrypt.compareSync(user.token, h_token);
+      if (same) {
+        let samePw = bcrypt.compareSync(oldPw, user.hashed);
+        if (samePw) {
+          done({
+            EC: 0,
+            EM: "success",
+          });
+        } else {
+          done({
+            EC: -1,
+            EM: "Sai mật khẩu",
+          });
+        }
+      } else {
+        done({
+          EC: -1,
+          EM: "Thông tin sai, vui lòng đăng nhập lại!",
+        });
+      }
+    } else {
+      done({
+        EC: -1,
+        EM: "Không tồn tại người dùng",
+      });
+    }
+  },
+  sendSMS: (from, to, user, message, done) => {
+    sendSMS(from, to, message).then(
+      async (result) => {
+        try {
+          if (result.messages[0].status === "0") {
+            let otp = new OTP({
+              user: user,
+              code: message,
+              from: new Date().getTime(),
+            });
+            await otp.save();
+            done({
+              EC: 0,
+              EM: "success",
+            });
+          } else {
+            done({
+              EC: -1,
+              EM: result.messages[0]["error-text"],
+            });
+          }
+        } catch (error) {
+          done({
+            EC: -1,
+            EM: error.message,
+          });
+        }
+      },
+      (err) => {
+        done({
+          EC: 500,
+          EM: err,
+        });
+      }
+    );
+  },
+  changePassword: async (user_id, newPass, done) => {
+    try {
+      let new_hashed = bcrypt.hashSync(newPass, 10);
+      await User.findOneAndUpdate(
+        { _id: user_id },
+        { hashed: new_hashed },
+        { useFindAndModify: false }
+      );
+      done({
+        EC: 0,
+        EM: "success",
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
   },
 };

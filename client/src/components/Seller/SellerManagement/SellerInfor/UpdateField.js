@@ -29,7 +29,7 @@ class UpdateField extends Component {
             size="small"
             error={this.props.error}
             name={this.props.fieldName}
-            onChange={this.onChangeNumberInput}
+            onChange={this.onChangePhoneInput}
           />
         );
       }
@@ -39,7 +39,7 @@ class UpdateField extends Component {
       case "date": {
         return (
           <DatePicker
-            selected={new Date(this.props.changingVal)}
+            selected={this.props.changingVal}
             onChange={this.onChangeDatePicker}
           />
         );
@@ -49,21 +49,19 @@ class UpdateField extends Component {
     }
   };
   onChangeDatePicker = (date) => {
-    this.props.onChange(date.toLocaleDateString(), "birthday");
+    this.props.onChange(date, "birthday");
   };
   onChangePhoneInput = (e) => {
     if (/\D|\s/.test(e.target.value)) {
       toast.error("Chỉ nhập số cho trường này");
+    } else if (e.target.value.length > 10) {
+      toast.error("Số điện thoại không hợp lệ");
     } else {
       this.props.onChange(e.target.value, "phone");
     }
   };
   onChangeTextInput = (e) => {
-    if (e.target.value) {
-      this.props.onChange(e.target.value, e.target.name);
-    } else {
-      toast.error("Trường không được để trống");
-    }
+    this.props.onChange(e.target.value, e.target.name);
   };
   render() {
     return (
@@ -74,10 +72,12 @@ class UpdateField extends Component {
         <Box width="500px" px={1} display="flex" alignItems="center">
           {this.props.isUpdating ? (
             this.returnInputForUpdating(this.props.type)
+          ) : this.props.type === "date" ? (
+            new Date(this.props.altValue).toLocaleDateString()
           ) : (
-            <big>
-              <b>{this.props.altValue}</b>
-            </big>
+            <span className={this.props.error ? "color-red" : ""}>
+              {this.props.altValue}
+            </span>
           )}
         </Box>
         <Box display="flex" alignItems="center">

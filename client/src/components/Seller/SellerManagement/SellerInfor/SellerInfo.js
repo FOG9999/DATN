@@ -1,15 +1,21 @@
-import { Box, IconButton, TextField } from "@material-ui/core";
+import { Box, Button, IconButton, TextField } from "@material-ui/core";
 import { Check, Close, Create, Replay } from "@material-ui/icons";
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { toast, ToastContainer } from "react-toastify";
-import { getUserInfo } from "../../../../apis/user-pool/UserPool";
+import { toast } from "react-toastify";
+import {
+  changePassword,
+  getUserInfo,
+  updateUserInfo,
+} from "../../../../apis/user-pool/UserPool";
 import { GeneralAction } from "../../../../redux/actions/GeneralAction";
 import { UserAction } from "../../../../redux/actions/UserAction";
 import Loading from "../../../general/Loading";
 import ModalChangeLocation from "../../../general/modal-location/ModalChangeLocation";
 import UpdateField from "./UpdateField";
 import cNd from "../../../../others/convincesAndDistricts.json";
+import ModalChangePassword from "./ModalChangePassword";
+import { Config } from "../../../../config/Config";
 
 const convincesAndDistricts = JSON.parse(JSON.stringify(cNd));
 
@@ -43,6 +49,14 @@ class SellerInfo extends Component {
       { name: "phone", error: false },
       { name: "address", error: false },
     ],
+    initCheck: [
+      { name: "name", error: false },
+      { name: "birthday", error: false },
+      // { name: "username", error: false },
+      { name: "interest", error: false },
+      { name: "phone", error: false },
+      { name: "address", error: false },
+    ],
     isUpdating: {
       name: false,
       birthday: false,
@@ -54,6 +68,11 @@ class SellerInfo extends Component {
     location: null,
     initLocation: null,
     showModalLocation: false,
+    changed: false,
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    showModalChangePassword: false,
   };
   onUpdating = (field) => {
     this.setState({
@@ -85,6 +104,8 @@ class SellerInfo extends Component {
         ...this.state.alternative,
         [field]: this.state.changing[field],
       },
+      changed: true,
+      checkFields: [...this.state.initCheck],
     });
   };
   onChange = (value, field) => {
@@ -93,6 +114,68 @@ class SellerInfo extends Component {
         ...this.state.changing,
         [field]: value,
       },
+    });
+  };
+  updateUserInfo = () => {
+    this.props.dispatchLoading();
+    let msg = "";
+    for (let i = 0; i < this.state.checkFields.length; i++) {
+      msg = this.check(this.state.checkFields[i].name);
+      if (msg) break;
+    }
+    if (msg) {
+      toast.error(msg);
+      this.props.dispatchLoaded();
+      return;
+    }
+    // chuyển index về tên quận, xã
+    let district =
+      convincesAndDistricts[1].districts[this.state.location.districtIndex]
+        .name;
+    let street =
+      convincesAndDistricts[1].districts[this.state.location.districtIndex]
+        .streets[this.state.location.streetIndex].name;
+    let detail = this.state.location.detail;
+    let newInfo = {
+      ...this.state.alternative,
+      address: {
+        district: district,
+        street: street,
+        detail: detail,
+      },
+    };
+    updateUserInfo(newInfo).then((rs) => {
+      if (rs.EC !== 0) {
+        toast.error(rs.EM);
+        this.props.dispatchLoaded();
+      } else {
+        this.getUser();
+      }
+    });
+  };
+  onOpenModalChangePassword = () => {
+    this.setState({
+      showModalChangePassword: true,
+    });
+  };
+  onCloseModalChangePassword = () => {
+    this.setState({
+      showModalChangePassword: false,
+    });
+  };
+  onChangeOldPassword = (e) => {
+    this.setState({
+      oldPassword: e.target.value,
+    });
+  };
+  onChangeNewPassword = (e) => {
+    this.setState({
+      newPassword: e.target.value,
+    });
+  };
+  onChangeConfirmPassword = (e) => {
+    this.setState({
+      confirmPassword: e.target.value,
     });
   };
   getUser = () => {
@@ -145,7 +228,7 @@ class SellerInfo extends Component {
     });
   };
   reloadValue = (field) => {
-    if (field === "birthday")
+    if (field === "address")
       this.setState({
         location: { ...this.state.initLocation },
       });
@@ -158,14 +241,93 @@ class SellerInfo extends Component {
       });
     }
   };
+  checkPassword = () => {
+    const { oldPassword, newPassword, confirmPassword } = this.state;
+    if (newPassword.length < 8) {
+      toast.error("Mật khẩu mới cần có ít nhất 8 ký tự");
+    } else if (
+      /\s/.test(newPassword) ||
+      !/\d/.test(newPassword) ||
+      !/[a-z]/i.test(newPassword)
+    ) {
+      toast.error("Mật khẩu mới không hợp lệ");
+    } else if (newPassword !== confirmPassword) {
+      toast.error("Mật khẩu xác nhận không trùng khớp");
+    } else {
+      this.changePassword();
+    }
+  };
+  changePassword = () => {
+    this.props.dispatchLoading();
+    const code = Math.round(Math.random() * 899999) + 100000;
+    let message = "Mã đổi mật khẩu của bạn là " + code;
+    const path = "/change-password/" + Config.ROLE.CLIENT;
+    this.props.dispatchAuthen(path, "POST", (authRS) => {
+      if (authRS.EC !== 0) {
+        toast.error(authRS.EM);
+        this.props.dispatchLoaded();
+      } else {
+        changePassword(
+          "01672345678",
+          this.state.oldPassword,
+          this.state.newPassword,
+          message
+        ).then((rs) => {
+          if (rs.EC !== 0) {
+            toast.error(rs.EM);
+            this.props.dispatchLoaded();
+          } else {
+            toast.success("Đổi mật khẩu thành công. Hãy đăng nhập lại!");
+            this.props.dispatchLogout(() => {
+              window.location.href = "/";
+            });
+          }
+        });
+      }
+    });
+  };
   componentDidMount() {
     this.getUser();
   }
+  check = (name) => {
+    let msg = "";
+    let { checkFields, alternative } = this.state;
+    switch (name) {
+      case "name": {
+        if (!alternative[name]) {
+          msg = "Trường tên không được để trống";
+          checkFields.filter((field) => {
+            if (field.name === name) {
+              field.error = true;
+            }
+          });
+        }
+        break;
+      }
+      case "phone": {
+        if (alternative[name].length !== 10) {
+          msg = "Số điện thoại không hợp lệ";
+          checkFields.filter((field) => {
+            if (field.name === name) {
+              field.error = true;
+            }
+          });
+        }
+        break;
+      }
+      default:
+        break;
+    }
+    this.setState({
+      checkFields: [...checkFields],
+    });
+    return msg;
+  };
   render() {
     if (this.props.loading) {
       return (
         <Box>
-          <ToastContainer />
+          {/* <ToastContainer /> */}
           <Loading />
         </Box>
       );
@@ -178,7 +340,7 @@ class SellerInfo extends Component {
         className="white-background"
         borderRadius="10px"
       >
-        <ToastContainer />
+        {/* <ToastContainer /> */}
         <Box p={2} id="seller-info-name-avatar" display="flex">
           <Box p={1} id="seller-info-avatar">
             <img
@@ -196,9 +358,15 @@ class SellerInfo extends Component {
                     fullWidth
                     size="small"
                     error={this.state.checkFields[0].error}
+                    name="name"
+                    onChange={(e) => this.onChange(e.target.value, "name")}
                   />
                 ) : (
-                  <big>
+                  <big
+                    className={
+                      this.state.checkFields[0].error ? "color-red" : ""
+                    }
+                  >
                     <b>{this.state.alternative.name}</b>
                   </big>
                 )}
@@ -303,11 +471,23 @@ class SellerInfo extends Component {
               </IconButton>
             </Box>
             <Box display="flex" alignItems="center">
-              <IconButton>
+              <IconButton onClick={() => this.reloadValue("address")}>
                 <Replay size="small" />
               </IconButton>
             </Box>
           </Box>
+          <ModalChangePassword
+            check={this.checkPassword}
+            show={this.state.showModalChangePassword}
+            onHide={this.onCloseModalChangePassword}
+            title="Đổi mật khẩu"
+            oldPassword={this.state.oldPassword}
+            newPassword={this.state.newPassword}
+            onChangeNewPassword={this.onChangeNewPassword}
+            onChangeConfirmPassword={this.onChangeConfirmPassword}
+            confirmPassword={this.state.confirmPassword}
+            onChangeOldPassword={this.onChangeOldPassword}
+          />
           <ModalChangeLocation
             title="Thay đổi địa chỉ "
             location={this.state.location}
@@ -315,6 +495,27 @@ class SellerInfo extends Component {
             onHide={this.onHideModalLocation}
             getLocation={this.getLocation}
           />
+          <Box display="flex" flexDirection="row-reverse" py={2}>
+            <Box mx={1}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={this.onOpenModalChangePassword}
+              >
+                Thay đổi mật khẩu
+              </Button>
+            </Box>
+            <Box mx={1}>
+              <Button
+                disabled={!this.state.changed}
+                variant="contained"
+                color="primary"
+                onClick={this.updateUserInfo}
+              >
+                Cập nhật thông tin
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Box>
     );
@@ -338,6 +539,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     dispatchLoaded: () => {
       dispatch(GeneralAction.loaded());
+    },
+    dispatchLogout: (done) => {
+      dispatch(UserAction.logout(done));
     },
   };
 };

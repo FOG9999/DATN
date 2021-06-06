@@ -258,13 +258,39 @@ module.exports = {
   },
   getUserInfo: async (user_id, done) => {
     try {
-      let user = await User.findOne({ _id: user_id });
+      let user = await User.findOne(
+        { _id: user_id },
+        "name address phone interest birthday avatar created_at"
+      );
       done({
         EC: 0,
         EM: "success",
         data: {
           user: user,
         },
+      });
+    } catch (error) {
+      done({
+        EC: 500,
+        EM: error.message,
+      });
+    }
+  },
+  updateUser: async (newInfo, done) => {
+    try {
+      await User.findOneAndUpdate(
+        { _id: newInfo._id },
+        {
+          name: newInfo.name,
+          birthday: newInfo.birthday,
+          phone: newInfo.phone,
+          address: { ...newInfo.address },
+        },
+        { useFindAndModify: false }
+      );
+      done({
+        EC: 0,
+        EM: "success",
       });
     } catch (error) {
       done({

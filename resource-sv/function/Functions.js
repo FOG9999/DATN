@@ -1,4 +1,6 @@
 const bcryptjs = require("bcryptjs");
+const Vonage = require("@vonage/server-sdk");
+const Config = require("../config/Config");
 
 module.exports = {
   hashMsg: (role, method, path) => {
@@ -25,5 +27,20 @@ module.exports = {
       }
     }
     return new RegExp(output + ".*", "i");
+  },
+  sendSMS: (from, to, message) => {
+    let vonage = new Vonage({
+      apiKey: Config.VONAGE_API_KEY,
+      apiSecret: Config.VONAGE_API_SECRET,
+    });
+    return new Promise((resolve, reject) => {
+      vonage.message.sendSms(from, to, message, (err, result) => {
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(result);
+        }
+      });
+    });
   },
 };
