@@ -197,6 +197,10 @@
   padding-block-start: 0px;
 }
 
+.sending-images {
+  border-radius: 10px;
+}
+
 .onepro {
   margin-top: 10px;
   margin-left: 5px;
@@ -378,6 +382,10 @@
   animation-iteration-count: infinite;
   animation-delay: 2s;
   animation-timing-function: linear;
+}
+
+.cheap-pros-bar:hover {
+  animation-play-state: paused;
 }
 
 /*-------------- Responsive ---------------------*/

@@ -8,6 +8,7 @@ const fetch = require("node-fetch");
 const Config = require("../config/Config");
 const FileController = require("../controller/FileController");
 const UserRatingController = require("../controller/UserRatingController");
+const CommentController = require("../controller/CommentController");
 
 ProductRouter.post("/create-samples/:type", (req, res, next) => {
   const type = req.params.type;
@@ -354,6 +355,32 @@ ProductRouter.post("/create/:role/:type", authen, (req, res, next) => {
       });
     }
   }
+});
+
+ProductRouter.get("/cmt/:role/on-prd", (req, res, next) => {
+  const prd_id = req.query.id;
+  CommentController.getCommentsOnPrd(prd_id, req.cookies.user_id, (rs) => {
+    res.send(rs);
+  });
+});
+
+ProductRouter.get("/cmt/test-comments", (req, res, next) => {
+  CommentController.getAllComments((rs) => {
+    res.send(rs);
+  });
+});
+
+ProductRouter.post("/cmt/:role/post", authen, (req, res, next) => {
+  CommentController.postComment(req.body.comment, (rs) => {
+    res.send(rs);
+  });
+});
+
+ProductRouter.post("/cmt/:role/reply", authen, (req, res) => {
+  const { comment_id, reply } = req.body;
+  CommentController.replyComment(comment_id, reply, (rs) => {
+    res.send(rs);
+  });
 });
 
 module.exports = ProductRouter;

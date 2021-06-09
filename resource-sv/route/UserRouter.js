@@ -4,6 +4,7 @@ const UserRatingController = require("../controller/UserRatingController");
 const { authen } = require("../function/Middleware");
 const UserRouter = require("express").Router();
 const Config = require("../config/Config");
+const CommentController = require("../controller/CommentController");
 
 UserRouter.post("/create-samples", (req, res, next) => {
   const number = req.body.number;
@@ -131,5 +132,13 @@ UserRouter.post("/change-password/:role", authen, (req, res, next) => {
     }
   );
 });
+
+UserRouter.post("/cmt/create-samples", (req, res, next) => {
+  CommentController.createSamples((rs) => {
+    res.send(rs);
+  });
+});
+
+UserRouter.post("/:role/post-comment", authen, (req, res, next) => {});
 
 module.exports = UserRouter;

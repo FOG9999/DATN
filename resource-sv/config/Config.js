@@ -41,4 +41,9 @@ module.exports = {
   VONAGE_API_SECRET: "mp9iUTtJZxQlokNH",
   VONAGE_API_KEY: "f724cf7b",
   SMS_DEFAULT_TO: "84335949802",
+  EMOJI: {
+    haha: 0,
+    love: 1,
+    like: 2,
+  },
 };

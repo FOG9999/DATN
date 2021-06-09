@@ -187,6 +187,68 @@ const rcmUserBaseOnHistory = (page, pagesize) => {
   });
 };
 
+const getCommentsOnPrd = (prd_id) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${Config.ResourceServer}/product/cmt/${Config.ROLE.CLIENT}/on-prd?id=${prd_id}`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "content-type": "application/json",
+        },
+        credentials: "include",
+      }
+    )
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const postComment = (comment) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/product/cmt/${Config.ROLE.CLIENT}/post`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        comment: comment,
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+const replyComment = (comment_id, reply) => {
+  console.log(comment_id, reply)
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/product/cmt/${Config.ROLE.CLIENT}/reply`, {
+      method: "POST",
+      mode: "cors",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        comment_id,
+        reply,
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   rcmGuestItems,
   rcmUserItems,
@@ -200,4 +262,7 @@ export {
   rcmSameLocationPros,
   rcmUserBaseOnHistory,
   rcmCheapPros,
+  getCommentsOnPrd,
+  postComment,
+  replyComment,
 };

@@ -13,7 +13,7 @@ class ProductDetail extends Component {
           {this.props.desc ? (
             <ProductDescription description={this.props.desc} />
           ) : null}
-          <Comments />
+          <Comments prd_id={this.props.proID} />
         </Box>
         <RecommendationProduct proID={this.props.proID} />
       </Box>

@@ -6,13 +6,7 @@ import {
   IconButton,
   OutlinedInput,
 } from "@material-ui/core";
-import {
-  ArrowBackIos,
-  Close,
-  CloudUpload,
-  Publish,
-  Send,
-} from "@material-ui/icons";
+import { ArrowBackIos, Close, Publish, Send } from "@material-ui/icons";
 import loading from "../../../../images/mess_loading.gif";
 import OneMessage from "./OneMessage";
 import { getCookie } from "../../../../others/functions/Cookie";
@@ -97,7 +91,6 @@ class Conversation extends Component {
   };
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.loading && prevState.firsttime) {
-      console.log("xxx");
       setTimeout(() => {
         // xuống dưới đáy thẻ div để nhìn thấy tin nhắn cuối
         document.querySelector(".div-scroll").scrollTop =
@@ -131,6 +124,10 @@ class Conversation extends Component {
   }
   onChangeImageUpload = (e) => {
     let files = e.target.files;
+    if (this.state.upload.upfiles.length + files.length >= 8) {
+      toast.error("Số lượng file không vượt quá 8!");
+      return;
+    }
     const { upfiles, upnames, upsrcs, uptypes } = this.state.upload;
     for (let i = 0; i < files.length; i++) {
       let file = files[i];
@@ -313,25 +310,25 @@ class Conversation extends Component {
                           display="flex"
                           alignItems="center"
                           justifyContent="center"
-                          maxWidth="120px"
-                          maxHeight="100px"
+                          maxWidth="150px"
+                          maxHeight="120px"
                         >
                           {this.state.upload.uptypes[ind] === "I" ? (
                             <img
                               src={src}
                               style={{
-                                width: "80px",
-                                height: "80px",
+                                width: "100px",
+                                height: "100px",
                               }}
                               alt=""
                               // onClick={this.props.onClickPreviewImage}
-                              className="cursor-pointer"
+                              className="cursor-pointer sending-images"
                               key={ind}
                             />
                           ) : (
                             <video
                               controls
-                              width="120px"
+                              width="150px"
                               src={src}
                               key={ind}
                               style={{ margin: "2px" }}
