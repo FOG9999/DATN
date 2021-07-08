@@ -20,6 +20,14 @@ class OrderHistoryRowData extends Component {
             </Box>
             <Box>{Functions.displayOrderStatus(this.props.order.status)}</Box>
           </Box>
+          <Box display="flex" p={1}>
+            <Box flexGrow="1" pl={2}>
+              Ngày đặt hàng:
+            </Box>
+            <Box>
+              {new Date(this.props.order.createdAt).toLocaleDateString()}
+            </Box>
+          </Box>
           {this.props.order.status === "0" ? (
             <Box p={1} display="flex" flexDirection="row-reverse">
               <Box>

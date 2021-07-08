@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 var Item = mongoose.Schema({
   title: String,
   price: Number,
-  seller: { type: mongoose.Types.ObjectId, refPath: "onModel" },
+  seller: { type: mongoose.Schema.Types.ObjectId, refPath: "onModel" },
   onModel: {
     type: String,
     enum: ["User"],

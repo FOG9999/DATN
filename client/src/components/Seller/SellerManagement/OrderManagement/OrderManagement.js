@@ -18,6 +18,7 @@ import { GeneralAction } from "../../../../redux/actions/GeneralAction";
 import { connect } from "react-redux";
 import { getUserOrders } from "../../../../apis/user-pool/UserPool";
 import Loading from "../../../general/Loading";
+import { startDeliver } from "../../../../apis/order-pool/OrderPool";
 
 const strings = {
   allOrderTitle: "Tất cả đơn hàng",
@@ -113,6 +114,41 @@ class Ordermanagement extends Component {
     });
   };
   onChangeSearch = (e) => {};
+  startDeliverOrders = (ordIDs) => {
+    this.props.dispatchLoading();
+    if (this.props.logged) {
+      const path = "/deliver-ord/CLIENT";
+      this.props.dispatchAuthen(path, "PUT", (auth) => {
+        if (auth.EC !== 0) {
+          toast.error(auth.EM);
+          this.props.dispatchLogout(() => {
+            this.props.dispatchLoaded();
+            window.location.href = "/";
+          });
+        } else {
+          startDeliver(ordIDs).then((rs) => {
+            if (rs.EC !== 0) {
+              toast.error(rs.EM);
+              this.props.dispatchLoaded();
+            } else {
+              toast.success("Giao hàng thành công!");
+              this.getOrders(() => {
+                this.setState({
+                  displayOrders: [
+                    ...this.state.displayOrders.slice(
+                      (this.state.page - 1) * this.state.pagesize,
+                      this.state.page * this.state.pagesize
+                    ),
+                  ],
+                });
+                this.props.dispatchLoaded();
+              });
+            }
+          });
+        }
+      });
+    }
+  };
   onChangeFilterDate = (e) => {
     // chỉnh sửa lại khi có API
     let dateIndex = e.target.value;
@@ -178,15 +214,31 @@ class Ordermanagement extends Component {
           break;
         }
         default: {
-          let ordesDay = orders();
-          this.setState({
-            dateFilterIndex: dateIndex,
-            displayOrders: ordesDay
-              .filter(
-                (order) => order.status.includes(tabTitles[selectedTab].key) // lọc cho tab hiện tại
-              )
-              .slice(0, pagesize),
-            page: 1,
+          // let ordesDay = orders();
+          // this.setState({
+          //   dateFilterIndex: dateIndex,
+          //   displayOrders: ordesDay
+          //     .filter(
+          //       (order) => order.status.includes(tabTitles[selectedTab].key) // lọc cho tab hiện tại
+          //     )
+          //     .slice(0, pagesize),
+          //   page: 1,
+          // });
+
+          const { page, pagesize, selectedTab } = this.state;
+          this.getOrders(() => {
+            let ordes = this.state.displayOrders.filter((order) =>
+              order.status.includes(tabTitles[selectedTab].key)
+            ); // lọc cho tab đang chọn
+            this.setState({
+              numOfOrders: ordes.length,
+              page: 1,
+              displayOrders: [
+                ...ordes.slice((page - 1) * pagesize, pagesize * page),
+              ],
+              dateFilterIndex: dateIndex,
+            });
+            this.props.dispatchLoaded();
           });
           break;
         }
@@ -245,7 +297,7 @@ class Ordermanagement extends Component {
     } else
       return (
         <Box m="auto" minWidth="800px" my="30px" className="white-background">
-          <ToastContainer />
+          {/* <ToastContainer /> */}
           <Box display="flex" borderBottom="1px solid #e8e8e8">
             {tabTitles.map((tab, index) => {
               return (
@@ -327,7 +379,13 @@ class Ordermanagement extends Component {
           </Box>
           <Box px={3} pb={3}>
             {this.state.displayOrders.map((order, index) => {
-              return <RowData order={order} key={index} />;
+              return (
+                <RowData
+                  startDeliver={this.startDeliverOrders}
+                  order={order}
+                  key={index}
+                />
+              );
             })}
           </Box>
           <Box

@@ -119,10 +119,18 @@ class RowData extends Component {
               </b>
             </Box>
           </Box>
-          {this.props.order.status === "0" ? (
+          {this.props.order.status === "0" &&
+          this.props.order.delivery_type === "deliver" ? (
             <Box p={1} display="flex" flexDirection="row-reverse">
               <Box>
-                <Button variant="contained">Giao hàng</Button>
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    this.props.startDeliver([this.props.order._id])
+                  }
+                >
+                  Giao hàng
+                </Button>
               </Box>
             </Box>
           ) : null}

@@ -1,4 +1,4 @@
-import { Box } from "@material-ui/core";
+import { Box, Divider } from "@material-ui/core";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { GeneralAction } from "../../redux/actions/GeneralAction";
@@ -216,21 +216,32 @@ class CartContainer extends Component {
             <ToastContainer />
             <Box mt={3}>
               <RowHeader />
-              {this.state.cart.products.map((orderProduct, index) => {
-                return (
-                  <RowData
-                    orderProduct={orderProduct}
-                    key={index}
-                    index={index}
-                    checked={this.state.checkedArr[index]}
-                    onCheck={this.onCheck}
-                    onMinusQuantity={this.onMinusQuantity}
-                    onAddQuantity={this.onAddQuantity}
-                    onChangeQuantity={this.onChangeQuantity}
-                    removeProduct={this.removeProduct}
-                  />
-                );
-              })}
+              {this.state.cart.products.length > 0 ? (
+                this.state.cart.products.map((orderProduct, index) => {
+                  return (
+                    <RowData
+                      orderProduct={orderProduct}
+                      key={index}
+                      index={index}
+                      checked={this.state.checkedArr[index]}
+                      onCheck={this.onCheck}
+                      onMinusQuantity={this.onMinusQuantity}
+                      onAddQuantity={this.onAddQuantity}
+                      onChangeQuantity={this.onChangeQuantity}
+                      removeProduct={this.removeProduct}
+                    />
+                  );
+                })
+              ) : (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  minHeight="300px"
+                  alignItems="center"
+                >
+                  Không có sản phẩm nào
+                </Box>
+              )}
               <TotalBar
                 onChange={this.onCheckAll}
                 total={this.state.total}

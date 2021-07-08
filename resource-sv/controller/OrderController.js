@@ -1,3 +1,4 @@
+const Cart = require("../model/Cart");
 const File = require("../model/File");
 const Food = require("../model/Food");
 const Invoice = require("../model/Invoice");
@@ -37,6 +38,16 @@ module.exports = {
         last_changed: new Date(),
       });
       let savedOrd = await selfOrd.save({ new: true });
+      let selfInvoice = new Invoice({
+        orders: savedOrd._id,
+        ship_fees: [0],
+        total: 10000,
+        created_at: new Date(),
+        buyer: buyer,
+        payment_method: "Thanh toán khi nhận hàng",
+        paypalOrder: "",
+      });
+      await selfInvoice.save();
       done({
         EC: 0,
         EM: "success",
@@ -45,6 +56,7 @@ module.exports = {
         },
       });
     } catch (err) {
+      console.log(err);
       done({
         EC: 500,
         EM: err,
@@ -56,6 +68,7 @@ module.exports = {
       let allOrders = await Order.find({})
         .populate("product")
         .populate("buyer");
+      // console.log(allOrders);
       await Item.populate(
         allOrders.filter((ord) => ord.product.pro_type === "I"),
         {
@@ -110,6 +123,17 @@ module.exports = {
         let savedOrd = await newOrd.save({ new: true });
         orders.push(savedOrd);
       }
+      // delete from cart
+      let cart = await Cart.updateOne(
+        { owner: buyer },
+        {
+          $pull: {
+            products: { $in: [...order_products.map((ordPrd) => ordPrd._id)] },
+          },
+        },
+        { useFindAndModify: false, new: true }
+      );
+      console.log(cart);
       done({
         EC: 0,
         EM: "success",
@@ -292,6 +316,27 @@ module.exports = {
           invoices: [],
           ordersForInvoices: [],
         },
+      });
+    }
+  },
+  startDeliverOrder: async (ordIDs, done) => {
+    // can be used in case deliver multi orders
+    try {
+      let ordChanged = await Order.updateMany(
+        { _id: { $in: [...ordIDs] } },
+        { delivery_date: new Date(), status: "1", $push: { pstatus: "1" } },
+        { useFindAndModify: false, new: true }
+      );
+      done({
+        EC: 0,
+        EM: "success",
+        data: ordChanged,
+      });
+    } catch (error) {
+      console.error(error);
+      done({
+        EC: 500,
+        EM: error.message,
       });
     }
   },

@@ -101,6 +101,7 @@ module.exports = {
       { useFindAndModify: false, new: true }
     )
       .populate("images")
+      .populate("seller")
       .exec(async (err1, rs1) => {
         if (err1) {
           console.error(err1);
@@ -113,6 +114,8 @@ module.exports = {
                 { useFindAndModify: false }
               );
             }
+            let seller = await User.findOne({ _id: rs1.seller });
+            rs1.set("seller", seller);
             done({
               EC: 0,
               EM: "success",
@@ -141,6 +144,8 @@ module.exports = {
                       { useFindAndModify: false }
                     );
                   }
+                  let seller = await User.findOne({ _id: rs2.seller });
+                  rs2.set("seller", seller);
                   done({
                     EC: 0,
                     EM: "success",

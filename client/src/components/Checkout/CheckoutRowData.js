@@ -145,6 +145,7 @@ class CheckoutRowData extends Component {
               width="15%"
               justifyContent="center"
               alignItems="center"
+              className="color-orange"
             >
               {turnNumberToNumberWithSeperator(
                 this.props.orderProduct.product.price
@@ -166,6 +167,7 @@ class CheckoutRowData extends Component {
               width="15%"
               justifyContent="center"
               alignItems="center"
+              className="color-orange"
             >
               {turnNumberToNumberWithSeperator(
                 this.props.orderProduct.product.price * this.state.orderQuantity
@@ -177,6 +179,7 @@ class CheckoutRowData extends Component {
               width="10%"
               justifyContent="center"
               alignItems="center"
+              className="color-orange"
             >
               {turnNumberToNumberWithSeperator(this.props.shipFee)}VND
             </Box>

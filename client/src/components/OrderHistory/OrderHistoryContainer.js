@@ -89,7 +89,7 @@ class OrderHistoryContainer extends Component {
                         return (
                           <OrderHistoryRowData
                             orderProduct={ord}
-                            order={invoice.orders[index]}
+                            order={invoice.orders[ind]}
                             key={ind}
                             index={ind}
                             shipFee={invoice.ship_fees[ind]}
@@ -105,6 +105,14 @@ class OrderHistoryContainer extends Component {
                         <b>
                           {turnNumberToNumberWithSeperator(invoice.total)} VND
                         </b>
+                      </Box>
+                    </Box>
+                    <Box display="flex" p={1} className="backgroundcolor-aaa">
+                      <Box flexGrow="1" pl={2}>
+                        Phương thức thanh toán:
+                      </Box>
+                      <Box>
+                        <b>{invoice.payment_method}</b>
                       </Box>
                     </Box>
                   </Box>

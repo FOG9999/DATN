@@ -19,6 +19,7 @@ import React, { Component } from "react";
 import {
   getPrdByID,
   getPrdByIDForUser,
+  getPrdSeller,
 } from "../../../apis/item-pool/ItemPool";
 import { turnNumberToNumberWithSeperator } from "../../../others/functions/checkTextForNumberInput";
 import { connect } from "react-redux";
@@ -123,14 +124,8 @@ class MainSector extends Component {
             this.state.product.type,
             {
               detail: this.state.location.detail,
-              district:
-                convincesAndDistricts[1].districts[
-                  this.state.location.districtIndex
-                ].name,
-              street:
-                convincesAndDistricts[1].districts[
-                  this.state.location.districtIndex
-                ].streets[this.state.location.streetIndex].name,
+              districtIndex: this.state.location.districtIndex,
+              streetIndex: this.state.location.streetIndex,
             },
             // `${this.state.detail}, đường ${
             //   convincesAndDistricts[1].districts[
@@ -267,7 +262,7 @@ class MainSector extends Component {
   onAddOneOrderQuantity = () => {
     if (this.state.orderQuantity < this.state.product.quantity)
       this.setState({
-        orderQuantity: ++this.state.orderQuantity,
+        orderQuantity: this.state.orderQuantity + 1,
       });
     else {
       toast.error(strings.overLimit);
@@ -275,7 +270,7 @@ class MainSector extends Component {
   };
   onMinusOneOrderQuantity = () => {
     this.setState({
-      orderQuantity: --this.state.orderQuantity,
+      orderQuantity: this.state.orderQuantity - 1,
     });
   };
   render() {
@@ -375,6 +370,24 @@ class MainSector extends Component {
           <Box px={5}>
             <Box px={2}>
               <h2>{this.state.product.title}</h2>
+              <Box display="flex " className="cursor-pointer">
+                <Box pr={1}>
+                  <img
+                    src={this.state.product.seller.avatar}
+                    width="30px"
+                    height="30px"
+                    style={{ borderRadius: "50%" }}
+                    alt=""
+                  />
+                </Box>
+                <Box
+                  className="color-orange"
+                  display="flex"
+                  alignItems="center"
+                >
+                  {this.state.product.seller.name}
+                </Box>
+              </Box>
               <span className="color-aaa">
                 {this.state.product.views} lượt xem
               </span>

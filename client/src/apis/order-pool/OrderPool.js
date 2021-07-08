@@ -80,4 +80,30 @@ const getInvoices = () => {
   });
 };
 
-export { getCheckoutOrder, makePayment, getInvoices, captureOrder };
+const startDeliver = (ordIDs) => {
+  return new Promise((resolve, reject) => {
+    fetch(`${Config.ResourceServer}/order/deliver-ord/${Config.ROLE.CLIENT}`, {
+      method: "PUT",
+      mode: "cors",
+      credentials: "include",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        ordIDs: [...ordIDs],
+      }),
+    })
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
+export {
+  getCheckoutOrder,
+  makePayment,
+  getInvoices,
+  captureOrder,
+  startDeliver,
+};

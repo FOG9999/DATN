@@ -11,6 +11,7 @@ import CheckoutRowHeader from "./CheckoutRowHeader";
 import CheckoutRowData from "./CheckoutRowData";
 import Header from "../../components/header/Container";
 import CheckoutTotalBar from "./CheckoutTotalBar";
+import { captureOrder } from "../../apis/order-pool/OrderPool";
 
 class CheckoutContainer extends Component {
   constructor(props) {
@@ -65,29 +66,60 @@ class CheckoutContainer extends Component {
       paymentMethod: e.target.value,
     });
   };
-  placeOrder = () => {
+  placeOrder = (payment_type) => {
     this.props.dispatchLoading();
     if (this.props.logged) {
-      const path = "/make-payment/" + Config.ROLE.CLIENT;
-      this.props.dispatchAuthen(path, "POST", (rs) => {
-        if (rs.EC !== 0) {
-          toast.error(rs.EM);
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 3000);
-        } else {
-          const { total, paymentMethod, products, shipFeeArr } = this.state;
-          makePayment(total, paymentMethod, products, shipFeeArr).then((rs) => {
-            if (rs.EC !== 0) {
-              toast.error(rs.EM);
-              this.props.dispatchLoaded();
-            } else {
-              localStorage.setItem("temp_ord", JSON.stringify(rs.data));
-              window.location.href = rs.data.approve;
-            }
-          });
-        }
-      });
+      if (payment_type === "Paypal") {
+        const path = "/make-payment/" + Config.ROLE.CLIENT;
+        this.props.dispatchAuthen(path, "POST", (rs) => {
+          if (rs.EC !== 0) {
+            toast.error(rs.EM);
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 3000);
+          } else {
+            const { total, paymentMethod, products, shipFeeArr } = this.state;
+            makePayment(total, paymentMethod, products, shipFeeArr).then(
+              (rs) => {
+                if (rs.EC !== 0) {
+                  toast.error(rs.EM);
+                  this.props.dispatchLoaded();
+                } else {
+                  localStorage.setItem("temp_ord", JSON.stringify(rs.data));
+                  window.location.href = rs.data.approve;
+                }
+              }
+            );
+          }
+        });
+      } else if (payment_type === "Thanh toán khi nhận hàng") {
+        const path = "/capture/" + Config.ROLE.CLIENT;
+        this.props.dispatchAuthen(path, "POST", (rs) => {
+          if (rs.EC !== 0) {
+            toast.error(rs.EM);
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 3000);
+          } else {
+            const { total, paymentMethod, products, shipFeeArr } = this.state;
+            captureOrder("", products, total, shipFeeArr, paymentMethod).then(
+              (rs) => {
+                if (rs.EC !== 0) {
+                  toast.error(rs.EM);
+                  setTimeout(() => (window.location.href = "/m/cart"), 5000);
+                } else {
+                  localStorage.removeItem("temp_ord");
+                  toast.success("Đặt hàng thành công !");
+                  setTimeout(
+                    () => (window.location.href = "/m/order-history"),
+                    2000
+                  );
+                }
+              }
+            );
+          }
+        });
+      }
     }
   };
   recalculateTotal = (shipFees, products) => {

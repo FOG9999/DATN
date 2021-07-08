@@ -228,7 +228,7 @@ const postComment = (comment) => {
 };
 
 const replyComment = (comment_id, reply) => {
-  console.log(comment_id, reply)
+  console.log(comment_id, reply);
   return new Promise((resolve, reject) => {
     fetch(`${Config.ResourceServer}/product/cmt/${Config.ROLE.CLIENT}/reply`, {
       method: "POST",
@@ -249,6 +249,19 @@ const replyComment = (comment_id, reply) => {
   });
 };
 
+// const getPrdSeller = (prd_id) => {
+//   return new Promise((resolve, reject) => {
+//     fetch(`${Config.ResourceServer}/product/seller?prd_id=${prd_id}`)
+//     .then(res => res.json())
+//     .then(rs => {
+//       resolve(rs)
+//     })
+//     .catch(err => {
+//       reject(err)
+//     })
+//   })
+// }
+
 export {
   rcmGuestItems,
   rcmUserItems,
@@ -265,4 +278,5 @@ export {
   getCommentsOnPrd,
   postComment,
   replyComment,
+  // getPrdSeller
 };

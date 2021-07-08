@@ -55,7 +55,7 @@ class CheckoutTotalBar extends Component {
             <Button
               className="backgroundcolor-orange color-white"
               variant="contained"
-              onClick={this.props.placeOrder}
+              onClick={() => this.props.placeOrder(this.props.paymentMethod)}
               disabled={this.props.total === 0}
             >
               Thanh toán

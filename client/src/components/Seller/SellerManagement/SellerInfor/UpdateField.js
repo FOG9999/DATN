@@ -39,7 +39,7 @@ class UpdateField extends Component {
       case "date": {
         return (
           <DatePicker
-            selected={this.props.changingVal}
+            selected={new Date(this.props.changingVal)}
             onChange={this.onChangeDatePicker}
           />
         );
