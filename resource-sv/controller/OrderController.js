@@ -1,4 +1,5 @@
 const Cart = require("../model/Cart");
+const Driver = require("../model/Driver");
 const File = require("../model/File");
 const Food = require("../model/Food");
 const Invoice = require("../model/Invoice");
@@ -67,7 +68,8 @@ module.exports = {
     try {
       let allOrders = await Order.find({})
         .populate("product")
-        .populate("buyer");
+        .populate("buyer")
+        .populate("driver");
       // console.log(allOrders);
       await Item.populate(
         allOrders.filter((ord) => ord.product.pro_type === "I"),
@@ -275,6 +277,9 @@ module.exports = {
     OrderProduct.populate(invoices, {
       path: "orders.product",
     });
+    OrderProduct.populate(invoices, {
+      path: "orders.driver",
+    });
     if (invoices.length > 0) {
       for (let i = 0; i < invoices.length; i++) {
         let ord_products = await OrderProduct.find({
@@ -322,21 +327,54 @@ module.exports = {
   startDeliverOrder: async (ordIDs, done) => {
     // can be used in case deliver multi orders
     try {
-      let ordChanged = await Order.updateMany(
-        { _id: { $in: [...ordIDs] } },
-        { delivery_date: new Date(), status: "1", $push: { pstatus: "1" } },
-        { useFindAndModify: false, new: true }
-      );
+      // let ordChanged = await Order.updateMany(
+      //   { _id: { $in: [...ordIDs] } },
+      //   { delivery_date: new Date(), status: "1", $push: { pstatus: "1" } },
+      //   { useFindAndModify: false, new: true }
+      // );
+      let allDrivers = await Driver.find({});
+      for (let i = 0; i < ordIDs.length; i++) {
+        let randomDriver =
+          allDrivers[Math.floor(Math.random() * allDrivers.length)]._id;
+        await Order.findOneAndUpdate(
+          { _id: ordIDs[i] },
+          {
+            delivery_date: new Date(),
+            status: "1",
+            $push: { pstatus: "1" },
+            driver: randomDriver,
+          },
+          { useFindAndModify: false }
+        );
+      }
       done({
         EC: 0,
         EM: "success",
-        data: ordChanged,
+        // data: ordChanged,
       });
     } catch (error) {
       console.error(error);
       done({
         EC: 500,
         EM: error.message,
+      });
+    }
+  },
+  cancelOrder: async (ordID, done) => {
+    try {
+      await Order.findOneAndUpdate(
+        { _id: ordID },
+        { status: "-1" },
+        { useFindAndModify: false, new: true }
+      );
+      done({
+        EC: 0,
+        EM: "success",
+      });
+    } catch (err) {
+      done({
+        EC: 500,
+        EM: err.message,
       });
     }
   },

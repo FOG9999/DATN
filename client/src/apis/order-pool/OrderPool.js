@@ -100,10 +100,31 @@ const startDeliver = (ordIDs) => {
   });
 };
 
+const cancelOrder = (ordID) => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `${Config.ResourceServer}/order/cancel/${Config.ROLE.CLIENT}/${ordID}`,
+      {
+        method: "DELETE",
+        mode: "cors",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }
+    )
+      .then((res) => res.json())
+      .then((rs) => {
+        resolve(rs);
+      });
+  });
+};
+
 export {
   getCheckoutOrder,
   makePayment,
   getInvoices,
   captureOrder,
   startDeliver,
+  cancelOrder,
 };

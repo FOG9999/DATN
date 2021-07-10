@@ -126,6 +126,12 @@ OrderRouter.put("/deliver-ord/:role", authen, (req, res, next) => {
   });
 });
 
+OrderRouter.delete("/cancel/:role/:ordID", (req, res, next) => {
+  OrderController.cancelOrder(req.params.ordID, (rs) => {
+    res.send(rs);
+  });
+});
+
 let captureOrder = async function (orderId, cb) {
   let request = new paypalsdk.orders.OrdersCaptureRequest(orderId);
   request.requestBody({});

@@ -78,6 +78,13 @@ module.exports = {
               category: "",
             },
           });
+          let newCart = new Cart({
+            products: [],
+            owner: data2._id,
+            last_changed: new Date(),
+            total: 0,
+          });
+          await newCart.save();
           await newHistory.save();
           done({
             EC: 0,

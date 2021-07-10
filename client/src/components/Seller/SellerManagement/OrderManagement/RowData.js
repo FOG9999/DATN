@@ -44,6 +44,7 @@ class RowData extends Component {
               width="100%"
               height="100%"
               alt=""
+              style={{ borderRadius: "50%" }}
             />
           </Box>
           <Box display="flex" alignItems="center">
@@ -119,6 +120,48 @@ class RowData extends Component {
               </b>
             </Box>
           </Box>
+          {this.props.order.driver &&
+          this.props.order.delivery_type !== "self" ? (
+            <Box className="grey-background">
+              <Box display="flex" p={1}>
+                <Box flexGrow="1">
+                  <b>Tài xế:</b>
+                </Box>
+                <Box>
+                  <Box display="flex">
+                    <Box pr={2}>
+                      <img
+                        src={this.props.order.driver.avatar}
+                        alt=""
+                        width="30px"
+                        height="30px"
+                        style={{ borderRadius: "50%" }}
+                      />
+                    </Box>
+                    <Box display="flex" justifyContent="center">
+                      {this.props.order.driver.name}
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+              <Box display="flex" p={1}>
+                <Box flexGrow="1">
+                  <small>Số điện thoại:</small>
+                </Box>
+                <Box display="flex" justifyContent="flex-end">
+                  {this.props.order.driver.phone}
+                </Box>
+              </Box>
+              <Box display="flex" p={1}>
+                <Box flexGrow="1">
+                  <small>Biển số xe:</small>
+                </Box>
+                <Box display="flex" justifyContent="flex-end">
+                  {this.props.order.driver.plate_number}
+                </Box>
+              </Box>
+            </Box>
+          ) : null}
           {this.props.order.status === "0" &&
           this.props.order.delivery_type === "deliver" ? (
             <Box p={1} display="flex" flexDirection="row-reverse">

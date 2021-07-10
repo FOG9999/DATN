@@ -29,7 +29,6 @@ const strings = {
   cancelOrderTitle: "Đã hủy đơn",
 };
 
-const ords = orders().slice(0, 3);
 const tabTitles = [
   { label: strings.allOrderTitle, key: "" },
   { label: strings.waitingOrderTitle, key: "0" },

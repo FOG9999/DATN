@@ -14,6 +14,7 @@ const ChatController = require("./controller/ChatController");
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 const ss = require("socket.io-stream");
+const SampleRouter = require("./route/SampleRouter");
 
 app.use(
   cors({
@@ -56,7 +57,7 @@ app.use("/item", ItemRouter);
 app.use("/order", OrderRouter);
 app.use("/admin", AdminRouter);
 app.use("/chat", ChatRouter);
-
+app.use("/sample", SampleRouter);
 mongoose.connect(
   uri,
   {

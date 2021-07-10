@@ -2,7 +2,7 @@ import { Box } from "@material-ui/core";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
-import { getInvoices } from "../../apis/order-pool/OrderPool";
+import { cancelOrder, getInvoices } from "../../apis/order-pool/OrderPool";
 import { turnNumberToNumberWithSeperator } from "../../others/functions/checkTextForNumberInput";
 import { GeneralAction } from "../../redux/actions/GeneralAction";
 import { UserAction } from "../../redux/actions/UserAction";
@@ -42,6 +42,42 @@ class OrderHistoryContainer extends Component {
       });
     }
   }
+  cancelOrder = (ordID) => {
+    this.props.dispatchLoading();
+    if (this.props.logged) {
+      const path = "/cancel/CLIENT/" + ordID;
+      this.props.dispatchAuthen(path, "DELETE", (authRS) => {
+        if (authRS.EC !== 0) {
+          toast.error(authRS.EM);
+          this.props.dispatchLoaded();
+        } else {
+          cancelOrder(ordID).then((canceled) => {
+            if (canceled.EC !== 0) {
+              toast.error(canceled.EM);
+              this.props.dispatchLoaded();
+            } else {
+              const path = "/my-invoices/CLIENT";
+              this.props.dispatchAuthen(path, "GET", (authRS) => {
+                if (authRS.EC !== 0) {
+                  toast.error(authRS.EM);
+                  this.props.dispatchLoaded();
+                } else {
+                  getInvoices().then((rs) => {
+                    this.setState({
+                      invoices: [...rs.data.invoices],
+                      orders: [...rs.data.ordersForInvoices],
+                      loadcomplete: true,
+                    });
+                    this.props.dispatchLoaded();
+                  });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  };
   render() {
     if (this.props.loading || !this.state.loadcomplete) {
       return (
@@ -93,6 +129,7 @@ class OrderHistoryContainer extends Component {
                             key={ind}
                             index={ind}
                             shipFee={invoice.ship_fees[ind]}
+                            cancelOrder={this.cancelOrder}
                           />
                         );
                       })}

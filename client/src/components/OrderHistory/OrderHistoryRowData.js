@@ -31,7 +31,12 @@ class OrderHistoryRowData extends Component {
           {this.props.order.status === "0" ? (
             <Box p={1} display="flex" flexDirection="row-reverse">
               <Box>
-                <Button variant="contained">Hủy đơn</Button>
+                <Button
+                  variant="contained"
+                  onClick={() => this.props.cancelOrder(this.props.order._id)}
+                >
+                  Hủy đơn
+                </Button>
               </Box>
             </Box>
           ) : null}

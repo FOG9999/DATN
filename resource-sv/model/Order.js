@@ -23,6 +23,11 @@ var Order = mongoose.Schema({
     },
   ],
   last_changed: Date,
+  driver: {
+    type: mongoose.Types.ObjectId,
+    ref: "Driver",
+    default: null,
+  },
 });
 
 module.exports = mongoose.model("Order", Order);
